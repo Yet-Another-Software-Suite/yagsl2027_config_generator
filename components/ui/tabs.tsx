@@ -25,16 +25,17 @@ function TabsList({
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        // layout
-        'bg-muted text-muted-foreground flex w-full items-start gap-1 rounded-lg p-1',
-
-        // ✅ KEY FIX
-        'flex-wrap md:flex-nowrap',
-
-        // scrolling only when nowrap (desktop off)
-        'md:overflow-x-visible',
-
-        className,
+        // Base Layout
+        'inline-flex h-auto w-full items-center justify-start gap-1 rounded-lg bg-muted p-1 text-muted-foreground',
+        
+        // MOBILE FIX: 
+        // 1. overflow-x-auto: Enables horizontal scrolling
+        // 2. flex-nowrap: Forces items to stay in one line
+        // 3. no-scrollbar: Hides the ugly scrollbar (cleaner look)
+        'overflow-x-auto flex-nowrap',
+        '[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
+        
+        className
       )}
       {...props}
     />
@@ -49,22 +50,23 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        // base
+        // Base
         'inline-flex items-center justify-center',
         'rounded-md px-3 py-2 text-sm font-medium',
 
-        // prevent overlap
-        'min-w-max',
-
-        // text
+        // CRITICAL FIX: 
+        // flex-shrink-0 prevents the buttons from being "squished"
+        'flex-shrink-0',
+        
+        // Text
         'whitespace-nowrap text-foreground dark:text-muted-foreground',
         'data-[state=active]:bg-background data-[state=active]:text-foreground',
         'data-[state=active]:shadow-sm',
 
-        // focus
+        // Focus
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
 
-        // disabled
+        // Disabled
         'disabled:pointer-events-none disabled:opacity-50',
 
         className,
