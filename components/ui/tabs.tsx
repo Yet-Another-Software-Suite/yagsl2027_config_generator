@@ -26,14 +26,13 @@ function TabsList({
       data-slot="tabs-list"
       className={cn(
         // layout
-        'bg-muted text-muted-foreground flex h-11 w-full items-center justify-start gap-1 rounded-lg p-1',
+        'bg-muted text-muted-foreground flex w-full items-start gap-1 rounded-lg p-1',
 
-        // scrolling behavior
-        'overflow-x-auto md:overflow-x-visible',
-        'scroll-smooth scrollbar-none',
+        // ✅ KEY FIX
+        'flex-wrap md:flex-nowrap',
 
-        // snapping (mobile only)
-        'snap-x snap-mandatory md:snap-none',
+        // scrolling only when nowrap (desktop off)
+        'md:overflow-x-visible',
 
         className,
       )}
@@ -51,11 +50,14 @@ function TabsTrigger({
       data-slot="tabs-trigger"
       className={cn(
         // base
-        'inline-flex shrink-0 items-center justify-center whitespace-nowrap',
-        'rounded-md px-4 py-2 text-sm font-medium transition',
+        'inline-flex items-center justify-center',
+        'rounded-md px-3 py-2 text-sm font-medium',
 
-        // colors
-        'text-foreground dark:text-muted-foreground',
+        // prevent overlap
+        'min-w-max',
+
+        // text
+        'whitespace-nowrap text-foreground dark:text-muted-foreground',
         'data-[state=active]:bg-background data-[state=active]:text-foreground',
         'data-[state=active]:shadow-sm',
 
@@ -64,12 +66,6 @@ function TabsTrigger({
 
         // disabled
         'disabled:pointer-events-none disabled:opacity-50',
-
-        // icons
-        '[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
-
-        // snap only matters on mobile
-        'snap-start md:snap-none',
 
         className,
       )}
