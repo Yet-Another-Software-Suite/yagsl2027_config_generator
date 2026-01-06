@@ -141,24 +141,26 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-4 py-4 md:py-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
-              <Settings className="h-8 w-8 text-primary" />
+              <Settings className="h-6 w-6 md:h-8 md:w-8 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Swerve Drive Config Generator</h1>
-                <p className="text-sm text-muted-foreground">Configure your robot's swerve drive system (YAGSL)</p>
+                <h1 className="text-xl md:text-2xl font-bold text-foreground">Swerve Drive Config Generator</h1>
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  Configure your robot's swerve drive system (YAGSL)
+                </p>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" asChild>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
                 <label className="cursor-pointer">
                   <Upload className="mr-2 h-4 w-4" />
                   Upload Config
                   <input type="file" accept=".zip" onChange={handleUpload} className="hidden" />
                 </label>
               </Button>
-              <Button onClick={handleDownload}>
+              <Button onClick={handleDownload} className="w-full sm:w-auto">
                 <Download className="mr-2 h-4 w-4" />
                 Download Config
               </Button>
@@ -167,17 +169,31 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <Card className="p-6">
+      <main className="container mx-auto px-4 py-4 md:py-8">
+        <Card className="p-4 md:p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-6 mb-6">
-              <TabsTrigger value="gyro">Gyro</TabsTrigger>
-              <TabsTrigger value="frontleft">Front Left</TabsTrigger>
-              <TabsTrigger value="frontright">Front Right</TabsTrigger>
-              <TabsTrigger value="backleft">Back Left</TabsTrigger>
-              <TabsTrigger value="backright">Back Right</TabsTrigger>
-              <TabsTrigger value="properties">Properties</TabsTrigger>
-            </TabsList>
+            <div className="mb-6 -mx-4 px-4 overflow-x-auto">
+              <TabsList className="inline-flex w-auto min-w-full md:grid md:grid-cols-6">
+                <TabsTrigger value="gyro" className="whitespace-nowrap">
+                  Gyro
+                </TabsTrigger>
+                <TabsTrigger value="frontleft" className="whitespace-nowrap">
+                  Front Left
+                </TabsTrigger>
+                <TabsTrigger value="frontright" className="whitespace-nowrap">
+                  Front Right
+                </TabsTrigger>
+                <TabsTrigger value="backleft" className="whitespace-nowrap">
+                  Back Left
+                </TabsTrigger>
+                <TabsTrigger value="backright" className="whitespace-nowrap">
+                  Back Right
+                </TabsTrigger>
+                <TabsTrigger value="properties" className="whitespace-nowrap">
+                  Properties
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="gyro">
               <GyroConfig
@@ -251,13 +267,18 @@ export default function Home() {
               </div>
             </TabsContent>
 
-            <div className="flex justify-between items-center mt-6 pt-6 border-t border-border">
-              <Button variant="outline" onClick={handleBack} disabled={isFirstTab}>
+            <div className="flex justify-between items-center gap-4 mt-6 pt-6 border-t border-border">
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                disabled={isFirstTab}
+                className="flex-1 md:flex-none bg-transparent"
+              >
                 <ChevronLeft className="mr-2 h-4 w-4" />
                 Back
               </Button>
 
-              <Button onClick={handleNext} disabled={isLastTab}>
+              <Button onClick={handleNext} disabled={isLastTab} className="flex-1 md:flex-none">
                 Next
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
