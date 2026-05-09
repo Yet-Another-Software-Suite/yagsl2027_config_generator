@@ -22,7 +22,7 @@ export default function Home() {
   const [config, setConfig] = useState<ConfigData>({
     swervedrive: {
       gyro: {
-        type: "pigeon2",
+        type: "pigeon2_can",
         id: 0,
         canbus: "",
       },
