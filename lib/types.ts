@@ -70,11 +70,17 @@ export interface PIDFPropertiesConfig {
     p: number
     i: number
     d: number
+    s?: number
+    v?: number
+    a?: number
   }
   angle: {
     p: number
     i: number
     d: number
+    s?: number
+    v?: number
+    a?: number
   }
 }
 

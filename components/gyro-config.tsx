@@ -11,7 +11,7 @@ interface GyroConfigProps {
   onChange: (config: SwervedriveConfig) => void
 }
 
-const GYRO_TYPES = ["navx_mxp", "navx2_usb1", "navx2_usb2", "navx3_can", "pigeon2_can", "canandgyro_can", "systemcore_internal"]
+const GYRO_TYPES = ["navx3_can", "pigeon2_can", "canandgyro_can", "systemcore_internal"]
 
 const GYRO_AXES = ["yaw", "pitch", "roll"]
 

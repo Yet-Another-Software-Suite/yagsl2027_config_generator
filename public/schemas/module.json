@@ -1,0 +1,242 @@
+{
+  "type": "object",
+  "properties": {
+    "drive": {
+      "type": "object",
+      "description": "Drive motor controller configuration",
+      "properties": {
+        "type": {
+          "enum": [
+            "talonfx_krakenx44",
+            "talonfx_krakenx60",
+            "talonfxs_neo",
+            "talonfxs_neo2",
+            "talonfxs_neo550",
+            "talonfxs_vortex",
+            "talonfxs_pulsar",
+            "sparkmax_neo",
+            "sparkmax_neo2",
+            "sparkmax_neo550",
+            "sparkmax_vortex",
+            "sparkmax_pulsar",
+            "sparkmax_minion",
+            "talonfxs_minion",
+            "sparkflex_neo",
+            "sparkflex_neo2",
+            "sparkflex_neo550",
+            "sparkflex_vortex",
+            "sparkflex_minion",
+            "sparkflex_pulsar",
+            "nova_neo",
+            "nova_neo2",
+            "nova_neo550",
+            "nova_vortex",
+            "nova_minion",
+            "nova_pulsar"
+          ],
+          "type": "string",
+          "description": "Controller and motor type"
+        },
+        "id": {
+          "type": "number",
+          "description": "CAN ID of the motor controller"
+        },
+        "canbus": {
+          "type": "string",
+          "description": "Name of the CAN bus that the motor controller is connected to. Default is \"\""
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "canbus"
+      ]
+    },
+    "angle": {
+      "type": "object",
+      "description": "Angle/Steering/Azimuth motor",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "talonfx_krakenx44",
+            "talonfx_krakenx60",
+            "talonfxs_neo",
+            "talonfxs_neo2",
+            "talonfxs_neo550",
+            "talonfxs_vortex",
+            "talonfxs_pulsar",
+            "sparkmax_neo",
+            "sparkmax_neo2",
+            "sparkmax_neo550",
+            "sparkmax_vortex",
+            "sparkmax_pulsar",
+            "sparkmax_minion",
+            "talonfxs_minion",
+            "sparkflex_neo",
+            "sparkflex_neo2",
+            "sparkflex_neo550",
+            "sparkflex_vortex",
+            "sparkflex_minion",
+            "sparkflex_pulsar",
+            "nova_neo",
+            "nova_neo2",
+            "nova_neo550",
+            "nova_vortex",
+            "nova_minion",
+            "nova_pulsar"
+          ],
+          "description": "Controller and motor for the angle/steering/azimuth"
+        },
+        "id": {
+          "type": "number",
+          "description": "CAN ID of the motor controller"
+        },
+        "canbus": {
+          "type": "string",
+          "description": "Name of the CAN Bus the Motor Controller is on. Default is \"\""
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "canbus"
+      ]
+    },
+    "gearing": {
+      "type": "object",
+      "description": "Gearing of the module. Overrides the gearing from physicalproperties.json if defined.",
+      "properties": {
+        "drive": {
+          "type": "object",
+          "description": "Drive motor reduction gearing",
+          "properties": {
+            "gearRatio": {
+              "type": "number",
+              "description": "Reduction ratio of the drive motor to the wheel. X where \"X:1\""
+            },
+            "diameter": {
+              "type": "number",
+              "description": "Diameter of the wheel in Inches."
+            }
+          },
+          "required": [
+            "gearRatio",
+            "diameter"
+          ]
+        },
+        "angle": {
+          "type": "object",
+          "description": "Angle/Steering/Azimuth reduction gearing",
+          "properties": {
+            "gearRatio": {
+              "type": "number",
+              "description": "Reduction ratio of the angle/steering/azimuth motor. X where \"X:1\""
+            }
+          },
+          "required": [
+            "gearRatio"
+          ]
+        }
+      }
+    },
+    "absoluteEncoder": {
+      "type": "object",
+      "description": "Absolute encoder for the swerve module",
+      "properties": {
+        "type": {
+          "enum": [
+            "revthroughbore_attached",
+            "revthroughbore_dio",
+            "splineencoder_can",
+            "cancoder_can",
+            "canandmag_attached",
+            "canandmag_dio",
+            "canandmag_can",
+            "srxmag_attached",
+            "srxmag_analog",
+            "andymarkhexbore_attached",
+            "andymarkhexbore_dio",
+            "andymarkhexbore_analog",
+            "andymarkhexbore_can",
+            "analog5v_attached",
+            "analog_attached",
+            "dutycycle_attached"
+          ],
+          "type": "string",
+          "description": "Type of absolute encoder"
+        },
+        "id": {
+          "type": "number",
+          "description": "CAN ID of the absolute encoder. Ignored if the absolute encoder is not connected to CAN."
+        },
+        "channel": {
+          "type": "number",
+          "description": "AnalogIn Channel the Absolute Encoder is connected to. Ignored if not connected to AnalogIn."
+        },
+        "canbus": {
+          "type": "string",
+          "description": "Name of the CAN bus that the absolute encoder is connected to. Default is \"\""
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "channel",
+        "canbus"
+      ]
+    },
+    "inverted": {
+      "type": "object",
+      "description": "Motor inversions",
+      "properties": {
+        "drive": {
+          "type": "boolean",
+          "description": "Drive motor inversion"
+        },
+        "angle": {
+          "type": "boolean",
+          "description": "Angle/Steering/Azimuth motor inversion"
+        }
+      },
+      "required": [
+        "drive",
+        "angle"
+      ]
+    },
+    "absoluteEncoderOffset": {
+      "type": "number",
+      "description": "Offset of the absolute encoder for the wheel to face forward with the bevel to the left. The units for this are DEGREES"
+    },
+    "absoluteEncoderInverted": {
+      "type": "boolean",
+      "description": "Inversion of the absolute encoder"
+    },
+    "location": {
+      "type": "object",
+      "description": "Location of the module from the center of the robot to the center of the wheel",
+      "properties": {
+        "front": {
+          "type": "number",
+          "description": "Front Location of the module from the center of the robot to the center of the wheel in Inches."
+        },
+        "left": {
+          "type": "number",
+          "description": "Left location of the module from the center of the robot to the center of the wheel in Inches."
+        }
+      },
+      "required": [
+        "left",
+        "front"
+      ]
+    }
+  },
+  "required": [
+    "drive",
+    "angle",
+    "inverted",
+    "absoluteEncoder",
+    "absoluteEncoderOffset",
+    "location"
+  ]
+}

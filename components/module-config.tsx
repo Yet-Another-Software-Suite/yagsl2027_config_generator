@@ -45,6 +45,7 @@ const MOTOR_TYPES = [
 const ENCODER_TYPES = [
   "revthroughbore_attached",
   "revthroughbore_dio",
+  "splineencoder_can",
   "cancoder_can",
   "canandmag_attached",
   "canandmag_dio",
@@ -55,6 +56,9 @@ const ENCODER_TYPES = [
   "andymarkhexbore_dio",
   "andymarkhexbore_analog",
   "andymarkhexbore_can",
+  "analog5v_attached",
+  "analog_attached",
+  "dutycycle_attached",
 ]
 
 export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps) {
@@ -334,6 +338,88 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
             <Label className="cursor-pointer">Invert Angle</Label>
           </div>
         </div>
+      </div>
+
+      <Separator />
+
+      {/* Gearing Override */}
+      <div>
+        <h4 className="text-sm font-medium mb-3 text-muted-foreground">Gearing Override (Optional)</h4>
+        <div className="flex items-center space-x-2 mb-4">
+          <Checkbox
+            checked={!!config.gearing}
+            onCheckedChange={(checked) =>
+              onChange({
+                ...config,
+                gearing: checked
+                  ? {
+                      drive: { gearRatio: 0, diameter: 0 },
+                      angle: { gearRatio: 0 },
+                    }
+                  : undefined,
+              })
+            }
+          />
+          <Label className="cursor-pointer">Override gearing from physicalproperties.json for this module</Label>
+        </div>
+
+        {config.gearing && (
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label>Drive Gear Ratio (X:1)</Label>
+              <Input
+                type="number"
+                step="0.01"
+                value={config.gearing.drive.gearRatio}
+                onChange={(e) =>
+                  onChange({
+                    ...config,
+                    gearing: {
+                      ...config.gearing!,
+                      drive: { ...config.gearing!.drive, gearRatio: Number(e.target.value) },
+                    },
+                  })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Drive Wheel Diameter (inches)</Label>
+              <Input
+                type="number"
+                step="0.01"
+                value={config.gearing.drive.diameter}
+                onChange={(e) =>
+                  onChange({
+                    ...config,
+                    gearing: {
+                      ...config.gearing!,
+                      drive: { ...config.gearing!.drive, diameter: Number(e.target.value) },
+                    },
+                  })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Angle Gear Ratio (X:1)</Label>
+              <Input
+                type="number"
+                step="0.01"
+                value={config.gearing.angle.gearRatio}
+                onChange={(e) =>
+                  onChange({
+                    ...config,
+                    gearing: {
+                      ...config.gearing!,
+                      angle: { ...config.gearing!.angle, gearRatio: Number(e.target.value) },
+                    },
+                  })
+                }
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       <Separator />

@@ -1,0 +1,63 @@
+{
+  "type": "object",
+  "properties": {
+    "gearing": {
+      "type": "object",
+      "description": "Module reduction gearing",
+      "properties": {
+        "drive": {
+          "type": "object",
+          "description": "Drive gearing",
+          "properties": {
+            "gearRatio": {
+              "type": "number",
+              "description": "Reduction gear ratio for the drive motor. X where \"X:1\"."
+            },
+            "diameter": {
+              "type": "number",
+              "description": "Wheel diameter in Inches."
+            }
+          },
+          "required": [
+            "gearRatio",
+            "diameter"
+          ]
+        },
+        "angle": {
+          "type": "object",
+          "description": "Angle/Steering/Azimuth gearing",
+          "properties": {
+            "gearRatio": {
+              "type": "number",
+              "description": "Reduction ratio for the angle/steering/azimuth motor. X where \"X:1\""
+            }
+          },
+          "required": [
+            "gearRatio"
+          ]
+        }
+      },
+      "required": [
+        "drive",
+        "angle"
+      ]
+    },
+    "statorCurrentLimit": {
+      "type": "object",
+      "description": "Module stator current limits",
+      "properties": {
+        "drive": {
+          "type": "number",
+          "description": "Drive motor stator current limit. Defaults to 40"
+        },
+        "angle": {
+          "type": "number",
+          "description": "Angle motor stator current limit. Defaults to 20."
+        }
+      }
+    }
+  },
+  "required": [
+    "gearing"
+  ]
+}

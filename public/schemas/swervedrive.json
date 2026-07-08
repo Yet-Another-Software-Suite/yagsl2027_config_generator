@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "type": "object",
+  "properties": {
+    "gyro": {
+      "type": "object",
+      "description": "The gyroscope of your robot",
+      "properties": {
+        "type": {
+          "enum": [
+            "navx3_can",
+            "pigeon2_can",
+            "canandgyro_can",
+            "systemcore_internal"
+          ],
+          "type": "string",
+          "description": "The gyroscope type"
+        },
+        "id": {
+          "type": "number",
+          "description": "CAN ID of the Gyroscope. If no CAN ID is needed, set this to 0"
+        },
+        "canbus": {
+          "type": "string",
+          "description": "Name of the CAN bus that the Gyroscope is connected to. \"\" for the default CAN bus."
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "canbus"
+      ]
+    },
+    "gyroAxis": {
+      "type": "string",
+      "description": "The axis to use for the robot heading. Default is yaw.",
+      "enum": [
+        "yaw",
+        "pitch",
+        "roll"
+      ]
+    },
+    "gyroInvert": {
+      "type": "boolean",
+      "description": "Invert the gyroscope readings."
+    },
+    "modules": {
+      "type": "array",
+      "description": "Swerve module JSON files under the 'modules/' directory.",
+      "minItems": 3,
+      "items": {
+        "pattern": "\\.json$",
+        "type": "string"
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "gyro",
+    "gyroInvert",
+    "modules"
+  ]
+}

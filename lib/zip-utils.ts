@@ -8,13 +8,10 @@ function cleanModuleForExport(module: ModuleConfigData): any {
   const isAttached = module.absoluteEncoder.type.endsWith("_attached")
   const usesChannel = module.absoluteEncoder.type.endsWith("_dio") || module.absoluteEncoder.type.endsWith("_analog")
 
-  // Remove useCosineCompensator from export
-  const { useCosineCompensator, ...moduleWithoutCosine } = module
-
   if (isAttached) {
     // For attached encoders, set all encoder fields to defaults
     return {
-      ...moduleWithoutCosine,
+      ...module,
       absoluteEncoder: {
         ...module.absoluteEncoder,
         id: 0,
@@ -25,7 +22,7 @@ function cleanModuleForExport(module: ModuleConfigData): any {
   } else if (usesChannel) {
     // For DIO/Analog encoders, set CAN ID to 0 and CAN Bus to empty string
     return {
-      ...moduleWithoutCosine,
+      ...module,
       absoluteEncoder: {
         ...module.absoluteEncoder,
         id: 0,
@@ -34,7 +31,7 @@ function cleanModuleForExport(module: ModuleConfigData): any {
     }
   }
 
-  return moduleWithoutCosine
+  return module
 }
 
 export async function generateZip(config: ConfigData) {
@@ -83,6 +80,8 @@ export async function generateZip(config: ConfigData) {
 
   modulesFolder.file("physicalproperties.json", JSON.stringify(physicalpropertiesWithSchema, null, 2))
   modulesFolder.file("pidfproperties.json", JSON.stringify(pidfpropertiesWithSchema, null, 2))
+  // Simulated robots use a separate PIDF file; clone the real one as a starting point
+  modulesFolder.file("pidfproperties_sim.json", JSON.stringify(pidfpropertiesWithSchema, null, 2))
 
   // Generate and download zip
   const blob = await zip.generateAsync({ type: "blob" })

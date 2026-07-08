@@ -3,10 +3,12 @@
 import type React from "react"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { Upload, Download, Settings, ChevronLeft, ChevronRight } from "lucide-react"
+import { Upload, Download, Settings, ChevronLeft, ChevronRight, BookOpen } from "lucide-react"
 import { GyroConfig } from "@/components/gyro-config"
 import { ModuleConfig } from "@/components/module-config"
 import { PhysicalProperties } from "@/components/physical-properties"
@@ -17,6 +19,7 @@ import type { ConfigData } from "@/lib/types"
 
 export default function Home() {
   const { toast } = useToast()
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState("gyro")
 
   const [config, setConfig] = useState<ConfigData>({
@@ -39,7 +42,6 @@ export default function Home() {
         absoluteEncoderOffset: 0,
         absoluteEncoderInverted: false,
         location: { front: 10, left: 10 },
-        useCosineCompensator: true,
       },
       frontright: {
         drive: { type: "sparkmax_neo", id: 4, canbus: "" },
@@ -49,7 +51,6 @@ export default function Home() {
         absoluteEncoderOffset: 0,
         absoluteEncoderInverted: false,
         location: { front: 10, left: -10 },
-        useCosineCompensator: true,
       },
       backleft: {
         drive: { type: "sparkmax_neo", id: 7, canbus: "" },
@@ -59,7 +60,6 @@ export default function Home() {
         absoluteEncoderOffset: 0,
         absoluteEncoderInverted: false,
         location: { front: -10, left: 10 },
-        useCosineCompensator: true,
       },
       backright: {
         drive: { type: "sparkmax_neo", id: 10, canbus: "" },
@@ -69,7 +69,6 @@ export default function Home() {
         absoluteEncoderOffset: 0,
         absoluteEncoderInverted: false,
         location: { front: -10, left: -10 },
-        useCosineCompensator: true,
       },
     },
     physicalproperties: {
@@ -104,10 +103,7 @@ export default function Home() {
   const handleDownload = async () => {
     try {
       await generateZip(config)
-      toast({
-        title: "Success",
-        description: "Configuration downloaded successfully",
-      })
+      router.push("/guide")
     } catch (error) {
       toast({
         title: "Error",
@@ -153,6 +149,12 @@ export default function Home() {
               </div>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
+              <Button variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
+                <Link href="/guide">
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Tuning Guide
+                </Link>
+              </Button>
               <Button variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
                 <label className="cursor-pointer">
                   <Upload className="mr-2 h-4 w-4" />
