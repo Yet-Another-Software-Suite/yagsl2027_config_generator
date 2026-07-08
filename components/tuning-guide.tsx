@@ -141,7 +141,7 @@ export function TuningGuide() {
               <TabsList className="inline-flex w-auto min-w-full md:grid md:grid-cols-8">
                 {[
                   { value: "sim-connect", label: "1. Connect (Sim)" },
-                  { value: "sim-tune", label: "2. Tune in Sim" },
+                  { value: "sim-tune", label: "2. Tune Sim" },
                   { value: "robot-connect", label: "3. Connect (Robot)" },
                   { value: "locations", label: "4. Locations" },
                   { value: "align", label: "5. Align Modules" },
