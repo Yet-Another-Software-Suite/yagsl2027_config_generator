@@ -9,6 +9,14 @@ export function ModuleLocationDiagram() {
       >
         <rect x="40" y="60" width="160" height="200" rx="16" className="fill-muted stroke-border" strokeWidth="2" />
 
+        {/* legend: front/left in robot-local coordinates */}
+        <text x="120" y="20" textAnchor="middle" className="fill-muted-foreground text-[10px]">
+          ↑ front = +X
+        </text>
+        <text x="120" y="36" textAnchor="middle" className="fill-muted-foreground text-[10px]">
+          ← left = +Y
+        </text>
+
         {/* center of robot */}
         <circle cx="120" cy="160" r="3" className="fill-foreground" />
         <text x="126" y="158" className="fill-foreground text-[10px]">
