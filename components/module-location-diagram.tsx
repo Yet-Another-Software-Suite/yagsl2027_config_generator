@@ -15,19 +15,20 @@ export function ModuleLocationDiagram() {
           center of robot
         </text>
 
-        {/* example module, top right */}
-        <rect x="177" y="72" width="16" height="26" rx="3" className="fill-foreground/80" />
-        <circle cx="185" cy="85" r="2.5" className="fill-foreground" />
+        {/* example module, top left -- with the robot's front pointing up (away from the viewer), the
+            robot's own left is screen-left, matching how front/left are measured in the config */}
+        <rect x="47" y="72" width="16" height="26" rx="3" className="fill-foreground/80" />
+        <circle cx="55" cy="85" r="2.5" className="fill-foreground" />
 
         {/* front distance (vertical) */}
         <line x1="120" y1="160" x2="120" y2="85" className="stroke-primary" strokeWidth="1.5" strokeDasharray="4 3" />
-        <text x="96" y="122" textAnchor="end" className="fill-primary text-[10px] font-medium">
+        <text x="126" y="122" className="fill-primary text-[10px] font-medium">
           front
         </text>
 
         {/* left distance (horizontal) */}
-        <line x1="120" y1="85" x2="185" y2="85" className="stroke-primary" strokeWidth="1.5" strokeDasharray="4 3" />
-        <text x="152" y="78" textAnchor="middle" className="fill-primary text-[10px] font-medium">
+        <line x1="120" y1="85" x2="55" y2="85" className="stroke-primary" strokeWidth="1.5" strokeDasharray="4 3" />
+        <text x="88" y="78" textAnchor="middle" className="fill-primary text-[10px] font-medium">
           left
         </text>
       </svg>
