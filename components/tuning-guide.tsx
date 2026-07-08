@@ -62,7 +62,16 @@ function SwerveWidgetFields() {
   )
 }
 
-const TABS = ["sim-connect", "sim-tune", "robot-connect", "locations", "align", "robot-tune", "field"] as const
+const TABS = [
+  "sim-connect",
+  "sim-tune",
+  "robot-connect",
+  "locations",
+  "align",
+  "robot-tune",
+  "field",
+  "maintenance",
+] as const
 
 const TAB_STEPS: Record<(typeof TABS)[number], string[]> = {
   "sim-connect": ["sim-connect-1", "sim-connect-2", "sim-connect-3", "sim-connect-4"],
@@ -70,8 +79,9 @@ const TAB_STEPS: Record<(typeof TABS)[number], string[]> = {
   "robot-connect": ["robot-connect-1", "robot-connect-2", "robot-connect-3", "robot-connect-4", "robot-connect-5"],
   locations: ["locations-1", "locations-2"],
   align: ["align-1", "align-2", "align-3"],
-  "robot-tune": ["robot-tune-1", "robot-tune-2", "robot-tune-3"],
+  "robot-tune": ["robot-tune-1", "robot-tune-2", "robot-tune-3", "robot-tune-4"],
   field: ["field-1", "field-2", "field-3", "field-4", "field-5"],
+  maintenance: ["maintenance-1", "maintenance-2", "maintenance-3"],
 }
 
 export function TuningGuide() {
@@ -128,7 +138,7 @@ export function TuningGuide() {
         <Card className="p-4 md:p-6">
           <Tabs value={activeTab} onValueChange={(value) => goToTab(TABS.indexOf(value as (typeof TABS)[number]))} className="w-full">
             <div className="mb-2 -mx-4 px-4 overflow-x-auto">
-              <TabsList className="inline-flex w-auto min-w-full md:grid md:grid-cols-7">
+              <TabsList className="inline-flex w-auto min-w-full md:grid md:grid-cols-8">
                 {[
                   { value: "sim-connect", label: "1. Connect (Sim)" },
                   { value: "sim-tune", label: "2. Tune in Sim" },
@@ -137,6 +147,7 @@ export function TuningGuide() {
                   { value: "align", label: "5. Align Modules" },
                   { value: "robot-tune", label: "6. Tune Real Robot" },
                   { value: "field", label: "7. Verify Field" },
+                  { value: "maintenance", label: "8. Maintenance" },
                 ].map((tab, index) => {
                   const locked = index > furthestIndex
                   return (
@@ -154,11 +165,6 @@ export function TuningGuide() {
                 })}
               </TabsList>
             </div>
-            {furthestIndex < TABS.length - 1 && (
-              <p className="mb-6 text-center text-xs text-muted-foreground">
-                Locked tabs are grayed out — double-click one to preview it without unlocking it.
-              </p>
-            )}
 
             {/* 1. Connect AdvantageScope to the simulator */}
             <TabsContent value="sim-connect" className="space-y-3">
@@ -209,12 +215,21 @@ export function TuningGuide() {
                 title="Edit the sim PID gains."
                 detail={
                   <>
-                    Open <NTPath>modules/pidfproperties_sim.json</NTPath> from your downloaded configuration and
-                    edit the drive and angle PID gains. Tuning the feedforward — <NTPath>s</NTPath>,{" "}
-                    <NTPath>v</NTPath>, and <NTPath>a</NTPath> (kS, kV, kA) — is optional and can give an even
-                    better fit. A default <NTPath>v</NTPath> is already applied to the drive motor based on the
-                    free speed RPM of the motor you selected for that module, but only when you haven't set your
-                    own <NTPath>v</NTPath>.
+                    <p>
+                      Open <NTPath>modules/pidfproperties_sim.json</NTPath> from your downloaded configuration and
+                      edit the drive and angle PID gains.
+                    </p>
+                    <ul className="mt-1 list-disc space-y-1 pl-5">
+                      <li>
+                        <strong>Feedforward is optional.</strong> <NTPath>s</NTPath>, <NTPath>v</NTPath>, and{" "}
+                        <NTPath>a</NTPath> (kS, kV, kA) can be tuned too, for an even better fit.
+                      </li>
+                      <li>
+                        <strong>The drive motor already has a default v.</strong> It's computed from the free speed
+                        RPM of the motor you selected for that module, but only applies when you haven't set your
+                        own <NTPath>v</NTPath>.
+                      </li>
+                    </ul>
                   </>
                 }
                 checked={checkedSteps.has("sim-tune-1")}
@@ -420,16 +435,16 @@ export function TuningGuide() {
                 title="Confirm the reading is CCW+."
                 checked={checkedSteps.has("align-3")}
                 onCheckedChange={(c) => toggleStep("align-3", c)}
-              >
-                <Alert>
-                  <AlertDescription>
-                    The absolute encoder reading should be CCW+ (increasing as the module rotates counterclockwise
+                detail={
+                  <>
+                  The absolute encoder reading should be CCW+ (increasing as the module rotates counterclockwise
                     from a top-down view). If it isn't, you may need to set that module's{" "}
                     <NTPath>absoluteEncoderInverted</NTPath> to <NTPath>true</NTPath>. This is rare — most absolute
                     encoders already read CCW+ by default, so only change this if you've confirmed the reading is
                     backwards.
-                  </AlertDescription>
-                </Alert>
+                    </>
+                }
+              >
                 <JsonDiff
                   filename="modules/frontleft.json (excerpt)"
                   before={[{ text: '"absoluteEncoderInverted": false', changed: true }]}
@@ -456,13 +471,7 @@ export function TuningGuide() {
               <Step
                 id="robot-tune-1"
                 title="Rotate the robot CCW and check the gyro."
-                detail={
-                  <>
-                    With the robot off the ground, rotate it CCW (from a top-down view) and confirm the gyro reads
-                    CCW+. If it doesn't, set <NTPath>gyroInvert</NTPath> to <NTPath>true</NTPath> in{" "}
-                    <NTPath>swervedrive.json</NTPath>, redeploy the code, and verify it now reads CCW+.
-                  </>
-                }
+                detail="With the robot off the ground, rotate it CCW (from a top-down view) and confirm the gyro reads CCW+."
                 checked={checkedSteps.has("robot-tune-1")}
                 onCheckedChange={(c) => toggleStep("robot-tune-1", c)}
               >
@@ -478,13 +487,25 @@ export function TuningGuide() {
                 title="Tune the real robot's PID gains."
                 detail={
                   <>
-                    Just like in simulation, edit <NTPath>modules/pidfproperties.json</NTPath> to tune the drive and
-                    angle PID gains — this time for the real robot. Tuning the feedforward — <NTPath>s</NTPath>,{" "}
-                    <NTPath>v</NTPath>, and <NTPath>a</NTPath> (kS, kV, kA) — is optional and can give an even
-                    better fit. A default <NTPath>v</NTPath> is already applied to the drive motor based on the
-                    free speed RPM of the motor you selected for that module, but only when you haven't set your
-                    own <NTPath>v</NTPath>. Editing the json file alone doesn't change anything on the robot: you
-                    need to redeploy the code every time you want to test a change.
+                    <p>
+                      Just like in simulation, edit <NTPath>modules/pidfproperties.json</NTPath> to tune the drive
+                      and angle PID gains — this time for the real robot.
+                    </p>
+                    <ul className="mt-1 list-disc space-y-1 pl-5">
+                      <li>
+                        <strong>Feedforward is optional.</strong> <NTPath>s</NTPath>, <NTPath>v</NTPath>, and{" "}
+                        <NTPath>a</NTPath> (kS, kV, kA) can be tuned too, for an even better fit.
+                      </li>
+                      <li>
+                        <strong>The drive motor already has a default v.</strong> It's computed from the free speed
+                        RPM of the motor you selected for that module, but only applies when you haven't set your
+                        own <NTPath>v</NTPath>.
+                      </li>
+                      <li>
+                        <strong>You must redeploy to test.</strong> Editing the json file alone doesn't change
+                        anything on the robot — redeploy the code every time you want to test a change.
+                      </li>
+                    </ul>
                   </>
                 }
                 checked={checkedSteps.has("robot-tune-2")}
@@ -517,23 +538,113 @@ export function TuningGuide() {
                     { text: "}" },
                   ]}
                 />
+                <Alert>
+                  <AlertDescription>
+                    <p>
+                      Mistakes happen when building modules, and motors can and do die. If a module won't tune
+                      correctly, work through this before assuming the motor is bad:
+                    </p>
+                    <ul className="mt-1 list-disc space-y-1 pl-5">
+                      <li>
+                        <strong>Check it spins freely by hand.</strong> With the robot off the ground and powered
+                        off, both the drive wheel and the azimuth of the module should spin with no friction. If
+                        either doesn't, rebuild that module, paying special attention to the assembly instructions.
+                      </li>
+                      <li>
+                        <strong>Check that motor's stator (output) current.</strong> A stalling motor draws
+                        exceedingly high stator current and heats up quickly — that usually means a dead or dying
+                        motor.
+                      </li>
+                    </ul>
+                  </AlertDescription>
+                </Alert>
               </Step>
               <Step
                 id="robot-tune-3"
-                title="Hold the right stick left and check the spin direction."
+                title="Spin each module 5 full turns and check it lands back where it started."
                 detail={
                   <>
-                    Still with the robot off the ground, hold the right stick to the left. The right stick's
-                    left/right axis controls angular velocity — left commands the robot to rotate left (CCW), and
-                    right commands it to rotate right (CW). Verify the robot is doing exactly what the AdvantageScope
-                    swerve widget shows (again from a top-down view). If the robot drifts or translates instead of
-                    spinning in place, you may have the wrong CAN IDs for a module, or the wrong absolute encoder
-                    offset. If it spins cleanly but the wrong way (CW instead of CCW), check for inverted drive
-                    motors, or a diagonal module swap — front-left ↔ back-right, front-right ↔ back-left.
+                    With the robot disabled (motors not fighting you, but telemetry still live) and off the ground,
+                    by hand rotate one module's azimuth exactly 5 full turns (360° × 5), then check that module's
+                    current state in AdvantageScope — it should read the exact same angle it started at. If it
+                    doesn't, that module's gear ratio is wrong:
+                    <ul className="mt-1 list-disc space-y-1 pl-5">
+                      <li>
+                        <strong>Wrong gear installed:</strong> azimuth and drive gears often look very similar and
+                        are easy to mix up during assembly. Check the vendor's website for the expected gear ratio,
+                        and reassemble the module to check it was built correctly.
+                      </li>
+                      <li>
+                        <strong>Wrong value entered:</strong> double check the gear ratio in{" "}
+                        <NTPath>physicalproperties.json</NTPath> (or that module's gearing override) against the
+                        vendor's spec.
+                      </li>
+                    </ul>
+                    <p className="mt-2">
+                      You can run the same 5-turn test on each drive motor too — rotate the wheel by hand exactly 5
+                      full turns and confirm the reported distance traveled matches what you'd expect. This only
+                      matters on the real robot — simulation doesn't model gearing mistakes.
+                    </p>
                   </>
                 }
                 checked={checkedSteps.has("robot-tune-3")}
                 onCheckedChange={(c) => toggleStep("robot-tune-3", c)}
+              >
+                <JsonDiff
+                  filename="physicalproperties.json (excerpt)"
+                  before={[
+                    { text: '"gearing": {' },
+                    { text: '  "drive": {' },
+                    { text: '    "gearRatio": 6.75,' },
+                    { text: '    "diameter": 4' },
+                    { text: "  }," },
+                    { text: '  "angle": {' },
+                    { text: '    "gearRatio": 12.8' },
+                    { text: "  }" },
+                    { text: "}" },
+                  ]}
+                  after={[
+                    { text: '"gearing": {' },
+                    { text: '  "drive": {' },
+                    { text: '    "gearRatio": 6.75,' },
+                    { text: '    "diameter": 4' },
+                    { text: "  }," },
+                    { text: '  "angle": {' },
+                    { text: '    "gearRatio": 21.43', changed: true },
+                    { text: "  }" },
+                    { text: "}" },
+                  ]}
+                />
+              </Step>
+              <Step
+                id="robot-tune-4"
+                title="Hold the right stick left and check the spin direction."
+                detail={
+                  <>
+                    <p>
+                      Still with the robot off the ground, hold the right stick to the left. The right stick's
+                      left/right axis controls angular velocity — left commands the robot to rotate left (CCW),
+                      right commands it to rotate right (CW). Verify the robot matches the AdvantageScope swerve
+                      widget below (top-down view). Common problems:
+                    </p>
+                    <ul className="mt-1 list-disc space-y-1 pl-5">
+                      <li>
+                        <strong>Drifts or translates instead of spinning in place:</strong> the wrong CAN IDs for a
+                        module, or the wrong absolute encoder offset.
+                      </li>
+                      <li>
+                        <strong>Spins cleanly but the wrong way (CW instead of CCW):</strong>
+                        <ul className="mt-1 list-[circle] space-y-1 pl-5">
+                          <li>Inverted drive motors.</li>
+                          <li>A diagonal module swap — front-left ↔ back-right, front-right ↔ back-left.</li>
+                          <li>Absolute encoder offsets that were captured with the bevel gear facing right instead of left.</li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </>
+                }
+                checked={checkedSteps.has("robot-tune-4")}
+                onCheckedChange={(c) => toggleStep("robot-tune-4", c)}
               >
                 <ControllerAnimation
                   stick="right"
@@ -566,7 +677,37 @@ export function TuningGuide() {
               <Step
                 id="field-2"
                 title="Test forward/back/left/right at the starting heading."
-                detail="Drive it forward, back, left, and right, and verify the robot moves in the matching direction on the field relative to the driver station's position."
+                detail={
+                  <>
+                    <p>
+                      Drive it forward, back, left, and right, and verify the robot moves in the matching direction
+                      on the field relative to the driver station's position. Common problems:
+                    </p>
+                    <ul className="mt-1 list-disc space-y-1 pl-5">
+                      <li>
+                        <strong>Wrong at every heading, including this one:</strong> check{" "}
+                        <NTPath>gyroInvert</NTPath> in <NTPath>swervedrive.json</NTPath>.
+                      </li>
+                      <li>
+                        <strong>Only wrong once you rotate to 45°/125° later on:</strong> it doesn't show up until
+                        the robot isn't sitting at its starting heading, which points away from the gyro and toward
+                        one of these instead:
+                        <ul className="mt-1 list-[circle] space-y-1 pl-5">
+                          <li>An absolute encoder offset that's off.</li>
+                          <li>A drive motor inversion mistake.</li>
+                          <li>A wrong module location (front/left).</li>
+                          <li>Wiring: an absolute encoder wired to the wrong motor controller.</li>
+                          <li>A wrong CAN ID: a module assigned an incorrect ID.</li>
+                        </ul>
+                        <p className="mt-1">
+                          Verify the wiring and CAN IDs are correct first — they're the quickest to rule out. If the
+                          problem persists, redo the guide's tuning steps starting from Align Modules to recapture
+                          everything.
+                        </p>
+                      </li>
+                    </ul>
+                  </>
+                }
                 checked={checkedSteps.has("field-2")}
                 onCheckedChange={(c) => toggleStep("field-2", c)}
               >
@@ -580,7 +721,33 @@ export function TuningGuide() {
               <Step
                 id="field-3"
                 title="Spin in place and watch the field widget."
-                detail="Spin the robot in place again (right stick held left, CCW) — but this time watch the field widget's heading instead of the swerve module states widget. This can fail for the same reasons as the spin test on the previous tab: wrong CAN IDs or absolute encoder offsets causing drift, or inverted drive motors, a diagonal module swap, or absolute encoder offsets captured with the bevel gear facing right causing a clean spin in the wrong direction. An inverted gyro can also make the field widget spin the wrong way here, even if the swerve module states widget looked correct earlier."
+                detail={
+                  <>
+                    <p>
+                      Spin the robot in place again (right stick held left, CCW) — but this time watch the field
+                      widget's heading instead of the swerve module states widget. Common problems:
+                    </p>
+                    <ul className="mt-1 list-disc space-y-1 pl-5">
+                      <li>
+                        <strong>Drifts or translates instead of spinning in place:</strong> the wrong CAN IDs for a
+                        module, or the wrong absolute encoder offset.
+                      </li>
+                      <li>
+                        <strong>Spins cleanly but the wrong way (CW instead of CCW):</strong>
+                        <ul className="mt-1 list-[circle] space-y-1 pl-5">
+                          <li>Inverted drive motors.</li>
+                          <li>A diagonal module swap — front-left ↔ back-right, front-right ↔ back-left.</li>
+                          <li>Absolute encoder offsets that were captured with the bevel gear facing right instead of left.</li>
+                        </ul>
+                      </li>
+                      <li>
+                        <strong>Looked correct on the previous tab, but wrong here:</strong> an inverted gyro can
+                        flip the field widget's spin direction even when the swerve module states widget looked
+                        right.
+                      </li>
+                    </ul>
+                  </>
+                }
                 checked={checkedSteps.has("field-3")}
                 onCheckedChange={(c) => toggleStep("field-3", c)}
               >
@@ -610,12 +777,73 @@ export function TuningGuide() {
                 <FieldOrientationAnimation heading={125} />
               </Step>
 
-              <Alert>
+              <Alert variant="destructive">
+                <TriangleAlert />
+                <AlertTitle>Watch for absolute encoder drift</AlertTitle>
                 <AlertDescription>
-                  Remember: module locations are measured from the center of the robot to the center of each module —
-                  this is what you configured earlier for each module's location.
+                  Your absolute encoder offsets should not change over time. If they do, it's likely because there's
+                  no loctite/glue on the magnet — if you're using magnetic encoders — on that module. Check that
+                  module's build instructions for how to properly loctite/glue the magnet in place, and reapply it.
                 </AlertDescription>
               </Alert>
+            </TabsContent>
+
+            {/* 8. Swerve maintenance */}
+            <TabsContent value="maintenance" className="space-y-3">
+              <h3 className="text-lg font-semibold">Swerve Maintenance</h3>
+              <p className="text-sm text-muted-foreground">
+                Your swerve drive doesn't stop needing attention once it's tuned — keep these in mind for the rest of
+                the season.
+              </p>
+
+              <Step
+                id="maintenance-1"
+                title="Grease the swerve modules regularly."
+                detail="Regular greasing keeps modules performing optimally. Don't overgrease them, though — excess grease attracts debris and adds resistance instead of reducing it."
+                checked={checkedSteps.has("maintenance-1")}
+                onCheckedChange={(c) => toggleStep("maintenance-1", c)}
+              />
+              <Step
+                id="maintenance-2"
+                title="Re-measure your wheels if autonomous starts over/undershooting."
+                detail={
+                  <>
+                    Swerve wheels wear down and degrade over time, so the diameter you configured may no longer
+                    match the wheel's actual size. If you notice consistent over- or under-shooting in autonomous,
+                    re-measure the wheel and double check the drive gear ratio and diameter in{" "}
+                    <NTPath>physicalproperties.json</NTPath> (or that module's gearing override).
+                  </>
+                }
+                checked={checkedSteps.has("maintenance-2")}
+                onCheckedChange={(c) => toggleStep("maintenance-2", c)}
+              >
+                <JsonDiff
+                  filename="physicalproperties.json (excerpt)"
+                  before={[
+                    { text: '"gearing": {' },
+                    { text: '  "drive": {' },
+                    { text: '    "gearRatio": 6.75,' },
+                    { text: '    "diameter": 4' },
+                    { text: "  }" },
+                    { text: "}" },
+                  ]}
+                  after={[
+                    { text: '"gearing": {' },
+                    { text: '  "drive": {' },
+                    { text: '    "gearRatio": 6.75,' },
+                    { text: '    "diameter": 3.87', changed: true },
+                    { text: "  }" },
+                    { text: "}" },
+                  ]}
+                />
+              </Step>
+              <Step
+                id="maintenance-3"
+                title="Watch for consistent azimuth angle drift."
+                detail="If a module's azimuth angle is consistently off in real life — not just a one-time calibration slip — the gear may be skipping under load, or it may have been replaced with the wrong gear at some point. Recheck that module's gear against the vendor's spec, and rebuild the module if needed."
+                checked={checkedSteps.has("maintenance-3")}
+                onCheckedChange={(c) => toggleStep("maintenance-3", c)}
+              />
             </TabsContent>
 
             <div className="flex flex-col gap-2 mt-6 pt-6 border-t border-border">

@@ -42,7 +42,7 @@ export function Step({
           >
             {title}
           </Label>
-          {detail && <p className="text-sm text-muted-foreground">{detail}</p>}
+          {detail && <div className="text-sm text-muted-foreground">{detail}</div>}
           {children}
         </div>
       </div>
