@@ -83,7 +83,7 @@ export function SpinTestAnimation() {
       </ComparisonPanel>
       <ComparisonPanel
         variant="incorrect"
-        caption="The robot spins cleanly, but the wrong way (CW instead of CCW) — check for inverted drive motors, a diagonal module swap (front-left ↔ back-right, front-right ↔ back-left), or absolute encoder offsets that were captured with the bevel gear facing right instead of left."
+        caption="The robot spins cleanly, but the wrong way (clockwise (CW) instead of CCW) — check for inverted drive motors, a diagonal module swap (front-left ↔ back-right, front-right ↔ back-left), or absolute encoder offsets that were captured with the bevel gear facing right instead of left."
       >
         <SpinScene mode="reverse" />
       </ComparisonPanel>

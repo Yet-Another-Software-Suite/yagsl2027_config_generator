@@ -432,15 +432,15 @@ export function TuningGuide() {
               </Step>
               <Step
                 id="align-3"
-                title="Confirm the reading is CCW+."
+                title="Confirm the reading is counterclockwise positive (CCW+)."
                 checked={checkedSteps.has("align-3")}
                 onCheckedChange={(c) => toggleStep("align-3", c)}
                 detail={
                   <>
-                  The absolute encoder reading should be CCW+ (increasing as the module rotates counterclockwise
+                  The absolute encoder reading should be counterclockwise positive (CCW+) (increasing as the module rotates counterclockwise
                     from a top-down view). If it isn't, you need to set that module's{" "}
                     <NTPath>absoluteEncoderInverted</NTPath> to <NTPath>true</NTPath>. This is rare — most absolute
-                    encoders already read CCW+ by default, so only change this if you've confirmed the reading is
+                    encoders already read counterclockwise positive (CCW+) by default, so only change this if you've confirmed the reading is
                     backwards.
                     </>
                 }
@@ -470,8 +470,8 @@ export function TuningGuide() {
 
               <Step
                 id="robot-tune-1"
-                title="Rotate the robot CCW and check the gyro."
-                detail="With the robot off the ground, rotate it CCW (from a top-down view) and confirm the gyro reads CCW+."
+                title="Rotate the robot counterclockwise (CCW) and check the gyro."
+                detail="With the robot off the ground, rotate it counterclockwise (CCW) (from a top-down view) and confirm the gyro reads counterclockwise positive (CCW+)."
                 checked={checkedSteps.has("robot-tune-1")}
                 onCheckedChange={(c) => toggleStep("robot-tune-1", c)}
               >
@@ -633,7 +633,7 @@ export function TuningGuide() {
                         module, or the wrong absolute encoder offset.
                       </li>
                       <li>
-                        <strong>Spins cleanly but the wrong way (CW instead of CCW):</strong>
+                        <strong>Spins cleanly but the wrong way (clockwise (CW) instead of CCW):</strong>
                         <ul className="mt-1 list-[circle] space-y-1 pl-5">
                           <li>Inverted drive motors.</li>
                           <li>A diagonal module swap — front-left ↔ back-right, front-right ↔ back-left.</li>
@@ -733,7 +733,7 @@ export function TuningGuide() {
                         module, or the wrong absolute encoder offset.
                       </li>
                       <li>
-                        <strong>Spins cleanly but the wrong way (CW instead of CCW):</strong>
+                        <strong>Spins cleanly but the wrong way (clockwise (CW) instead of CCW):</strong>
                         <ul className="mt-1 list-[circle] space-y-1 pl-5">
                           <li>Inverted drive motors.</li>
                           <li>A diagonal module swap — front-left ↔ back-right, front-right ↔ back-left.</li>

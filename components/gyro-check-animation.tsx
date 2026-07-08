@@ -4,7 +4,7 @@ import { ComparisonGrid, ComparisonPanel } from "@/components/tuning-comparison"
 
 function RobotWithDial({ needleDirection }: { needleDirection: "ccw" | "cw" }) {
   return (
-    <svg viewBox="0 0 160 120" className="mx-auto h-auto w-40" role="img" aria-label="Robot rotating CCW next to a gyro dial">
+    <svg viewBox="0 0 160 120" className="mx-auto h-auto w-40" role="img" aria-label="Robot rotating counterclockwise (CCW) next to a gyro dial">
       <style>{`
         .gyro-chassis { transform-box: fill-box; transform-origin: center; animation: gyro-rotate-ccw 4s linear infinite; }
         .gyro-needle-ccw { transform-box: fill-box; transform-origin: center; animation: gyro-rotate-ccw 4s linear infinite; }
@@ -22,7 +22,7 @@ function RobotWithDial({ needleDirection }: { needleDirection: "ccw" | "cw" }) {
         </marker>
       </defs>
 
-      {/* chassis: the robot is always physically turned CCW by hand */}
+      {/* chassis: the robot is always physically turned counterclockwise (CCW) by hand */}
       <g className="gyro-chassis">
         <rect x="20" y="35" width="50" height="50" rx="8" className="fill-muted stroke-border" strokeWidth="2" />
         <line x1="45" y1="60" x2="45" y2="40" className="stroke-foreground" strokeWidth="2" markerEnd="url(#gyro-arrow)" />
@@ -52,7 +52,7 @@ function RobotWithDial({ needleDirection }: { needleDirection: "ccw" | "cw" }) {
 export function GyroCheckAnimation() {
   return (
     <ComparisonGrid>
-      <ComparisonPanel variant="correct" caption="Rotating the robot CCW (top-down) increases the gyro reading.">
+      <ComparisonPanel variant="correct" caption="Rotating the robot counterclockwise (CCW) (top-down) increases the gyro reading.">
         <RobotWithDial needleDirection="ccw" />
       </ComparisonPanel>
       <ComparisonPanel
