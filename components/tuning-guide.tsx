@@ -438,7 +438,7 @@ export function TuningGuide() {
                 detail={
                   <>
                   The absolute encoder reading should be CCW+ (increasing as the module rotates counterclockwise
-                    from a top-down view). If it isn't, you may need to set that module's{" "}
+                    from a top-down view). If it isn't, you need to set that module's{" "}
                     <NTPath>absoluteEncoderInverted</NTPath> to <NTPath>true</NTPath>. This is rare — most absolute
                     encoders already read CCW+ by default, so only change this if you've confirmed the reading is
                     backwards.
@@ -566,7 +566,7 @@ export function TuningGuide() {
                   <>
                     With the robot disabled (motors not fighting you, but telemetry still live) and off the ground,
                     by hand rotate one module's azimuth exactly 5 full turns (360° × 5), then check that module's
-                    current state in AdvantageScope — it should read the exact same angle it started at. If it
+                    current state in AdvantageScope — it should read the relatively close same angle it started at. If it
                     doesn't, that module's gear ratio is wrong:
                     <ul className="mt-1 list-disc space-y-1 pl-5">
                       <li>

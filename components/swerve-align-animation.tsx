@@ -29,33 +29,44 @@ export function SwerveAlignAnimation() {
             85%  { transform: rotate(0deg); }
             100% { transform: rotate(55deg); }
           }
+          .sw-check {
+            transform-box: fill-box;
+            transform-origin: center;
+            opacity: 0;
+            animation: sw-check-fade 3.2s ease-in-out infinite;
+          }
+          @keyframes sw-check-fade {
+            0%, 35%  { opacity: 0; }
+            55%, 85% { opacity: 1; }
+            100%     { opacity: 0; }
+          }
           @media (prefers-reduced-motion: reduce) {
             .sw-wheel { animation: none; transform: rotate(0deg); }
+            .sw-check { animation: none; opacity: 1; }
           }
         `}</style>
-
-        <defs>
-          <marker id="sw-arrowhead" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
-            <path d="M0,0 L8,4 L0,8 Z" className="fill-primary" />
-          </marker>
-        </defs>
 
         {/* chassis */}
         <rect x="40" y="60" width="160" height="200" rx="16" className="fill-muted stroke-border" strokeWidth="2" />
 
-        {/* forward arrow */}
-        <line
-          x1="120"
-          y1="18"
-          x2="120"
-          y2="55"
-          className="stroke-primary"
-          strokeWidth="3"
-          markerEnd="url(#sw-arrowhead)"
-        />
-        <text x="120" y="12" textAnchor="middle" className="fill-primary text-[10px] font-semibold">
-          FORWARD
+        {/* front label */}
+        <text x="120" y="80" textAnchor="middle" className="fill-primary text-[10px] font-semibold">
+          front
         </text>
+
+        {/* checkmark, shown once every module has settled into the aligned position -- delayed to
+            match the last (slowest-staggered) module so it doesn't appear early */}
+        <g className="sw-check" style={{ animationDelay: MODULES[MODULES.length - 1].delay }}>
+          <circle cx="120" cy="160" r="16" className="fill-background stroke-green-600 dark:stroke-green-400" strokeWidth="2" />
+          <path
+            d="M112,160 L118,167 L130,150"
+            fill="none"
+            className="stroke-green-600 dark:stroke-green-400"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </g>
 
         {/* 4 wheel modules at each corner */}
         {MODULES.map((m, i) => (
