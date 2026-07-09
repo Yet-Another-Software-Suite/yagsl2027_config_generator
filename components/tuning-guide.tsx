@@ -331,11 +331,11 @@ export function TuningGuide() {
               />
               <Step
                 id="setup-4"
-                title="Delete src/deploy/swerve."
+                title="Delete src/main/deploy/swerve."
                 detail={
                   <>
-                    Delete the example project's default <NTPath>src/deploy/swerve</NTPath> folder — you'll replace
-                    it with your own generated configuration next.
+                    Delete the example project's default <NTPath>src/main/deploy/swerve</NTPath> folder — you'll
+                    replace it with your own generated configuration next.
                   </>
                 }
                 checked={checkedSteps.has("setup-4")}
@@ -343,13 +343,13 @@ export function TuningGuide() {
               />
               <Step
                 id="setup-5"
-                title="Unzip your downloaded config into src/deploy/swerve."
+                title="Unzip your downloaded config into src/main/deploy/swerve."
                 detail={
                   <>
                     Extract the zip you downloaded from this site and place its contents directly into{" "}
-                    <NTPath>src/deploy/swerve</NTPath>, so you end up with{" "}
-                    <NTPath>src/deploy/swerve/swervedrive.json</NTPath> and a{" "}
-                    <NTPath>src/deploy/swerve/modules/</NTPath> folder alongside it.
+                    <NTPath>src/main/deploy/swerve</NTPath>, so you end up with{" "}
+                    <NTPath>src/main/deploy/swerve/swervedrive.json</NTPath> and a{" "}
+                    <NTPath>src/main/deploy/swerve/modules/</NTPath> folder alongside it.
                   </>
                 }
                 checked={checkedSteps.has("setup-5")}
@@ -443,29 +443,47 @@ export function TuningGuide() {
                 onCheckedChange={(c) => toggleStep("sim-tune-1", c)}
               >
                 <JsonDiff
-                  filename="modules/pidfproperties_sim.json (excerpt)"
+                  filename="modules/pidfproperties_sim.json"
                   before={[
-                    { text: '"drive": {' },
-                    { text: '  "p": 0.1,' },
-                    { text: '  "i": 0,' },
-                    { text: '  "d": 0' },
-                    { text: "}," },
-                    { text: '"angle": {' },
-                    { text: '  "p": 0.01,' },
-                    { text: '  "i": 0,' },
-                    { text: '  "d": 0' },
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/pidfproperties.json",' },
+                    { text: '  "drive": {' },
+                    { text: '    "p": 0.1,' },
+                    { text: '    "i": 0,' },
+                    { text: '    "d": 0,' },
+                    { text: '    "s": 0,' },
+                    { text: '    "v": 0.7,' },
+                    { text: '    "a": 0.1' },
+                    { text: "  }," },
+                    { text: '  "angle": {' },
+                    { text: '    "p": 0.01,' },
+                    { text: '    "i": 0,' },
+                    { text: '    "d": 0,' },
+                    { text: '    "s": 0,' },
+                    { text: '    "v": 0,' },
+                    { text: '    "a": 0' },
+                    { text: "  }" },
                     { text: "}" },
                   ]}
                   after={[
-                    { text: '"drive": {' },
-                    { text: '  "p": 0.35,', changed: true },
-                    { text: '  "i": 0,' },
-                    { text: '  "d": 0' },
-                    { text: "}," },
-                    { text: '"angle": {' },
-                    { text: '  "p": 0.06,', changed: true },
-                    { text: '  "i": 0,' },
-                    { text: '  "d": 0.0015', changed: true },
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/pidfproperties.json",' },
+                    { text: '  "drive": {' },
+                    { text: '    "p": 0.35,', changed: true },
+                    { text: '    "i": 0,' },
+                    { text: '    "d": 0,' },
+                    { text: '    "s": 0,' },
+                    { text: '    "v": 0.7,' },
+                    { text: '    "a": 0.1' },
+                    { text: "  }," },
+                    { text: '  "angle": {' },
+                    { text: '    "p": 0.06,', changed: true },
+                    { text: '    "i": 0,' },
+                    { text: '    "d": 0.0015,', changed: true },
+                    { text: '    "s": 0,' },
+                    { text: '    "v": 0,' },
+                    { text: '    "a": 0' },
+                    { text: "  }" },
                     { text: "}" },
                   ]}
                 />
@@ -589,17 +607,67 @@ export function TuningGuide() {
                 onCheckedChange={(c) => toggleStep("locations-2", c)}
               >
                 <JsonDiff
-                  filename="modules/frontleft.json (excerpt)"
+                  filename="modules/frontleft.json"
                   before={[
-                    { text: '"location": {' },
-                    { text: '  "front": 0,', changed: true },
-                    { text: '  "left": 0', changed: true },
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/module.json",' },
+                    { text: '  "drive": {' },
+                    { text: '    "type": "sparkmax_neo",' },
+                    { text: '    "id": 1,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "angle": {' },
+                    { text: '    "type": "sparkmax_neo",' },
+                    { text: '    "id": 2,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "inverted": {' },
+                    { text: '    "drive": false,' },
+                    { text: '    "angle": false' },
+                    { text: "  }," },
+                    { text: '  "absoluteEncoder": {' },
+                    { text: '    "type": "cancoder_can",' },
+                    { text: '    "id": 3,' },
+                    { text: '    "channel": 0,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "absoluteEncoderOffset": 0,' },
+                    { text: '  "absoluteEncoderInverted": false,' },
+                    { text: '  "location": {' },
+                    { text: '    "front": 0,', changed: true },
+                    { text: '    "left": 0', changed: true },
+                    { text: "  }" },
                     { text: "}" },
                   ]}
                   after={[
-                    { text: '"location": {' },
-                    { text: '  "front": 12.5,', changed: true },
-                    { text: '  "left": 10.5', changed: true },
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/module.json",' },
+                    { text: '  "drive": {' },
+                    { text: '    "type": "sparkmax_neo",' },
+                    { text: '    "id": 1,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "angle": {' },
+                    { text: '    "type": "sparkmax_neo",' },
+                    { text: '    "id": 2,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "inverted": {' },
+                    { text: '    "drive": false,' },
+                    { text: '    "angle": false' },
+                    { text: "  }," },
+                    { text: '  "absoluteEncoder": {' },
+                    { text: '    "type": "cancoder_can",' },
+                    { text: '    "id": 3,' },
+                    { text: '    "channel": 0,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "absoluteEncoderOffset": 0,' },
+                    { text: '  "absoluteEncoderInverted": false,' },
+                    { text: '  "location": {' },
+                    { text: '    "front": 12.5,', changed: true },
+                    { text: '    "left": 10.5', changed: true },
+                    { text: "  }" },
                     { text: "}" },
                   ]}
                 />
@@ -633,14 +701,68 @@ export function TuningGuide() {
                 onCheckedChange={(c) => toggleStep("align-2", c)}
               >
                 <JsonDiff
-                  filename="modules/frontleft.json (excerpt)"
+                  filename="modules/frontleft.json"
                   before={[
-                    { text: '"absoluteEncoderOffset": 0,', changed: true },
-                    { text: '"absoluteEncoderInverted": false' },
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/module.json",' },
+                    { text: '  "drive": {' },
+                    { text: '    "type": "sparkmax_neo",' },
+                    { text: '    "id": 1,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "angle": {' },
+                    { text: '    "type": "sparkmax_neo",' },
+                    { text: '    "id": 2,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "inverted": {' },
+                    { text: '    "drive": false,' },
+                    { text: '    "angle": false' },
+                    { text: "  }," },
+                    { text: '  "absoluteEncoder": {' },
+                    { text: '    "type": "cancoder_can",' },
+                    { text: '    "id": 3,' },
+                    { text: '    "channel": 0,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "absoluteEncoderOffset": 0,', changed: true },
+                    { text: '  "absoluteEncoderInverted": false,' },
+                    { text: '  "location": {' },
+                    { text: '    "front": 12.5,' },
+                    { text: '    "left": 10.5' },
+                    { text: "  }" },
+                    { text: "}" },
                   ]}
                   after={[
-                    { text: '"absoluteEncoderOffset": 173.4,', changed: true },
-                    { text: '"absoluteEncoderInverted": false' },
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/module.json",' },
+                    { text: '  "drive": {' },
+                    { text: '    "type": "sparkmax_neo",' },
+                    { text: '    "id": 1,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "angle": {' },
+                    { text: '    "type": "sparkmax_neo",' },
+                    { text: '    "id": 2,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "inverted": {' },
+                    { text: '    "drive": false,' },
+                    { text: '    "angle": false' },
+                    { text: "  }," },
+                    { text: '  "absoluteEncoder": {' },
+                    { text: '    "type": "cancoder_can",' },
+                    { text: '    "id": 3,' },
+                    { text: '    "channel": 0,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "absoluteEncoderOffset": 173.4,', changed: true },
+                    { text: '  "absoluteEncoderInverted": false,' },
+                    { text: '  "location": {' },
+                    { text: '    "front": 12.5,' },
+                    { text: '    "left": 10.5' },
+                    { text: "  }" },
+                    { text: "}" },
                   ]}
                 />
               </Step>
@@ -660,9 +782,69 @@ export function TuningGuide() {
                 }
               >
                 <JsonDiff
-                  filename="modules/frontleft.json (excerpt)"
-                  before={[{ text: '"absoluteEncoderInverted": false', changed: true }]}
-                  after={[{ text: '"absoluteEncoderInverted": true', changed: true }]}
+                  filename="modules/frontleft.json"
+                  before={[
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/module.json",' },
+                    { text: '  "drive": {' },
+                    { text: '    "type": "sparkmax_neo",' },
+                    { text: '    "id": 1,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "angle": {' },
+                    { text: '    "type": "sparkmax_neo",' },
+                    { text: '    "id": 2,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "inverted": {' },
+                    { text: '    "drive": false,' },
+                    { text: '    "angle": false' },
+                    { text: "  }," },
+                    { text: '  "absoluteEncoder": {' },
+                    { text: '    "type": "cancoder_can",' },
+                    { text: '    "id": 3,' },
+                    { text: '    "channel": 0,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "absoluteEncoderOffset": 173.4,' },
+                    { text: '  "absoluteEncoderInverted": false,', changed: true },
+                    { text: '  "location": {' },
+                    { text: '    "front": 12.5,' },
+                    { text: '    "left": 10.5' },
+                    { text: "  }" },
+                    { text: "}" },
+                  ]}
+                  after={[
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/module.json",' },
+                    { text: '  "drive": {' },
+                    { text: '    "type": "sparkmax_neo",' },
+                    { text: '    "id": 1,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "angle": {' },
+                    { text: '    "type": "sparkmax_neo",' },
+                    { text: '    "id": 2,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "inverted": {' },
+                    { text: '    "drive": false,' },
+                    { text: '    "angle": false' },
+                    { text: "  }," },
+                    { text: '  "absoluteEncoder": {' },
+                    { text: '    "type": "cancoder_can",' },
+                    { text: '    "id": 3,' },
+                    { text: '    "channel": 0,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "absoluteEncoderOffset": 173.4,' },
+                    { text: '  "absoluteEncoderInverted": true,', changed: true },
+                    { text: '  "location": {' },
+                    { text: '    "front": 12.5,' },
+                    { text: '    "left": 10.5' },
+                    { text: "  }" },
+                    { text: "}" },
+                  ]}
                 />
               </Step>
 
@@ -703,9 +885,43 @@ export function TuningGuide() {
                   of increased). If it read correctly, leave it alone — there's nothing to change here.
                 </p>
                 <JsonDiff
-                  filename="swervedrive.json (excerpt)"
-                  before={[{ text: '"gyroInvert": false', changed: false }]}
-                  after={[{ text: '"gyroInvert": true', changed: true }]}
+                  filename="swervedrive.json"
+                  before={[
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/swervedrive.json",' },
+                    { text: '  "gyro": {' },
+                    { text: '    "type": "pigeon2_can",' },
+                    { text: '    "id": 1,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "gyroAxis": "yaw",' },
+                    { text: '  "gyroInvert": false,', changed: true },
+                    { text: '  "modules": [' },
+                    { text: '    "frontleft.json",' },
+                    { text: '    "frontright.json",' },
+                    { text: '    "backleft.json",' },
+                    { text: '    "backright.json"' },
+                    { text: "  ]" },
+                    { text: "}" },
+                  ]}
+                  after={[
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/swervedrive.json",' },
+                    { text: '  "gyro": {' },
+                    { text: '    "type": "pigeon2_can",' },
+                    { text: '    "id": 1,' },
+                    { text: '    "canbus": ""' },
+                    { text: "  }," },
+                    { text: '  "gyroAxis": "yaw",' },
+                    { text: '  "gyroInvert": true,', changed: true },
+                    { text: '  "modules": [' },
+                    { text: '    "frontleft.json",' },
+                    { text: '    "frontright.json",' },
+                    { text: '    "backleft.json",' },
+                    { text: '    "backright.json"' },
+                    { text: "  ]" },
+                    { text: "}" },
+                  ]}
                 />
               </Step>
               <Step
@@ -739,29 +955,47 @@ export function TuningGuide() {
                 onCheckedChange={(c) => toggleStep("robot-tune-2", c)}
               >
                 <JsonDiff
-                  filename="modules/pidfproperties.json (excerpt)"
+                  filename="modules/pidfproperties.json"
                   before={[
-                    { text: '"drive": {' },
-                    { text: '  "p": 0.1,' },
-                    { text: '  "i": 0,' },
-                    { text: '  "d": 0' },
-                    { text: "}," },
-                    { text: '"angle": {' },
-                    { text: '  "p": 0.01,' },
-                    { text: '  "i": 0,' },
-                    { text: '  "d": 0' },
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/pidfproperties.json",' },
+                    { text: '  "drive": {' },
+                    { text: '    "p": 0.1,' },
+                    { text: '    "i": 0,' },
+                    { text: '    "d": 0,' },
+                    { text: '    "s": 0,' },
+                    { text: '    "v": 0.7,' },
+                    { text: '    "a": 0.1' },
+                    { text: "  }," },
+                    { text: '  "angle": {' },
+                    { text: '    "p": 0.01,' },
+                    { text: '    "i": 0,' },
+                    { text: '    "d": 0,' },
+                    { text: '    "s": 0,' },
+                    { text: '    "v": 0,' },
+                    { text: '    "a": 0' },
+                    { text: "  }" },
                     { text: "}" },
                   ]}
                   after={[
-                    { text: '"drive": {' },
-                    { text: '  "p": 0.28,', changed: true },
-                    { text: '  "i": 0,' },
-                    { text: '  "d": 0' },
-                    { text: "}," },
-                    { text: '"angle": {' },
-                    { text: '  "p": 0.05,', changed: true },
-                    { text: '  "i": 0,' },
-                    { text: '  "d": 0.001', changed: true },
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/pidfproperties.json",' },
+                    { text: '  "drive": {' },
+                    { text: '    "p": 0.28,', changed: true },
+                    { text: '    "i": 0,' },
+                    { text: '    "d": 0,' },
+                    { text: '    "s": 0,' },
+                    { text: '    "v": 0.7,' },
+                    { text: '    "a": 0.1' },
+                    { text: "  }," },
+                    { text: '  "angle": {' },
+                    { text: '    "p": 0.05,', changed: true },
+                    { text: '    "i": 0,' },
+                    { text: '    "d": 0.001,', changed: true },
+                    { text: '    "s": 0,' },
+                    { text: '    "v": 0,' },
+                    { text: '    "a": 0' },
+                    { text: "  }" },
                     { text: "}" },
                   ]}
                 />
@@ -819,26 +1053,40 @@ export function TuningGuide() {
                 onCheckedChange={(c) => toggleStep("robot-tune-3", c)}
               >
                 <JsonDiff
-                  filename="physicalproperties.json (excerpt)"
+                  filename="modules/physicalproperties.json"
                   before={[
-                    { text: '"gearing": {' },
-                    { text: '  "drive": {' },
-                    { text: '    "gearRatio": 6.75,' },
-                    { text: '    "diameter": 4' },
-                    { text: "  }," },
-                    { text: '  "angle": {' },
-                    { text: '    "gearRatio": 12.8' },
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/physicalproperties.json",' },
+                    { text: '  "gearing": {' },
+                    { text: '    "drive": {' },
+                    { text: '      "gearRatio": 6.75,' },
+                    { text: '      "diameter": 4' },
+                    { text: "    }," },
+                    { text: '    "angle": {' },
+                    { text: '      "gearRatio": 12.8', changed: true },
+                    { text: "    }," },
+                    { text: '    "statorCurrentLimit": {' },
+                    { text: '      "drive": 40,' },
+                    { text: '      "angle": 40' },
+                    { text: "    }" },
                     { text: "  }" },
                     { text: "}" },
                   ]}
                   after={[
-                    { text: '"gearing": {' },
-                    { text: '  "drive": {' },
-                    { text: '    "gearRatio": 6.75,' },
-                    { text: '    "diameter": 4' },
-                    { text: "  }," },
-                    { text: '  "angle": {' },
-                    { text: '    "gearRatio": 21.43', changed: true },
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/physicalproperties.json",' },
+                    { text: '  "gearing": {' },
+                    { text: '    "drive": {' },
+                    { text: '      "gearRatio": 6.75,' },
+                    { text: '      "diameter": 4' },
+                    { text: "    }," },
+                    { text: '    "angle": {' },
+                    { text: '      "gearRatio": 21.43', changed: true },
+                    { text: "    }," },
+                    { text: '    "statorCurrentLimit": {' },
+                    { text: '      "drive": 40,' },
+                    { text: '      "angle": 40' },
+                    { text: "    }" },
                     { text: "  }" },
                     { text: "}" },
                   ]}
@@ -1046,20 +1294,40 @@ export function TuningGuide() {
                 onCheckedChange={(c) => toggleStep("maintenance-2", c)}
               >
                 <JsonDiff
-                  filename="physicalproperties.json (excerpt)"
+                  filename="modules/physicalproperties.json"
                   before={[
-                    { text: '"gearing": {' },
-                    { text: '  "drive": {' },
-                    { text: '    "gearRatio": 6.75,' },
-                    { text: '    "diameter": 4' },
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/physicalproperties.json",' },
+                    { text: '  "gearing": {' },
+                    { text: '    "drive": {' },
+                    { text: '      "gearRatio": 6.75,' },
+                    { text: '      "diameter": 4', changed: true },
+                    { text: "    }," },
+                    { text: '    "angle": {' },
+                    { text: '      "gearRatio": 21.43' },
+                    { text: "    }," },
+                    { text: '    "statorCurrentLimit": {' },
+                    { text: '      "drive": 40,' },
+                    { text: '      "angle": 40' },
+                    { text: "    }" },
                     { text: "  }" },
                     { text: "}" },
                   ]}
                   after={[
-                    { text: '"gearing": {' },
-                    { text: '  "drive": {' },
-                    { text: '    "gearRatio": 6.75,' },
-                    { text: '    "diameter": 3.87', changed: true },
+                    { text: "{" },
+                    { text: '  "$schema": "https://example.com/schemas/physicalproperties.json",' },
+                    { text: '  "gearing": {' },
+                    { text: '    "drive": {' },
+                    { text: '      "gearRatio": 6.75,' },
+                    { text: '      "diameter": 3.87', changed: true },
+                    { text: "    }," },
+                    { text: '    "angle": {' },
+                    { text: '      "gearRatio": 21.43' },
+                    { text: "    }," },
+                    { text: '    "statorCurrentLimit": {' },
+                    { text: '      "drive": 40,' },
+                    { text: '      "angle": 40' },
+                    { text: "    }" },
                     { text: "  }" },
                     { text: "}" },
                   ]}
