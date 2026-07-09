@@ -2,6 +2,7 @@
 
 import { useState, useEffect, type ReactNode } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -26,6 +27,7 @@ import { FieldOrientationAnimation } from "@/components/field-orientation-animat
 import { JsonDiff } from "@/components/json-diff"
 import { Step } from "@/components/tuning-step"
 import { ModuleMotorAnimation } from "@/components/module-motor-animation"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
 
 const EXAMPLE_PROJECT_URL = "https://github.com/Yet-Another-Software-Suite/YAGSL/tree/main/example"
@@ -81,7 +83,7 @@ function PidTuningLinks() {
 }
 
 function NTPath({ children }: { children: string }) {
-  return <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">{children}</code>
+  return <code className="break-all rounded bg-muted px-1.5 py-0.5 text-xs font-mono">{children}</code>
 }
 
 function SwerveWidgetFields() {
@@ -104,6 +106,7 @@ function SwerveWidgetFields() {
 }
 
 const TABS = [
+  "setup",
   "sim-connect",
   "sim-tune",
   "robot-connect",
@@ -115,6 +118,7 @@ const TABS = [
 ] as const
 
 const TAB_STEPS: Record<(typeof TABS)[number], string[]> = {
+  setup: ["setup-1", "setup-2", "setup-3", "setup-4", "setup-5"],
   "sim-connect": ["sim-connect-1", "sim-connect-2", "sim-connect-3", "sim-connect-4"],
   "sim-tune": ["sim-tune-1", "sim-tune-2", "sim-tune-3", "sim-tune-4"],
   "robot-connect": ["robot-connect-1", "robot-connect-2", "robot-connect-3", "robot-connect-4", "robot-connect-5"],
@@ -146,8 +150,14 @@ export function TuningGuide() {
     return () => window.removeEventListener("hashchange", applyHash)
   }, [])
 
-  // keep the URL's #hash in sync with the active tab, so it can be copied/pasted to jump back to it
+  // keep the URL's #hash in sync with the active tab, so it can be copied/pasted to jump back to it --
+  // the first tab is always unlocked and reachable at the bare /guide URL, so it doesn't need one
   useEffect(() => {
+    const index = TABS.indexOf(activeTab as (typeof TABS)[number])
+    if (index <= 0) {
+      if (window.location.hash) window.history.replaceState(null, "", window.location.pathname)
+      return
+    }
     window.history.replaceState(null, "", `#${activeTab}`)
   }, [activeTab])
 
@@ -196,11 +206,26 @@ export function TuningGuide() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4 md:py-6">
-          <h1 className="text-xl md:text-2xl font-bold text-foreground">Quick Start Guide</h1>
-          <p className="text-xs md:text-sm text-muted-foreground">
-            Your configuration has been downloaded. Check off each step as you complete it,
-            so nothing important gets missed.
-          </p>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/logo.png"
+                alt="Swerve Drive Config Generator mascot"
+                width={40}
+                height={40}
+                className="h-8 w-8 md:h-10 md:w-10"
+                style={{ imageRendering: "pixelated" }}
+              />
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-foreground">Quick Start Guide</h1>
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  Your configuration has been downloaded. Check off each step as you complete it,
+                  so nothing important gets missed.
+                </p>
+              </div>
+            </div>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
@@ -210,14 +235,15 @@ export function TuningGuide() {
             <div className="mb-2 -mx-4 px-4 overflow-x-auto">
               <TabsList className="inline-flex w-auto min-w-full">
                 {[
-                  { value: "sim-connect", label: "1. Connect (Sim)" },
-                  { value: "sim-tune", label: "2. Tune Sim" },
-                  { value: "robot-connect", label: "3. Connect (Robot)" },
-                  { value: "locations", label: "4. Locations" },
-                  { value: "align", label: "5. Align Modules" },
-                  { value: "robot-tune", label: "6. Tune Real Robot" },
-                  { value: "field", label: "7. Verify Field" },
-                  { value: "maintenance", label: "8. Maintenance" },
+                  { value: "setup", label: "1. Set Up Project" },
+                  { value: "sim-connect", label: "2. Connect (Sim)" },
+                  { value: "sim-tune", label: "3. Tune Sim" },
+                  { value: "robot-connect", label: "4. Connect (Robot)" },
+                  { value: "locations", label: "5. Locations" },
+                  { value: "align", label: "6. Align Modules" },
+                  { value: "robot-tune", label: "7. Tune Real Robot" },
+                  { value: "field", label: "8. Verify Field" },
+                  { value: "maintenance", label: "9. Maintenance" },
                 ].map((tab, index) => {
                   const locked = index > furthestIndex
                   return (
@@ -238,7 +264,75 @@ export function TuningGuide() {
               </TabsList>
             </div>
 
-            {/* 1. Connect AdvantageScope to the simulator */}
+            {/* 1. Set up the robot project */}
+            <TabsContent value="setup" className="space-y-3">
+              <h3 className="text-lg font-semibold">Set Up Your Robot Project</h3>
+
+              <Step
+                id="setup-1"
+                title="Clone the YAGSL repository."
+                detail={
+                  <>
+                    Clone{" "}
+                    <ExternalDocLink href="https://github.com/Yet-Another-Software-Suite/YAGSL">
+                      Yet-Another-Software-Suite/YAGSL
+                    </ExternalDocLink>{" "}
+                    to your computer.
+                  </>
+                }
+                checked={checkedSteps.has("setup-1")}
+                onCheckedChange={(c) => toggleStep("setup-1", c)}
+              />
+              <Step
+                id="setup-2"
+                title="Copy the example project out."
+                detail={
+                  <>
+                    Copy the contents of the{" "}
+                    <ExternalDocLink href={EXAMPLE_PROJECT_URL}>example project</ExternalDocLink> folder out of the
+                    cloned repository and into your own robot project directory — that's what you'll actually
+                    build and deploy.
+                  </>
+                }
+                checked={checkedSteps.has("setup-2")}
+                onCheckedChange={(c) => toggleStep("setup-2", c)}
+              />
+              <Step
+                id="setup-3"
+                title="Change the team number."
+                detail="In your new project, set it to your own team number — with the WPILib VS Code extension, that's Ctrl+Shift+P → WPILib: Set Team Number (or edit it directly in .wpilib/wpilib_preferences.json)."
+                checked={checkedSteps.has("setup-3")}
+                onCheckedChange={(c) => toggleStep("setup-3", c)}
+              />
+              <Step
+                id="setup-4"
+                title="Delete src/deploy/swerve."
+                detail={
+                  <>
+                    Delete the example project's default <NTPath>src/deploy/swerve</NTPath> folder — you'll replace
+                    it with your own generated configuration next.
+                  </>
+                }
+                checked={checkedSteps.has("setup-4")}
+                onCheckedChange={(c) => toggleStep("setup-4", c)}
+              />
+              <Step
+                id="setup-5"
+                title="Unzip your downloaded config into src/deploy/swerve."
+                detail={
+                  <>
+                    Extract the zip you downloaded from this site and place its contents directly into{" "}
+                    <NTPath>src/deploy/swerve</NTPath>, so you end up with{" "}
+                    <NTPath>src/deploy/swerve/swervedrive.json</NTPath> and a{" "}
+                    <NTPath>src/deploy/swerve/modules/</NTPath> folder alongside it.
+                  </>
+                }
+                checked={checkedSteps.has("setup-5")}
+                onCheckedChange={(c) => toggleStep("setup-5", c)}
+              />
+            </TabsContent>
+
+            {/* 2. Connect AdvantageScope to the simulator */}
             <TabsContent value="sim-connect" className="space-y-3">
               <h3 className="text-lg font-semibold">Connect AdvantageScope to the Simulator</h3>
 
@@ -293,7 +387,7 @@ export function TuningGuide() {
               <ExampleProjectNote />
             </TabsContent>
 
-            {/* 2. Tune in simulation */}
+            {/* 3. Tune in simulation */}
             <TabsContent value="sim-tune" className="space-y-3">
               <h3 className="text-lg font-semibold">Tune the Swerve Drive PID in Simulation</h3>
 
@@ -380,7 +474,7 @@ export function TuningGuide() {
               <ExampleProjectNote />
             </TabsContent>
 
-            {/* 3. Connect AdvantageScope to the real robot */}
+            {/* 4. Connect AdvantageScope to the real robot */}
             <TabsContent value="robot-connect" className="space-y-3">
               <div className="flex items-start gap-2 mb-1">
                 <PartyPopper className="mt-0.5 h-5 w-5 text-primary" />
@@ -435,7 +529,7 @@ export function TuningGuide() {
               <ExampleProjectNote />
             </TabsContent>
 
-            {/* 4. Module locations */}
+            {/* 5. Module locations */}
             <TabsContent value="locations" className="space-y-3">
               <h3 className="text-lg font-semibold">Module Locations</h3>
 
@@ -487,7 +581,7 @@ export function TuningGuide() {
               </Step>
             </TabsContent>
 
-            {/* 5. Align modules */}
+            {/* 6. Align modules */}
             <TabsContent value="align" className="space-y-3">
               <h3 className="text-lg font-semibold">Align the Swerve Modules</h3>
 
@@ -550,7 +644,7 @@ export function TuningGuide() {
               <ExampleProjectNote />
             </TabsContent>
 
-            {/* 6. Tune real robot */}
+            {/* 7. Tune real robot */}
             <TabsContent value="robot-tune" className="space-y-3">
               <h3 className="text-lg font-semibold">Tune the Real Robot</h3>
 
@@ -759,7 +853,7 @@ export function TuningGuide() {
               <ExampleProjectNote />
             </TabsContent>
 
-            {/* 7. Verify field orientation */}
+            {/* 8. Verify field orientation */}
             <TabsContent value="field" className="space-y-3">
               <h3 className="text-lg font-semibold">Verify Field Orientation</h3>
 
@@ -889,7 +983,7 @@ export function TuningGuide() {
               </Alert>
             </TabsContent>
 
-            {/* 8. Swerve maintenance */}
+            {/* 9. Swerve maintenance */}
             <TabsContent value="maintenance" className="space-y-3">
               <h3 className="text-lg font-semibold">Swerve Maintenance</h3>
               <p className="text-sm text-muted-foreground">

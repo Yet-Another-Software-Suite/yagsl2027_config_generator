@@ -5,16 +5,18 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { Upload, Download, Settings, ChevronLeft, ChevronRight, BookOpen } from "lucide-react"
+import { Upload, Download, ChevronLeft, ChevronRight, BookOpen } from "lucide-react"
 import { GyroConfig } from "@/components/gyro-config"
 import { ModuleConfig } from "@/components/module-config"
 import { PhysicalProperties } from "@/components/physical-properties"
 import { PIDFProperties } from "@/components/pidf-properties"
 import { generateZip, uploadZip } from "@/lib/zip-utils"
 import { useToast } from "@/hooks/use-toast"
+import { ThemeToggle } from "@/components/theme-toggle"
 import type { ConfigData } from "@/lib/types"
 
 export default function Home() {
@@ -140,7 +142,14 @@ export default function Home() {
         <div className="container mx-auto px-4 py-4 md:py-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
-              <Settings className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+              <Image
+                src="/logo.png"
+                alt="Swerve Drive Config Generator mascot"
+                width={40}
+                height={40}
+                className="h-8 w-8 md:h-10 md:w-10"
+                style={{ imageRendering: "pixelated" }}
+              />
               <div>
                 <h1 className="text-xl md:text-2xl font-bold text-foreground">Swerve Drive Config Generator</h1>
                 <p className="text-xs md:text-sm text-muted-foreground">
@@ -148,24 +157,29 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
-                <Link href="/guide">
-                  <BookOpen className="mr-2 h-4 w-4" />
-                  Quick Start Guide
-                </Link>
-              </Button>
-              <Button variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
-                <label className="cursor-pointer">
-                  <Upload className="mr-2 h-4 w-4" />
-                  Upload Config
-                  <input type="file" accept=".zip" onChange={handleUpload} className="hidden" />
-                </label>
-              </Button>
-              <Button onClick={handleDownload} className="w-full sm:w-auto">
-                <Download className="mr-2 h-4 w-4" />
-                Download Config
-              </Button>
+            <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center">
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
+                  <Link href="/guide">
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Quick Start Guide
+                  </Link>
+                </Button>
+                <Button variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
+                  <label className="cursor-pointer">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Config
+                    <input type="file" accept=".zip" onChange={handleUpload} className="hidden" />
+                  </label>
+                </Button>
+                <Button onClick={handleDownload} className="w-full sm:w-auto">
+                  <Download className="mr-2 h-4 w-4" />
+                  Download Config
+                </Button>
+              </div>
+              <div className="flex justify-end sm:justify-start">
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </div>
