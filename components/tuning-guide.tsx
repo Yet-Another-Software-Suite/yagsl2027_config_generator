@@ -1,12 +1,22 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, type ReactNode } from "react"
 import Link from "next/link"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
-import { ChevronLeft, ChevronRight, ExternalLink, TriangleAlert, PartyPopper, Lock } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { ChevronLeft, ChevronRight, ExternalLink, TriangleAlert, PartyPopper, Lock, SkipForward } from "lucide-react"
 import { SwerveAlignAnimation } from "@/components/swerve-align-animation"
 import { ModuleLocationDiagram } from "@/components/module-location-diagram"
 import { ControllerAnimation } from "@/components/controller-animation"
@@ -15,6 +25,7 @@ import { SpinTestAnimation } from "@/components/spin-test-animation"
 import { FieldOrientationAnimation } from "@/components/field-orientation-animation"
 import { JsonDiff } from "@/components/json-diff"
 import { Step } from "@/components/tuning-step"
+import { ModuleMotorAnimation } from "@/components/module-motor-animation"
 import { cn } from "@/lib/utils"
 
 const EXAMPLE_PROJECT_URL = "https://github.com/Yet-Another-Software-Suite/YAGSL/tree/main/example"
@@ -36,6 +47,36 @@ function ExampleProjectNote() {
         . (Note: this link isn't live yet, but will be by the time you're using this site.)
       </AlertDescription>
     </Alert>
+  )
+}
+
+function ExternalDocLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Link
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1 text-primary underline underline-offset-2"
+    >
+      {children}
+      <ExternalLink className="h-3 w-3" />
+    </Link>
+  )
+}
+
+function PidTuningLinks() {
+  return (
+    <>
+      Not sure how to tune a PID loop? WPILib's{" "}
+      <ExternalDocLink href="https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/tuning-flywheel.html">
+        flywheel tuning guide
+      </ExternalDocLink>{" "}
+      walks through the same method used here for the drive PID, and the{" "}
+      <ExternalDocLink href="https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/tuning-turret.html">
+        turret tuning guide
+      </ExternalDocLink>{" "}
+      covers the azimuth/angle PID.
+    </>
   )
 }
 
@@ -77,7 +118,7 @@ const TAB_STEPS: Record<(typeof TABS)[number], string[]> = {
   "sim-connect": ["sim-connect-1", "sim-connect-2", "sim-connect-3", "sim-connect-4"],
   "sim-tune": ["sim-tune-1", "sim-tune-2", "sim-tune-3", "sim-tune-4"],
   "robot-connect": ["robot-connect-1", "robot-connect-2", "robot-connect-3", "robot-connect-4", "robot-connect-5"],
-  locations: ["locations-1", "locations-2"],
+  locations: ["locations-2"],
   align: ["align-1", "align-2", "align-3"],
   "robot-tune": ["robot-tune-1", "robot-tune-2", "robot-tune-3", "robot-tune-4"],
   field: ["field-1", "field-2", "field-3", "field-4", "field-5"],
@@ -88,6 +129,27 @@ export function TuningGuide() {
   const [activeTab, setActiveTab] = useState<string>(TABS[0])
   const [furthestIndex, setFurthestIndex] = useState(0)
   const [checkedSteps, setCheckedSteps] = useState<Set<string>>(new Set())
+  const [skipConfirmOpen, setSkipConfirmOpen] = useState(false)
+
+  // deep-link support: jump straight to a tab from a pasted #hash (on load, or if the hash
+  // changes without a full page reload), and unlock it so Back/Next work normally from there
+  useEffect(() => {
+    const applyHash = () => {
+      const hashIndex = TABS.indexOf(window.location.hash.slice(1) as (typeof TABS)[number])
+      if (hashIndex >= 0) {
+        setActiveTab(TABS[hashIndex])
+        setFurthestIndex((prev) => Math.max(prev, hashIndex))
+      }
+    }
+    applyHash()
+    window.addEventListener("hashchange", applyHash)
+    return () => window.removeEventListener("hashchange", applyHash)
+  }, [])
+
+  // keep the URL's #hash in sync with the active tab, so it can be copied/pasted to jump back to it
+  useEffect(() => {
+    window.history.replaceState(null, "", `#${activeTab}`)
+  }, [activeTab])
 
   const currentTabIndex = TABS.indexOf(activeTab as (typeof TABS)[number])
   const isFirstTab = currentTabIndex === 0
@@ -122,13 +184,21 @@ export function TuningGuide() {
     if (!isFirstTab) setActiveTab(TABS[currentTabIndex - 1])
   }
 
+  const handleSkip = () => {
+    if (isLastTab) return
+    const nextIndex = currentTabIndex + 1
+    setFurthestIndex((prev) => Math.max(prev, nextIndex))
+    setActiveTab(TABS[nextIndex])
+    setSkipConfirmOpen(false)
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4 md:py-6">
-          <h1 className="text-xl md:text-2xl font-bold text-foreground">Tuning Guide</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">Quick Start Guide</h1>
           <p className="text-xs md:text-sm text-muted-foreground">
-            Your configuration has been downloaded. Check off each step as you complete it — you can't skip ahead,
+            Your configuration has been downloaded. Check off each step as you complete it,
             so nothing important gets missed.
           </p>
         </div>
@@ -138,7 +208,7 @@ export function TuningGuide() {
         <Card className="p-4 md:p-6">
           <Tabs value={activeTab} onValueChange={(value) => goToTab(TABS.indexOf(value as (typeof TABS)[number]))} className="w-full">
             <div className="mb-2 -mx-4 px-4 overflow-x-auto">
-              <TabsList className="inline-flex w-auto min-w-full md:grid md:grid-cols-8">
+              <TabsList className="inline-flex w-auto min-w-full">
                 {[
                   { value: "sim-connect", label: "1. Connect (Sim)" },
                   { value: "sim-tune", label: "2. Tune Sim" },
@@ -155,6 +225,8 @@ export function TuningGuide() {
                       key={tab.value}
                       value={tab.value}
                       aria-disabled={locked}
+                      title={locked ? "Double click to preview" : undefined}
+                      aria-label={locked ? `${tab.label} — double click to preview` : undefined}
                       onDoubleClick={() => setActiveTab(tab.value)}
                       className={cn("whitespace-nowrap gap-1.5", locked && "cursor-not-allowed opacity-60")}
                     >
@@ -173,6 +245,21 @@ export function TuningGuide() {
               <Step
                 id="sim-connect-1"
                 title="Build and start the robot simulator."
+                detail={
+                  <>
+                    New to the simulator?{" "}
+                    <Link
+                      href="https://docs.wpilib.org/en/stable/docs/software/wpilib-tools/robot-simulation/introduction.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-primary underline underline-offset-2"
+                    >
+                      WPILib's guide to robot simulation
+                      <ExternalLink className="h-3 w-3" />
+                    </Link>{" "}
+                    walks through starting it.
+                  </>
+                }
                 checked={checkedSteps.has("sim-connect-1")}
                 onCheckedChange={(c) => toggleStep("sim-connect-1", c)}
               />
@@ -217,8 +304,9 @@ export function TuningGuide() {
                   <>
                     <p>
                       Open <NTPath>modules/pidfproperties_sim.json</NTPath> from your downloaded configuration and
-                      edit the drive and angle PID gains.
+                      edit the drive and angle PID gains. <PidTuningLinks />
                     </p>
+                    <ModuleMotorAnimation />
                     <ul className="mt-1 list-disc space-y-1 pl-5">
                       <li>
                         <strong>Feedforward is optional.</strong> <NTPath>s</NTPath>, <NTPath>v</NTPath>, and{" "}
@@ -351,15 +439,22 @@ export function TuningGuide() {
             <TabsContent value="locations" className="space-y-3">
               <h3 className="text-lg font-semibold">Module Locations</h3>
 
-              <Step
-                id="locations-1"
-                title="Know how module location is measured."
-                detail="Module locations are measured from the center of the robot to the center of each module (wheel), in inches. Keep this in mind as you go through the next steps."
-                checked={checkedSteps.has("locations-1")}
-                onCheckedChange={(c) => toggleStep("locations-1", c)}
-              >
-                <ModuleLocationDiagram />
-              </Step>
+              <Alert>
+                <AlertTitle>Know how module location is measured</AlertTitle>
+                <AlertDescription>
+                  This is very important: module locations are measured from the center of the robot to the center
+                  of each module (wheel), in inches. Keep this in mind as you go through the next step.
+                </AlertDescription>
+              </Alert>
+              <ModuleLocationDiagram />
+              <Alert>
+                <AlertDescription>
+                  The "center of robot" in the diagram above is actually the center of rotation — and ideally, that
+                  should also be your robot's center of mass. If the center of rotation isn't the center of mass,
+                  the robot will drift while rotating instead of spinning cleanly in place.
+                </AlertDescription>
+              </Alert>
+
               <Step
                 id="locations-2"
                 title="Enter each module's location in its json file."
@@ -476,6 +571,10 @@ export function TuningGuide() {
                 onCheckedChange={(c) => toggleStep("robot-tune-1", c)}
               >
                 <GyroCheckAnimation />
+                <p className="text-sm text-muted-foreground">
+                  Only change <NTPath>gyroInvert</NTPath> if the CCW test above failed (the gyro decreased instead
+                  of increased). If it read correctly, leave it alone — there's nothing to change here.
+                </p>
                 <JsonDiff
                   filename="swervedrive.json (excerpt)"
                   before={[{ text: '"gyroInvert": false', changed: true }]}
@@ -489,8 +588,9 @@ export function TuningGuide() {
                   <>
                     <p>
                       Just like in simulation, edit <NTPath>modules/pidfproperties.json</NTPath> to tune the drive
-                      and angle PID gains — this time for the real robot.
+                      and angle PID gains — this time for the real robot. <PidTuningLinks />
                     </p>
+                    <ModuleMotorAnimation />
                     <ul className="mt-1 list-disc space-y-1 pl-5">
                       <li>
                         <strong>Feedforward is optional.</strong> <NTPath>s</NTPath>, <NTPath>v</NTPath>, and{" "}
@@ -564,7 +664,8 @@ export function TuningGuide() {
                 title="Spin each module 5 full turns and check it lands back where it started."
                 detail={
                   <>
-                    With the robot disabled (motors not fighting you, but telemetry still live) and off the ground,
+                    With the <strong>robot disabled</strong> (motors not fighting you, but telemetry still live) and
+                    off the ground,
                     by hand rotate one module's azimuth exactly 5 full turns (360° × 5), then check that module's
                     current state in AdvantageScope — it should read the relatively close same angle it started at. If it
                     doesn't, that module's gear ratio is wrong:
@@ -799,7 +900,7 @@ export function TuningGuide() {
               <Step
                 id="maintenance-1"
                 title="Grease the swerve modules regularly."
-                detail="Regular greasing keeps modules performing optimally. Don't overgrease them, though — excess grease attracts debris and adds resistance instead of reducing it."
+                detail="Regular greasing keeps modules performing optimally. Grease them at the beginning of tuning, and again in between events. Don't overgrease them, though — excess grease attracts debris and adds resistance instead of reducing it."
                 checked={checkedSteps.has("maintenance-1")}
                 onCheckedChange={(c) => toggleStep("maintenance-1", c)}
               />
@@ -864,21 +965,50 @@ export function TuningGuide() {
                   Back
                 </Button>
 
-                {isLastTab ? (
-                  <Button asChild className="flex-1 md:flex-none">
-                    <Link href="/">Back to Configuration</Link>
-                  </Button>
-                ) : (
-                  <Button onClick={handleNext} disabled={!allStepsChecked} className="flex-1 md:flex-none">
-                    Next
-                    <ChevronRight className="ml-2 h-4 w-4" />
-                  </Button>
-                )}
+                <div className="flex flex-1 gap-2 md:flex-none">
+                  {!isLastTab && (
+                    <Button
+                      variant="outline"
+                      onClick={() => setSkipConfirmOpen(true)}
+                      className="flex-1 md:flex-none bg-transparent"
+                    >
+                      <SkipForward className="mr-2 h-4 w-4" />
+                      Skip
+                    </Button>
+                  )}
+
+                  {isLastTab ? (
+                    <Button asChild className="flex-1 md:flex-none">
+                      <Link href="/">Back to Configuration</Link>
+                    </Button>
+                  ) : (
+                    <Button onClick={handleNext} disabled={!allStepsChecked} className="flex-1 md:flex-none">
+                      Next
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </Tabs>
         </Card>
       </main>
+
+      <AlertDialog open={skipConfirmOpen} onOpenChange={setSkipConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You haven't checked off all the steps on this tab. Skipping means you might miss something important
+              — you can always come back to it later.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSkip}>Skip anyway</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

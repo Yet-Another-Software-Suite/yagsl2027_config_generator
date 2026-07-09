@@ -152,7 +152,7 @@ export default function Home() {
               <Button variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
                 <Link href="/guide">
                   <BookOpen className="mr-2 h-4 w-4" />
-                  Tuning Guide
+                  Quick Start Guide
                 </Link>
               </Button>
               <Button variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
@@ -175,7 +175,7 @@ export default function Home() {
         <Card className="p-4 md:p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="mb-6 -mx-4 px-4 overflow-x-auto">
-              <TabsList className="inline-flex w-auto min-w-full md:grid md:grid-cols-6">
+              <TabsList className="inline-flex w-auto min-w-full">
                 <TabsTrigger value="gyro" className="whitespace-nowrap">
                   Gyro
                 </TabsTrigger>
