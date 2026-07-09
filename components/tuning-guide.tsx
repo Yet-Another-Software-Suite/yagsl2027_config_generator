@@ -137,7 +137,7 @@ const TAB_STEPS: Record<(typeof TABS)[number], string[]> = {
   align: ["align-1", "align-2", "align-3"],
   "robot-tune": ["robot-tune-1", "robot-tune-2", "robot-tune-3", "robot-tune-4"],
   field: ["field-1", "field-2", "field-3", "field-4", "field-5"],
-  maintenance: ["maintenance-1", "maintenance-2", "maintenance-3"],
+  maintenance: ["maintenance-1", "maintenance-2", "maintenance-3", "maintenance-4"],
 }
 
 export function TuningGuide() {
@@ -682,6 +682,14 @@ export function TuningGuide() {
                 </AlertDescription>
               </Alert>
 
+              <Alert>
+                <AlertDescription>
+                  If something is only happening to one module, there's likely something physically wrong with that
+                  module. When in doubt, check wiring first, then gears — and if all else fails, rebuild the module,
+                  paying special attention to the instructions.
+                </AlertDescription>
+              </Alert>
+
               <Step
                 id="robot-tune-1"
                 title="Rotate the robot counterclockwise (CCW) and check the gyro."
@@ -1063,6 +1071,13 @@ export function TuningGuide() {
                 detail="If a module's azimuth angle is consistently off in real life — not just a one-time calibration slip — the gear may be skipping under load, or it may have been replaced with the wrong gear at some point. Recheck that module's gear against the vendor's spec, and rebuild the module if needed."
                 checked={checkedSteps.has("maintenance-3")}
                 onCheckedChange={(c) => toggleStep("maintenance-3", c)}
+              />
+              <Step
+                id="maintenance-4"
+                title="If it's only happening to one module, suspect that module."
+                detail="When an issue is isolated to a single module instead of the whole drivetrain, there's likely something physically wrong with that module specifically. When in doubt, check wiring first, then gears — and if all else fails, rebuild the module, paying special attention to the instructions."
+                checked={checkedSteps.has("maintenance-4")}
+                onCheckedChange={(c) => toggleStep("maintenance-4", c)}
               />
             </TabsContent>
 
