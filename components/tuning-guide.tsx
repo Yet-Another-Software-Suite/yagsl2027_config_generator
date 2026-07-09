@@ -26,6 +26,7 @@ import {
   Lock,
   SkipForward,
   MessageCircle,
+  Settings,
 } from "lucide-react"
 import { SwerveAlignAnimation } from "@/components/swerve-align-animation"
 import { ModuleLocationDiagram } from "@/components/module-location-diagram"
@@ -234,7 +235,13 @@ export function TuningGuide() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="outline" size="sm" className="bg-transparent" asChild>
+                <Link href="/">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Back to Config
+                </Link>
+              </Button>
               <Button variant="outline" size="sm" className="bg-transparent" asChild>
                 <a href="https://discord.gg/yass" target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="mr-2 h-4 w-4" />
