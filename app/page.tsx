@@ -9,7 +9,7 @@ import Image from "next/image"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { Upload, Download, ChevronLeft, ChevronRight, BookOpen } from "lucide-react"
+import { Upload, Download, ChevronLeft, ChevronRight, BookOpen, MessageCircle } from "lucide-react"
 import { GyroConfig } from "@/components/gyro-config"
 import { ModuleConfig } from "@/components/module-config"
 import { PhysicalProperties } from "@/components/physical-properties"
@@ -159,7 +159,13 @@ export default function Home() {
               </div>
             </div>
             <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center">
-              <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end sm:min-w-0">
+                <Button variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
+                  <a href="https://discord.gg/yass" target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Need Help?
+                  </a>
+                </Button>
                 <Button variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
                   <Link href="/guide">
                     <BookOpen className="mr-2 h-4 w-4" />

@@ -17,7 +17,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { ChevronLeft, ChevronRight, ExternalLink, TriangleAlert, PartyPopper, Lock, SkipForward } from "lucide-react"
+import {
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  TriangleAlert,
+  PartyPopper,
+  Lock,
+  SkipForward,
+  MessageCircle,
+} from "lucide-react"
 import { SwerveAlignAnimation } from "@/components/swerve-align-animation"
 import { ModuleLocationDiagram } from "@/components/module-location-diagram"
 import { ControllerAnimation } from "@/components/controller-animation"
@@ -207,7 +216,7 @@ export function TuningGuide() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4 md:py-6">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <Image
                 src={withBasePath("/logo.png")}
@@ -225,7 +234,15 @@ export function TuningGuide() {
                 </p>
               </div>
             </div>
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="bg-transparent" asChild>
+                <a href="https://discord.gg/yass" target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Need Help?
+                </a>
+              </Button>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </header>
