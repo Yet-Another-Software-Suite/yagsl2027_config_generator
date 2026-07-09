@@ -17,6 +17,7 @@ import { PIDFProperties } from "@/components/pidf-properties"
 import { generateZip, uploadZip } from "@/lib/zip-utils"
 import { useToast } from "@/hooks/use-toast"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { withBasePath } from "@/lib/base-path"
 import type { ConfigData } from "@/lib/types"
 
 export default function Home() {
@@ -143,7 +144,7 @@ export default function Home() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
               <Image
-                src="/logo.png"
+                src={withBasePath("/logo.png")}
                 alt="Swerve Drive Config Generator mascot"
                 width={40}
                 height={40}

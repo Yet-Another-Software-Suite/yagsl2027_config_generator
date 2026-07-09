@@ -29,6 +29,7 @@ import { Step } from "@/components/tuning-step"
 import { ModuleMotorAnimation } from "@/components/module-motor-animation"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
+import { withBasePath } from "@/lib/base-path"
 
 const EXAMPLE_PROJECT_URL = "https://github.com/Yet-Another-Software-Suite/YAGSL/tree/main/example"
 
@@ -209,7 +210,7 @@ export function TuningGuide() {
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
               <Image
-                src="/logo.png"
+                src={withBasePath("/logo.png")}
                 alt="Swerve Drive Config Generator mascot"
                 width={40}
                 height={40}

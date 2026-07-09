@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
+import { withBasePath } from "@/lib/base-path"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -14,8 +15,8 @@ export const metadata: Metadata = {
   description: "Generate and manage swerve drive configurations for robotics",
   generator: "v0.app",
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: withBasePath("/logo.png"),
+    apple: withBasePath("/logo.png"),
   },
 }
 
