@@ -704,7 +704,7 @@ export function TuningGuide() {
                 </p>
                 <JsonDiff
                   filename="swervedrive.json (excerpt)"
-                  before={[{ text: '"gyroInvert": false', changed: true }]}
+                  before={[{ text: '"gyroInvert": false', changed: false }]}
                   after={[{ text: '"gyroInvert": true', changed: true }]}
                 />
               </Step>
