@@ -129,6 +129,17 @@
  * instead of just the active tab. This is the only place that needs to know
  * about that trick - individual pages just add the class and forceMount prop.
  */
+
+/* without this, some mobile browsers lay out the printed page using the phone's own
+   screen size instead of a real sheet of paper - a page just a few hundred px tall
+   makes every break-inside:avoid box (which can easily run past that) push to the next
+   page without fitting there either, cascading into mostly-blank pages. Forcing a real
+   page size here fixes that regardless of which device generated the print/PDF. */
+@page {
+  size: letter;
+  margin: 0.6in;
+}
+
 @media print {
   * {
     print-color-adjust: exact !important;

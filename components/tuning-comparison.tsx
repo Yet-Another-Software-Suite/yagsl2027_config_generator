@@ -3,9 +3,11 @@ import { CheckCircle2, XCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function ComparisonGrid({ children }: { children: React.ReactNode }) {
+  // break-inside:avoid isn't reliably honored on the grid box itself in every print engine
+  // (Safari/WebKit in particular), so it goes on this plain wrapper instead
   return (
-    <div className="grid gap-3 print-avoid-break [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-      {children}
+    <div className="print-avoid-break">
+      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">{children}</div>
     </div>
   )
 }
