@@ -29,7 +29,7 @@ export function JsonDiff({
   after: JsonDiffLine[]
 }): React.ReactElement {
   return (
-    <div className="rounded-lg border p-3">
+    <div className="rounded-lg border p-3 print-avoid-break">
       <p className="mb-2 text-xs font-medium text-muted-foreground">{filename}</p>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="min-w-0">

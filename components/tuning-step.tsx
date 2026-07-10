@@ -21,7 +21,7 @@ export function Step({
   return (
     <div
       className={cn(
-        "rounded-lg border p-4 transition-colors",
+        "rounded-lg border p-4 transition-colors print-avoid-break",
         checked ? "border-green-600/30 bg-green-600/5" : "border-border",
       )}
     >

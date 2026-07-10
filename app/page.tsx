@@ -17,6 +17,8 @@ import { PIDFProperties } from "@/components/pidf-properties"
 import { generateZip, uploadZip } from "@/lib/zip-utils"
 import { useToast } from "@/hooks/use-toast"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { PrintButton } from "@/components/print-button"
+import { ConfigPrintView } from "@/components/config-print-view"
 import { withBasePath } from "@/lib/base-path"
 import type { ConfigData } from "@/lib/types"
 
@@ -158,7 +160,7 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center">
+            <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center no-print">
               <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end sm:min-w-0">
                 <Button variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
                   <a href="https://discord.gg/yass" target="_blank" rel="noopener noreferrer">
@@ -179,6 +181,7 @@ export default function Home() {
                     <input type="file" accept=".zip" onChange={handleUpload} className="hidden" />
                   </label>
                 </Button>
+                <PrintButton className="w-full sm:w-auto bg-transparent" />
                 <Button onClick={handleDownload} className="w-full sm:w-auto">
                   <Download className="mr-2 h-4 w-4" />
                   Download Config
@@ -192,8 +195,8 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-4 md:py-8">
-        <Card className="p-4 md:p-6">
+      <main className="container mx-auto px-4 py-4 md:py-8 print:max-w-none print:p-0">
+        <Card className="p-4 md:p-6 no-print">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="mb-6 -mx-4 px-4 overflow-x-auto">
               <TabsList className="inline-flex w-auto min-w-full">
@@ -290,7 +293,7 @@ export default function Home() {
               </div>
             </TabsContent>
 
-            <div className="flex justify-between items-center gap-4 mt-6 pt-6 border-t border-border">
+            <div className="flex justify-between items-center gap-4 mt-6 pt-6 border-t border-border no-print">
               <Button
                 variant="outline"
                 onClick={handleBack}
@@ -308,6 +311,10 @@ export default function Home() {
             </div>
           </Tabs>
         </Card>
+
+        <div className="hidden print:block">
+          <ConfigPrintView config={config} />
+        </div>
       </main>
     </div>
   )

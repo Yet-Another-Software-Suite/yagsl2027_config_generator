@@ -5,15 +5,12 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import type { SwervedriveConfig } from "@/lib/types"
+import { GYRO_TYPES, GYRO_AXES } from "@/lib/config-options"
 
 interface GyroConfigProps {
   config: SwervedriveConfig
   onChange: (config: SwervedriveConfig) => void
 }
-
-const GYRO_TYPES = ["navx3_can", "pigeon2_can", "canandgyro_can", "systemcore_internal"]
-
-const GYRO_AXES = ["yaw", "pitch", "roll"]
 
 export function GyroConfig({ config, onChange }: GyroConfigProps) {
   return (

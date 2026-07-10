@@ -122,3 +122,72 @@
     @apply bg-background text-foreground;
   }
 }
+
+/*
+ * Printing: every printable page force-mounts all of its Tabs' content (see
+ * the "print-all-tabs" class) so the whole checklist/config prints at once
+ * instead of just the active tab. This is the only place that needs to know
+ * about that trick - individual pages just add the class and forceMount prop.
+ */
+@media print {
+  * {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  /* always print on a light background, regardless of the active theme */
+  .dark {
+    --background: oklch(0.99 0 0);
+    --foreground: oklch(0.15 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.15 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.15 0 0);
+    --primary: oklch(0.35 0.08 264);
+    --primary-foreground: oklch(0.99 0 0);
+    --secondary: oklch(0.96 0.01 264);
+    --secondary-foreground: oklch(0.15 0 0);
+    --muted: oklch(0.96 0.01 264);
+    --muted-foreground: oklch(0.5 0.02 264);
+    --accent: oklch(0.35 0.08 264);
+    --accent-foreground: oklch(0.99 0 0);
+    --destructive: oklch(0.55 0.22 25);
+    --destructive-foreground: oklch(0.99 0 0);
+    --border: oklch(0.91 0.01 264);
+    --input: oklch(0.91 0.01 264);
+    --ring: oklch(0.35 0.08 264);
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  /* reveal every tab's content (each was force-mounted) instead of only the active one */
+  .print-all-tabs [data-slot="tabs-content"] {
+    display: block !important;
+    break-before: page;
+  }
+  .print-all-tabs [data-slot="tabs-content"]:first-of-type {
+    break-before: auto;
+  }
+
+  /* nothing should rely on a scrollbar when printed - wrap it instead */
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+  pre {
+    white-space: pre-wrap !important;
+    word-break: break-word;
+  }
+
+  /* boxed/bordered components: move the whole box to the next page instead of
+     slicing through its border and background when it lands on a page break */
+  .print-avoid-break,
+  [data-slot="alert"] {
+    break-inside: avoid;
+  }
+}
+
+.print-all-tabs [data-slot="tabs-content"][data-state="inactive"] {
+  display: none;
+}

@@ -6,60 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import type { ModuleConfigData } from "@/lib/types"
+import { MOTOR_TYPES, ENCODER_TYPES } from "@/lib/config-options"
 
 interface ModuleConfigProps {
   moduleName: string
   config: ModuleConfigData
   onChange: (config: ModuleConfigData) => void
 }
-
-const MOTOR_TYPES = [
-  "talonfx_krakenx44",
-  "talonfx_krakenx60",
-  "talonfxs_neo",
-  "talonfxs_neo2",
-  "talonfxs_neo550",
-  "talonfxs_vortex",
-  "talonfxs_pulsar",
-  "sparkmax_neo",
-  "sparkmax_neo2",
-  "sparkmax_neo550",
-  "sparkmax_vortex",
-  "sparkmax_pulsar",
-  "sparkmax_minion",
-  "talonfxs_minion",
-  "sparkflex_neo",
-  "sparkflex_neo2",
-  "sparkflex_neo550",
-  "sparkflex_vortex",
-  "sparkflex_minion",
-  "sparkflex_pulsar",
-  "nova_neo",
-  "nova_neo2",
-  "nova_neo550",
-  "nova_vortex",
-  "nova_minion",
-  "nova_pulsar",
-]
-
-const ENCODER_TYPES = [
-  "revthroughbore_attached",
-  "revthroughbore_dio",
-  "splineencoder_can",
-  "cancoder_can",
-  "canandmag_attached",
-  "canandmag_dio",
-  "canandmag_can",
-  "srxmag_attached",
-  "srxmag_analog",
-  "andymarkhexbore_attached",
-  "andymarkhexbore_dio",
-  "andymarkhexbore_analog",
-  "andymarkhexbore_can",
-  "analog5v_attached",
-  "analog_attached",
-  "dutycycle_attached",
-]
 
 export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps) {
   const isAttached = config.absoluteEncoder.type.endsWith("_attached")

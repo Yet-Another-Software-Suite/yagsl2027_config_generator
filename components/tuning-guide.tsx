@@ -38,6 +38,7 @@ import { JsonDiff } from "@/components/json-diff"
 import { Step } from "@/components/tuning-step"
 import { ModuleMotorAnimation } from "@/components/module-motor-animation"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { PrintButton } from "@/components/print-button"
 import { cn } from "@/lib/utils"
 import { withBasePath } from "@/lib/base-path"
 
@@ -235,7 +236,7 @@ export function TuningGuide() {
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 no-print">
               <Button variant="outline" size="sm" className="bg-transparent" asChild>
                 <Link href="/">
                   <Settings className="mr-2 h-4 w-4" />
@@ -248,16 +249,21 @@ export function TuningGuide() {
                   Need Help?
                 </a>
               </Button>
+              <PrintButton />
               <ThemeToggle />
             </div>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-4 md:py-8">
-        <Card className="p-4 md:p-6">
-          <Tabs value={activeTab} onValueChange={(value) => goToTab(TABS.indexOf(value as (typeof TABS)[number]))} className="w-full">
-            <div className="mb-2 -mx-4 px-4 overflow-x-auto">
+      <main className="container mx-auto px-4 py-4 md:py-8 print:max-w-none print:p-0">
+        <Card className="p-4 md:p-6 print:border-none print:p-0 print:shadow-none">
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) => goToTab(TABS.indexOf(value as (typeof TABS)[number]))}
+            className="w-full print-all-tabs"
+          >
+            <div className="mb-2 -mx-4 px-4 overflow-x-auto no-print">
               <TabsList className="inline-flex w-auto min-w-full">
                 {[
                   { value: "setup", label: "1. Set Up Project" },
@@ -290,7 +296,7 @@ export function TuningGuide() {
             </div>
 
             {/* 1. Set up the robot project */}
-            <TabsContent value="setup" className="space-y-3">
+            <TabsContent value="setup" forceMount className="space-y-3">
               <h3 className="text-lg font-semibold">Set Up Your Robot Project</h3>
 
               <Step
@@ -358,7 +364,7 @@ export function TuningGuide() {
             </TabsContent>
 
             {/* 2. Connect AdvantageScope to the simulator */}
-            <TabsContent value="sim-connect" className="space-y-3">
+            <TabsContent value="sim-connect" forceMount className="space-y-3">
               <h3 className="text-lg font-semibold">Connect AdvantageScope to the Simulator</h3>
 
               <Step
@@ -413,7 +419,7 @@ export function TuningGuide() {
             </TabsContent>
 
             {/* 3. Tune in simulation */}
-            <TabsContent value="sim-tune" className="space-y-3">
+            <TabsContent value="sim-tune" forceMount className="space-y-3">
               <h3 className="text-lg font-semibold">Tune the Swerve Drive PID in Simulation</h3>
 
               <Step
@@ -518,7 +524,7 @@ export function TuningGuide() {
             </TabsContent>
 
             {/* 4. Connect AdvantageScope to the real robot */}
-            <TabsContent value="robot-connect" className="space-y-3">
+            <TabsContent value="robot-connect" forceMount className="space-y-3">
               <div className="flex items-start gap-2 mb-1">
                 <PartyPopper className="mt-0.5 h-5 w-5 text-primary" />
                 <h3 className="text-lg font-semibold">Nice work tuning the simulator! Now let's move to the real robot.</h3>
@@ -573,7 +579,7 @@ export function TuningGuide() {
             </TabsContent>
 
             {/* 5. Module locations */}
-            <TabsContent value="locations" className="space-y-3">
+            <TabsContent value="locations" forceMount className="space-y-3">
               <h3 className="text-lg font-semibold">Module Locations</h3>
 
               <Alert>
@@ -675,7 +681,7 @@ export function TuningGuide() {
             </TabsContent>
 
             {/* 6. Align modules */}
-            <TabsContent value="align" className="space-y-3">
+            <TabsContent value="align" forceMount className="space-y-3">
               <h3 className="text-lg font-semibold">Align the Swerve Modules</h3>
 
               <Step
@@ -852,7 +858,7 @@ export function TuningGuide() {
             </TabsContent>
 
             {/* 7. Tune real robot */}
-            <TabsContent value="robot-tune" className="space-y-3">
+            <TabsContent value="robot-tune" forceMount className="space-y-3">
               <h3 className="text-lg font-semibold">Tune the Real Robot</h3>
 
               <Alert variant="destructive">
@@ -1135,7 +1141,7 @@ export function TuningGuide() {
             </TabsContent>
 
             {/* 8. Verify field orientation */}
-            <TabsContent value="field" className="space-y-3">
+            <TabsContent value="field" forceMount className="space-y-3">
               <h3 className="text-lg font-semibold">Verify Field Orientation</h3>
 
               <Step
@@ -1265,7 +1271,7 @@ export function TuningGuide() {
             </TabsContent>
 
             {/* 9. Swerve maintenance */}
-            <TabsContent value="maintenance" className="space-y-3">
+            <TabsContent value="maintenance" forceMount className="space-y-3">
               <h3 className="text-lg font-semibold">Swerve Maintenance</h3>
               <p className="text-sm text-muted-foreground">
                 Your swerve drive doesn't stop needing attention once it's tuned — keep these in mind for the rest of
@@ -1349,7 +1355,7 @@ export function TuningGuide() {
               />
             </TabsContent>
 
-            <div className="flex flex-col gap-2 mt-6 pt-6 border-t border-border">
+            <div className="flex flex-col gap-2 mt-6 pt-6 border-t border-border no-print">
               {!allStepsChecked && !isLastTab && (
                 <p className="text-center text-xs text-muted-foreground">
                   Check off {remainingSteps === 1 ? "the last step" : `all ${remainingSteps} remaining steps`} above
@@ -1397,7 +1403,7 @@ export function TuningGuide() {
       </main>
 
       <AlertDialog open={skipConfirmOpen} onOpenChange={setSkipConfirmOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="no-print">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>

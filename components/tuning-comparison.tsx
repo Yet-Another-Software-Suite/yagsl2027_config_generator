@@ -3,7 +3,11 @@ import { CheckCircle2, XCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function ComparisonGrid({ children }: { children: React.ReactNode }) {
-  return <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">{children}</div>
+  return (
+    <div className="grid gap-3 print-avoid-break [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
+      {children}
+    </div>
+  )
 }
 
 export function ComparisonPanel({
