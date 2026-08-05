@@ -2,7 +2,7 @@ import JSZip from "jszip"
 import FileSaver from "file-saver"
 import type { ConfigData, ModuleConfigData } from "./types"
 
-export const SCHEMA_BASE_URL = "https://example.com/schemas"
+export const SCHEMA_BASE_URL = "https://config.yagsl.com/schemas"
 
 function cleanModuleForExport(module: ModuleConfigData): any {
   const isAttached = module.absoluteEncoder.type.endsWith("_attached")
