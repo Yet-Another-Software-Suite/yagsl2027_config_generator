@@ -452,7 +452,7 @@ export function TuningGuide() {
                   filename="modules/pidfproperties_sim.json"
                   before={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/pidfproperties.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/pidfproperties.json",' },
                     { text: '  "drive": {' },
                     { text: '    "p": 0.1,' },
                     { text: '    "i": 0,' },
@@ -473,7 +473,7 @@ export function TuningGuide() {
                   ]}
                   after={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/pidfproperties.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/pidfproperties.json",' },
                     { text: '  "drive": {' },
                     { text: '    "p": 0.35,', changed: true },
                     { text: '    "i": 0,' },
@@ -616,7 +616,7 @@ export function TuningGuide() {
                   filename="modules/frontleft.json"
                   before={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/module.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/module.json",' },
                     { text: '  "drive": {' },
                     { text: '    "type": "sparkmax_neo",' },
                     { text: '    "id": 1,' },
@@ -647,7 +647,7 @@ export function TuningGuide() {
                   ]}
                   after={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/module.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/module.json",' },
                     { text: '  "drive": {' },
                     { text: '    "type": "sparkmax_neo",' },
                     { text: '    "id": 1,' },
@@ -710,7 +710,7 @@ export function TuningGuide() {
                   filename="modules/frontleft.json"
                   before={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/module.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/module.json",' },
                     { text: '  "drive": {' },
                     { text: '    "type": "sparkmax_neo",' },
                     { text: '    "id": 1,' },
@@ -741,7 +741,7 @@ export function TuningGuide() {
                   ]}
                   after={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/module.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/module.json",' },
                     { text: '  "drive": {' },
                     { text: '    "type": "sparkmax_neo",' },
                     { text: '    "id": 1,' },
@@ -791,7 +791,7 @@ export function TuningGuide() {
                   filename="modules/frontleft.json"
                   before={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/module.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/module.json",' },
                     { text: '  "drive": {' },
                     { text: '    "type": "sparkmax_neo",' },
                     { text: '    "id": 1,' },
@@ -822,7 +822,7 @@ export function TuningGuide() {
                   ]}
                   after={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/module.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/module.json",' },
                     { text: '  "drive": {' },
                     { text: '    "type": "sparkmax_neo",' },
                     { text: '    "id": 1,' },
@@ -894,7 +894,7 @@ export function TuningGuide() {
                   filename="swervedrive.json"
                   before={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/swervedrive.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/swervedrive.json",' },
                     { text: '  "gyro": {' },
                     { text: '    "type": "pigeon2_can",' },
                     { text: '    "id": 1,' },
@@ -912,7 +912,7 @@ export function TuningGuide() {
                   ]}
                   after={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/swervedrive.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/swervedrive.json",' },
                     { text: '  "gyro": {' },
                     { text: '    "type": "pigeon2_can",' },
                     { text: '    "id": 1,' },
@@ -964,7 +964,7 @@ export function TuningGuide() {
                   filename="modules/pidfproperties.json"
                   before={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/pidfproperties.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/pidfproperties.json",' },
                     { text: '  "drive": {' },
                     { text: '    "p": 0.1,' },
                     { text: '    "i": 0,' },
@@ -985,7 +985,7 @@ export function TuningGuide() {
                   ]}
                   after={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/pidfproperties.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/pidfproperties.json",' },
                     { text: '  "drive": {' },
                     { text: '    "p": 0.28,', changed: true },
                     { text: '    "i": 0,' },
@@ -1062,7 +1062,7 @@ export function TuningGuide() {
                   filename="modules/physicalproperties.json"
                   before={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/physicalproperties.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/physicalproperties.json",' },
                     { text: '  "gearing": {' },
                     { text: '    "drive": {' },
                     { text: '      "gearRatio": 6.75,' },
@@ -1080,7 +1080,7 @@ export function TuningGuide() {
                   ]}
                   after={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/physicalproperties.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/physicalproperties.json",' },
                     { text: '  "gearing": {' },
                     { text: '    "drive": {' },
                     { text: '      "gearRatio": 6.75,' },
@@ -1303,7 +1303,7 @@ export function TuningGuide() {
                   filename="modules/physicalproperties.json"
                   before={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/physicalproperties.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/physicalproperties.json",' },
                     { text: '  "gearing": {' },
                     { text: '    "drive": {' },
                     { text: '      "gearRatio": 6.75,' },
@@ -1321,7 +1321,7 @@ export function TuningGuide() {
                   ]}
                   after={[
                     { text: "{" },
-                    { text: '  "$schema": "https://example.com/schemas/physicalproperties.json",' },
+                    { text: '  "$schema": "https://config.yagsl.com/schemas/physicalproperties.json",' },
                     { text: '  "gearing": {' },
                     { text: '    "drive": {' },
                     { text: '      "gearRatio": 6.75,' },
