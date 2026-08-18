@@ -42,7 +42,7 @@ import { PrintButton } from "@/components/print-button"
 import { cn } from "@/lib/utils"
 import { withBasePath } from "@/lib/base-path"
 
-const EXAMPLE_PROJECT_URL = "https://github.com/Yet-Another-Software-Suite/YAGSL/tree/main/example"
+const EXAMPLE_PROJECT_URL = "https://github.com/Yet-Another-Software-Suite/YAGSL/tree/main/examples/drivebase_only_2026"
 
 function ExampleProjectNote() {
   return (
