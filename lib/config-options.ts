@@ -44,6 +44,8 @@ export const ENCODER_TYPES = [
   "andymarkhexbore_dio",
   "andymarkhexbore_analog",
   "andymarkhexbore_can",
+  "thrifty_attached",
+  "thrifty_analog",
   "analog5v_attached",
   "analog_attached",
   "dutycycle_attached",
