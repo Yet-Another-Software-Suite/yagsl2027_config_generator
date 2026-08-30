@@ -17,6 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import {
   ChevronLeft,
   ChevronRight,
@@ -37,6 +38,7 @@ import { FieldOrientationAnimation } from "@/components/field-orientation-animat
 import { JsonDiff } from "@/components/json-diff"
 import { Step } from "@/components/tuning-step"
 import { ModuleMotorAnimation } from "@/components/module-motor-animation"
+import { FlappyRivetGame } from "@/components/flappy-rivet-game"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { PrintButton } from "@/components/print-button"
 import { cn } from "@/lib/utils"
@@ -146,6 +148,7 @@ export function TuningGuide() {
   const [furthestIndex, setFurthestIndex] = useState(0)
   const [checkedSteps, setCheckedSteps] = useState<Set<string>>(new Set())
   const [skipConfirmOpen, setSkipConfirmOpen] = useState(false)
+  const [flappyOpen, setFlappyOpen] = useState(false)
 
   // deep-link support: jump straight to a tab from a pasted #hash (on load, or if the hash
   // changes without a full page reload), and unlock it so Back/Next work normally from there
@@ -180,6 +183,7 @@ export function TuningGuide() {
   const currentStepIds = TAB_STEPS[activeTab as (typeof TABS)[number]]
   const remainingSteps = currentStepIds.filter((id) => !checkedSteps.has(id)).length
   const allStepsChecked = remainingSteps === 0
+  const guideFinished = TAB_STEPS.maintenance.every((id) => checkedSteps.has(id))
 
   const toggleStep = (id: string, checked: boolean) => {
     setCheckedSteps((prev) => {
@@ -1353,6 +1357,26 @@ export function TuningGuide() {
                 checked={checkedSteps.has("maintenance-4")}
                 onCheckedChange={(c) => toggleStep("maintenance-4", c)}
               />
+
+              {guideFinished && (
+                <div className="flex justify-end pt-2 no-print animate-in fade-in duration-700">
+                  <button
+                    type="button"
+                    onClick={() => setFlappyOpen(true)}
+                    className="group rounded-full p-1 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <Image
+                      src={withBasePath("/rivet.png")}
+                      alt=""
+                      width={32}
+                      height={32}
+                      className="h-8 w-8 opacity-70 transition-opacity group-hover:opacity-100"
+                      style={{ imageRendering: "pixelated" }}
+                    />
+                    <span className="sr-only">You found Rivet — play a hidden game</span>
+                  </button>
+                </div>
+              )}
             </TabsContent>
 
             <div className="flex flex-col gap-2 mt-6 pt-6 border-t border-border no-print">
@@ -1417,6 +1441,13 @@ export function TuningGuide() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={flappyOpen} onOpenChange={setFlappyOpen}>
+        <DialogContent className="w-auto max-h-[90vh] overflow-y-auto no-print">
+          <DialogTitle className="sr-only">Flappy Rivet</DialogTitle>
+          <FlappyRivetGame />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
