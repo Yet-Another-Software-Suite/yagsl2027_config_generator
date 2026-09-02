@@ -96,87 +96,233 @@ function PidTuningLinks() {
   )
 }
 
-function YamsLiveTuningSteps({ real }: { real: boolean }) {
+function liveTuningStepIds(idPrefix: string): string[] {
+  return [
+    "setup",
+    "enable",
+    "azimuth-enable",
+    "azimuth-tune",
+    "drive-enable",
+    "drive-tune",
+    "inplace",
+    "finish",
+  ].map((suffix) => `${idPrefix}-${suffix}`)
+}
+
+function LiveTuningSteps({
+  real,
+  idPrefix,
+  checkedSteps,
+  toggleStep,
+}: {
+  real: boolean
+  idPrefix: string
+  checkedSteps: Set<string>
+  toggleStep: (id: string, checked: boolean) => void
+}) {
+  const stepId = (suffix: string) => `${idPrefix}-${suffix}`
+  const checked = (suffix: string) => checkedSteps.has(stepId(suffix))
+  const onChange = (suffix: string) => (c: boolean) => toggleStep(stepId(suffix), c)
+
   return (
     <>
-      <p>
-        <strong>Skip the edit-and-{real ? "redeploy" : "restart"} loop.</strong> YAGSL runs on{" "}
-        <ExternalDocLink href="https://yams.yassrobotics.com/details/swerve-drive">YAMS</ExternalDocLink> under the
-        hood now, so if the <NTPath>SwerveDriveConfig</NTPath> you build in code and pass to{" "}
-        <NTPath>SwerveParser.createSwerveDrive(...)</NTPath>/<NTPath>createSwerveDriveDevices(...)</NTPath> has
-        telemetry configured, these same drive/azimuth PID gains (and their kS/kV/kA feedforward) become live-tunable
-        over NetworkTables: edit a value from your dashboard and watch {real ? "the real robot" : "the sim"} respond
-        immediately, no JSON editing, no {real ? "redeploying" : "restarting the sim"}.
-      </p>
-      <pre className="mt-2 overflow-x-auto rounded bg-muted p-2.5 text-xs leading-relaxed">
-        <code className="font-mono">
-          {[
-            "var cfg = new SwerveDriveConfig()",
-            "    .withSubsystem(this)",
-            "    .withTranslationController(new PIDController(4, 0, 0))",
-            "    .withRotationController(new PIDController(1, 0, 0))",
-            '    .withTelemetry("swerve", new SwerveDriveTelemetryConfig(TelemetryVerbosity.HIGH));',
-            "",
-            'SwerveParser.parse(new File(Filesystem.getDeployDirectory(), "swerve/base"));',
-            "drive = SwerveParser.createSwerveDrive(cfg);",
-          ].map((line, i) => (
-            <div key={i}>{line || " "}</div>
-          ))}
-        </code>
-      </pre>
-      <p className="mt-2">
-        With that in place (already true if you named your drive <NTPath>"swerve"</NTPath> and used{" "}
-        <NTPath>TelemetryVerbosity.HIGH</NTPath>, both shown above):
-      </p>
-      <ol className="mt-1 list-decimal space-y-2 pl-5">
-        <li>
-          In SmartDashboard (Elastic/Shuffleboard work too), find and enable the tuning command at{" "}
-          <NTPath>SmartDashboard/Mechanisms/swerve/tuning/driveToPose</NTPath>. It has to be running, none of the
-          fields below do anything while it's idle.
-        </li>
-        <li>
-          Set <NTPath>Tuning/swerve/modules/azimuth/enabled</NTPath> to <NTPath>true</NTPath>.
-        </li>
-        <li>
-          Tune the azimuth PID: edit <NTPath>Tuning/swerve/modules/azimuth/feedback/p</NTPath>,{" "}
-          <NTPath>Tuning/swerve/modules/azimuth/feedback/i</NTPath>, and{" "}
-          <NTPath>Tuning/swerve/modules/azimuth/feedback/d</NTPath>. Feedforward gains, if you want them, are at{" "}
-          <NTPath>Tuning/swerve/modules/azimuth/feedforward/s</NTPath>,{" "}
-          <NTPath>Tuning/swerve/modules/azimuth/feedforward/v</NTPath>, and{" "}
-          <NTPath>Tuning/swerve/modules/azimuth/feedforward/a</NTPath>. Set{" "}
-          <NTPath>Tuning/swerve/modules/azimuth/angle</NTPath> (degrees) to a target angle and watch every module
-          track it.
-        </li>
-        <li>
-          Set <NTPath>Tuning/swerve/modules/azimuth/enabled</NTPath> back to <NTPath>false</NTPath>, then set{" "}
-          <NTPath>Tuning/swerve/modules/drive/enabled</NTPath> to <NTPath>true</NTPath>.
-        </li>
-        <li>
-          Tune the drive PID the same way: <NTPath>Tuning/swerve/modules/drive/feedback/p</NTPath>,{" "}
-          <NTPath>Tuning/swerve/modules/drive/feedback/i</NTPath>,{" "}
-          <NTPath>Tuning/swerve/modules/drive/feedback/d</NTPath>, and feedforward at{" "}
-          <NTPath>Tuning/swerve/modules/drive/feedforward/s</NTPath>,{" "}
-          <NTPath>Tuning/swerve/modules/drive/feedforward/v</NTPath>,{" "}
-          <NTPath>Tuning/swerve/modules/drive/feedforward/a</NTPath>. Set{" "}
-          <NTPath>Tuning/swerve/modules/drive/velocity</NTPath> (meters per second) to a target speed and watch every
-          module track it.
-        </li>
-        <li>
-          Set <NTPath>Tuning/swerve/modules/drive/enabled</NTPath> back to <NTPath>false</NTPath> when you're done,
-          then copy the gains that worked back into your{" "}
-          <NTPath>SmartMotorControllerConfig.withClosedLoopController(...)</NTPath>/
-          <NTPath>withFeedforward(...)</NTPath> calls in code.
-        </li>
-      </ol>
-      <p className="mt-2">
-        <NTPath>autoalign/enabled</NTPath>, <NTPath>modules/drive/enabled</NTPath>, and{" "}
-        <NTPath>modules/azimuth/enabled</NTPath> are mutually exclusive, only one can drive the modules at a time, so
-        there's no need to worry about them fighting each other. See the{" "}
-        <ExternalDocLink href="https://yams.yassrobotics.com/details/swerve-drive">
-          YAMS swerve drive tuning guide
-        </ExternalDocLink>{" "}
-        for the full field list.
-      </p>
+      <Step
+        id={stepId("setup")}
+        title="Wire up telemetry so the drive/azimuth PID gains become live-tunable over NetworkTables."
+        detail={
+          <>
+            <p>
+              YAGSL runs on{" "}
+              <ExternalDocLink href="https://yams.yassrobotics.com/details/swerve-drive">YAMS</ExternalDocLink>{" "}
+              under the hood now, so if the <NTPath>SwerveDriveConfig</NTPath> you build in code and pass to{" "}
+              <NTPath>SwerveParser.createSwerveDrive(...)</NTPath>/<NTPath>createSwerveDriveDevices(...)</NTPath> has
+              telemetry configured, these same drive/azimuth PID gains (and their kS/kV/kA feedforward) become
+              live-tunable over NetworkTables: edit a value from your dashboard and watch{" "}
+              {real ? "the real robot" : "the sim"} respond immediately, no JSON editing required.
+            </p>
+            <pre className="mt-2 overflow-x-auto rounded bg-muted p-2.5 text-xs leading-relaxed">
+              <code className="font-mono">
+                {[
+                  "var cfg = new SwerveDriveConfig()",
+                  "    .withSubsystem(this)",
+                  "    .withTranslationController(new PIDController(4, 0, 0))",
+                  "    .withRotationController(new PIDController(1, 0, 0))",
+                  '    .withTelemetry("swerve", new SwerveDriveTelemetryConfig(TelemetryVerbosity.HIGH));',
+                  "",
+                  'SwerveParser.parse(new File(Filesystem.getDeployDirectory(), "swerve/base"));',
+                  "drive = SwerveParser.createSwerveDrive(cfg);",
+                ].map((line, i) => (
+                  <div key={i}>{line || " "}</div>
+                ))}
+              </code>
+            </pre>
+            <p className="mt-2">
+              Already true if you named your drive <NTPath>"swerve"</NTPath> and used{" "}
+              <NTPath>TelemetryVerbosity.HIGH</NTPath>, both shown above.
+            </p>
+          </>
+        }
+        checked={checked("setup")}
+        onCheckedChange={onChange("setup")}
+      />
+      <Step
+        id={stepId("enable")}
+        title="Enable the tuning command."
+        detail={
+          <>
+            In SmartDashboard (Elastic/Shuffleboard work too), find and enable the command at{" "}
+            <NTPath>SmartDashboard/Mechanisms/swerve/tuning/driveToPose</NTPath>. It has to be running, none of the
+            fields below do anything while it's idle.
+          </>
+        }
+        checked={checked("enable")}
+        onCheckedChange={onChange("enable")}
+      />
+      <Step
+        id={stepId("azimuth-enable")}
+        title="Switch to azimuth tuning."
+        detail={
+          <>
+            Set <NTPath>Tuning/swerve/modules/azimuth/enabled</NTPath> to <NTPath>true</NTPath>.
+          </>
+        }
+        checked={checked("azimuth-enable")}
+        onCheckedChange={onChange("azimuth-enable")}
+      />
+      <Step
+        id={stepId("azimuth-tune")}
+        title="Tune the azimuth PID."
+        detail="Edit these fields and watch every module track the target angle:"
+        checked={checked("azimuth-tune")}
+        onCheckedChange={onChange("azimuth-tune")}
+      >
+        <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+          <li>
+            <NTPath>Tuning/swerve/modules/azimuth/feedback/p</NTPath>
+          </li>
+          <li>
+            <NTPath>Tuning/swerve/modules/azimuth/feedback/i</NTPath>
+          </li>
+          <li>
+            <NTPath>Tuning/swerve/modules/azimuth/feedback/d</NTPath>
+          </li>
+          <li>
+            <NTPath>Tuning/swerve/modules/azimuth/feedforward/s</NTPath> (optional)
+          </li>
+          <li>
+            <NTPath>Tuning/swerve/modules/azimuth/feedforward/v</NTPath> (optional)
+          </li>
+          <li>
+            <NTPath>Tuning/swerve/modules/azimuth/feedforward/a</NTPath> (optional)
+          </li>
+          <li>
+            <NTPath>Tuning/swerve/modules/azimuth/angle</NTPath> (degrees, the target angle setpoint)
+          </li>
+        </ul>
+      </Step>
+      <Step
+        id={stepId("drive-enable")}
+        title="Switch to drive tuning."
+        detail={
+          <>
+            Set <NTPath>Tuning/swerve/modules/azimuth/enabled</NTPath> back to <NTPath>false</NTPath>, then set{" "}
+            <NTPath>Tuning/swerve/modules/drive/enabled</NTPath> to <NTPath>true</NTPath>.
+          </>
+        }
+        checked={checked("drive-enable")}
+        onCheckedChange={onChange("drive-enable")}
+      />
+      <Step
+        id={stepId("drive-tune")}
+        title="Tune the drive PID."
+        detail="Edit these fields and watch every module track the target speed:"
+        checked={checked("drive-tune")}
+        onCheckedChange={onChange("drive-tune")}
+      >
+        <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+          <li>
+            <NTPath>Tuning/swerve/modules/drive/feedback/p</NTPath>
+          </li>
+          <li>
+            <NTPath>Tuning/swerve/modules/drive/feedback/i</NTPath>
+          </li>
+          <li>
+            <NTPath>Tuning/swerve/modules/drive/feedback/d</NTPath>
+          </li>
+          <li>
+            <NTPath>Tuning/swerve/modules/drive/feedforward/s</NTPath> (optional)
+          </li>
+          <li>
+            <NTPath>Tuning/swerve/modules/drive/feedforward/v</NTPath> (optional)
+          </li>
+          <li>
+            <NTPath>Tuning/swerve/modules/drive/feedforward/a</NTPath> (optional)
+          </li>
+          <li>
+            <NTPath>Tuning/swerve/modules/drive/velocity</NTPath> (meters per second, the target speed setpoint)
+          </li>
+        </ul>
+      </Step>
+      <Step
+        id={stepId("inplace")}
+        title="Run the spin test over NetworkTables."
+        detail={
+          <>
+            Want to run the spin test from the dashboard instead of a joystick? Flip{" "}
+            <NTPath>Tuning/swerve/modules/drive/inplace</NTPath> to <NTPath>true</NTPath> while{" "}
+            <NTPath>modules/drive/enabled</NTPath> is still <NTPath>true</NTPath>. Every module snaps 90&deg; off its
+            radial angle (tangent to the robot center), so raising <NTPath>modules/drive/velocity</NTPath> spins the
+            whole chassis in place instead of driving it straight, the same test as holding the right stick left, but
+            drivable entirely over NetworkTables.
+          </>
+        }
+        checked={checked("inplace")}
+        onCheckedChange={onChange("inplace")}
+      >
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          <Image
+            src={withBasePath("/module-drive-inplace.gif")}
+            alt="Raising modules/drive/velocity with modules/drive/inplace set to true: every module points tangent to the robot center and the chassis spins in place, faster as the value increases."
+            width={760}
+            height={563}
+            unoptimized
+            className="w-full rounded border border-border"
+          />
+          <Image
+            src={withBasePath("/module-drive-inplace.png")}
+            alt="modules/drive/enabled and modules/drive/inplace both true with velocity at -3: each module is pinwheeled 90 degrees off its radial angle and the swerve widget's rotation arrow confirms the robot is spinning cleanly about its center."
+            width={1005}
+            height={745}
+            unoptimized
+            className="w-full rounded border border-border"
+          />
+        </div>
+      </Step>
+      <Step
+        id={stepId("finish")}
+        title="Wrap up: disable drive tuning and copy the gains back into code."
+        detail={
+          <>
+            <p>
+              Set <NTPath>Tuning/swerve/modules/drive/enabled</NTPath> back to <NTPath>false</NTPath> when you're
+              done, then copy the gains that worked into your{" "}
+              <NTPath>SmartMotorControllerConfig.withClosedLoopController(...)</NTPath>/
+              <NTPath>withFeedforward(...)</NTPath> calls in code.
+            </p>
+            <p className="mt-2">
+              <NTPath>autoalign/enabled</NTPath>, <NTPath>modules/drive/enabled</NTPath>, and{" "}
+              <NTPath>modules/azimuth/enabled</NTPath> are mutually exclusive, only one can drive the modules at a
+              time, so there's no need to worry about them fighting each other. See the{" "}
+              <ExternalDocLink href="https://yams.yassrobotics.com/details/swerve-drive">
+                YAMS swerve drive tuning guide
+              </ExternalDocLink>{" "}
+              for the full field list.
+            </p>
+          </>
+        }
+        checked={checked("finish")}
+        onCheckedChange={onChange("finish")}
+      />
     </>
   )
 }
@@ -219,11 +365,11 @@ const TABS = [
 const TAB_STEPS: Record<(typeof TABS)[number], string[]> = {
   setup: ["setup-1", "setup-2", "setup-3", "setup-4", "setup-5"],
   "sim-connect": ["sim-connect-1", "sim-connect-2", "sim-connect-3", "sim-connect-4"],
-  "sim-tune": ["sim-tune-1", "sim-tune-live", "sim-tune-2", "sim-tune-3", "sim-tune-4"],
+  "sim-tune": ["sim-tune-1", ...liveTuningStepIds("sim-tune-live"), "sim-tune-3", "sim-tune-4"],
   "robot-connect": ["robot-connect-1", "robot-connect-2", "robot-connect-3", "robot-connect-4", "robot-connect-5"],
   locations: ["locations-2"],
   align: ["align-1", "align-2", "align-3"],
-  "robot-tune": ["robot-tune-1", "robot-tune-2", "robot-tune-live", "robot-tune-3", "robot-tune-4"],
+  "robot-tune": ["robot-tune-1", "robot-tune-2", ...liveTuningStepIds("robot-tune-live"), "robot-tune-3", "robot-tune-4"],
   field: ["field-1", "field-2", "field-3", "field-4", "field-5"],
   maintenance: ["maintenance-1", "maintenance-2", "maintenance-3", "maintenance-4"],
 }
@@ -583,18 +729,12 @@ export function TuningGuide() {
                   ]}
                 />
               </Step>
-              <Step
-                id="sim-tune-live"
-                title="(Optional) Enable Swerve Drive Tuning to tune PID gains live over NetworkTables instead."
-                detail={<YamsLiveTuningSteps real={false} />}
-                checked={checkedSteps.has("sim-tune-live")}
-                onCheckedChange={(c) => toggleStep("sim-tune-live", c)}
-              />
-              <Step
-                id="sim-tune-2"
-                title="Restart the simulator to apply the changes."
-                checked={checkedSteps.has("sim-tune-2")}
-                onCheckedChange={(c) => toggleStep("sim-tune-2", c)}
+              <h4 className="pt-2 text-base font-semibold">Live-tune the PID gains over NetworkTables</h4>
+              <LiveTuningSteps
+                real={false}
+                idPrefix="sim-tune-live"
+                checkedSteps={checkedSteps}
+                toggleStep={toggleStep}
               />
               <Step
                 id="sim-tune-3"
@@ -1122,12 +1262,12 @@ export function TuningGuide() {
                   </AlertDescription>
                 </Alert>
               </Step>
-              <Step
-                id="robot-tune-live"
-                title="(Optional) Enable Swerve Drive Tuning to tune PID gains live over NetworkTables instead."
-                detail={<YamsLiveTuningSteps real />}
-                checked={checkedSteps.has("robot-tune-live")}
-                onCheckedChange={(c) => toggleStep("robot-tune-live", c)}
+              <h4 className="pt-2 text-base font-semibold">Live-tune the PID gains over NetworkTables</h4>
+              <LiveTuningSteps
+                real
+                idPrefix="robot-tune-live"
+                checkedSteps={checkedSteps}
+                toggleStep={toggleStep}
               />
               <Step
                 id="robot-tune-3"
