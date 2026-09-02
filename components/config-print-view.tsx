@@ -202,10 +202,19 @@ export function ConfigPrintView({ config }: { config: ConfigData }) {
 
       <Section title="Gyroscope" file="swervedrive.json">
         <ChoiceRow label="Gyro type" options={GYRO_TYPES} value={config.swervedrive.gyro.type} />
-        <InlineFields fields={[{ label: "CAN ID", value: config.swervedrive.gyro.id }]} />
-        <LongField label="CAN bus" {...canbusField(config.swervedrive.gyro.canbus)} />
-        <ChoiceRow label="Gyro axis" options={GYRO_AXES} value={config.swervedrive.gyroAxis} />
-        <BoolChoiceRow label="Invert gyroscope" value={config.swervedrive.gyroInvert} />
+        {config.swervedrive.gyro.type === "custom" ? (
+          <p className="text-xs text-muted-foreground">
+            Custom gyro: CAN ID, CAN bus, gyro axis, and invert are set in code via SwerveDriveConfig.withGyro(...),
+            not in this file.
+          </p>
+        ) : (
+          <>
+            <InlineFields fields={[{ label: "CAN ID", value: config.swervedrive.gyro.id }]} />
+            <LongField label="CAN bus" {...canbusField(config.swervedrive.gyro.canbus)} />
+            <ChoiceRow label="Gyro axis" options={GYRO_AXES} value={config.swervedrive.gyroAxis} />
+            <BoolChoiceRow label="Invert gyroscope" value={config.swervedrive.gyroInvert} />
+          </>
+        )}
       </Section>
 
       <ModuleSection name="Front Left" file="modules/frontleft.json" config={config.modules.frontleft} />
@@ -241,9 +250,9 @@ export function ConfigPrintView({ config }: { config: ConfigData }) {
         <InlineFields
           fullWidth
           fields={[
-            { label: "Drive S", ...orDefault(config.pidfproperties.drive.s, "—") },
-            { label: "Drive V", ...orDefault(config.pidfproperties.drive.v, "—") },
-            { label: "Drive A", ...orDefault(config.pidfproperties.drive.a, "—") },
+            { label: "Drive S", ...orDefault(config.pidfproperties.drive.s, "Not set") },
+            { label: "Drive V", ...orDefault(config.pidfproperties.drive.v, "Not set") },
+            { label: "Drive A", ...orDefault(config.pidfproperties.drive.a, "Not set") },
           ]}
         />
         <InlineFields
@@ -257,9 +266,9 @@ export function ConfigPrintView({ config }: { config: ConfigData }) {
         <InlineFields
           fullWidth
           fields={[
-            { label: "Angle S", ...orDefault(config.pidfproperties.angle.s, "—") },
-            { label: "Angle V", ...orDefault(config.pidfproperties.angle.v, "—") },
-            { label: "Angle A", ...orDefault(config.pidfproperties.angle.a, "—") },
+            { label: "Angle S", ...orDefault(config.pidfproperties.angle.s, "Not set") },
+            { label: "Angle V", ...orDefault(config.pidfproperties.angle.v, "Not set") },
+            { label: "Angle A", ...orDefault(config.pidfproperties.angle.a, "Not set") },
           ]}
         />
       </Section>

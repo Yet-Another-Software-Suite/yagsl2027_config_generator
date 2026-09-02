@@ -13,6 +13,8 @@ interface GyroConfigProps {
 }
 
 export function GyroConfig({ config, onChange }: GyroConfigProps) {
+  const isCustom = config.gyro.type === "custom"
+
   return (
     <div className="space-y-6">
       <div>
@@ -42,35 +44,39 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="gyro-id">CAN ID</Label>
-            <Input
-              id="gyro-id"
-              type="number"
-              value={config.gyro.id}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  gyro: { ...config.gyro, id: Number(e.target.value) },
-                })
-              }
-            />
-          </div>
+          {!isCustom && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="gyro-id">CAN ID</Label>
+                <Input
+                  id="gyro-id"
+                  type="number"
+                  value={config.gyro.id}
+                  onChange={(e) =>
+                    onChange({
+                      ...config,
+                      gyro: { ...config.gyro, id: Number(e.target.value) },
+                    })
+                  }
+                />
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="gyro-canbus">CAN Bus Name</Label>
-            <Input
-              id="gyro-canbus"
-              value={config.gyro.canbus}
-              placeholder="Leave empty for default"
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  gyro: { ...config.gyro, canbus: e.target.value },
-                })
-              }
-            />
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="gyro-canbus">CAN Bus Name</Label>
+                <Input
+                  id="gyro-canbus"
+                  value={config.gyro.canbus}
+                  placeholder="Leave empty for default"
+                  onChange={(e) =>
+                    onChange({
+                      ...config,
+                      gyro: { ...config.gyro, canbus: e.target.value },
+                    })
+                  }
+                />
+              </div>
+            </>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="gyro-axis">Gyro Axis</Label>
@@ -93,12 +99,50 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
               id="gyro-invert"
               checked={config.gyroInvert}
               onCheckedChange={(checked) => onChange({ ...config, gyroInvert: checked as boolean })}
+              disabled={isCustom}
             />
-            <Label htmlFor="gyro-invert" className="cursor-pointer">
+            <Label htmlFor="gyro-invert" className={isCustom ? "text-muted-foreground" : "cursor-pointer"}>
               Invert Gyroscope
             </Label>
           </div>
         </div>
+
+        {isCustom && (
+          <div className="mt-4 space-y-2 rounded-lg border p-3 text-sm">
+            <p>
+              <strong>Custom gyro:</strong> use this when your gyro isn't one of the built-in options above. The{" "}
+              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">Gyro Axis</code> and{" "}
+              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">Invert Gyroscope</code> fields above
+              are ignored for a custom gyro, YAGSL doesn't build a gyro device for you in this case.
+            </p>
+            <p>
+              Instead, read your gyro yourself and pass it (and its inversion, if any) to the{" "}
+              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">SwerveDriveConfig</code> you build in
+              code, before handing it to{" "}
+              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+                SwerveParser.createSwerveDrive(...)
+              </code>
+              /
+              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">createSwerveDriveDevices(...)</code>:
+            </p>
+            <pre className="overflow-x-auto rounded bg-muted p-2.5 text-xs leading-relaxed">
+              <code className="font-mono">
+                {[
+                  "var cfg = new SwerveDriveConfig()",
+                  "    .withSubsystem(this)",
+                  "    .withGyro(() -> myCustomGyro.getYaw())",
+                  "    .withGyroInverted(true)",
+                  "    // .withGyroOffset(...), .withGyroVelocity(...) are also available",
+                  "    .withTranslationController(new PIDController(4, 0, 0))",
+                  "    .withRotationController(new PIDController(1, 0, 0))",
+                  '    .withTelemetry("swerve", new SwerveDriveTelemetryConfig(TelemetryVerbosity.HIGH));',
+                ].map((line, i) => (
+                  <div key={i}>{line || " "}</div>
+                ))}
+              </code>
+            </pre>
+          </div>
+        )}
       </div>
     </div>
   )

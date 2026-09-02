@@ -11,18 +11,19 @@
             "navx3_can",
             "pigeon2_can",
             "canandgyro_can",
-            "systemcore_internal"
+            "systemcore_internal",
+            "custom"
           ],
           "type": "string",
-          "description": "The gyroscope type"
+          "description": "The gyroscope type. Use \"custom\" for a gyro this generator doesn't have a built-in option for; SwerveParser skips creating a gyro device for \"custom\" and expects the SwerveDriveConfig you pass to SwerveParser.createSwerveDrive(...)/createSwerveDriveDevices(...) to already have .withGyro(...) (and optionally .withGyroOffset(...)/.withGyroVelocity(...)) set."
         },
         "id": {
           "type": "number",
-          "description": "CAN ID of the Gyroscope. If no CAN ID is needed, set this to 0"
+          "description": "CAN ID of the Gyroscope. If no CAN ID is needed, set this to 0. Ignored when type is \"custom\"."
         },
         "canbus": {
           "type": "string",
-          "description": "Name of the CAN bus that the Gyroscope is connected to. \"\" for the default CAN bus."
+          "description": "Name of the CAN bus that the Gyroscope is connected to. \"\" for the default CAN bus. Ignored when type is \"custom\"."
         }
       },
       "required": [

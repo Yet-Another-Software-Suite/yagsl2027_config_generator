@@ -51,7 +51,7 @@ function SpinScene({ mode }: { mode: SpinMode }) {
       {/* robot chassis */}
       <g className={chassisClass}>
         <rect x="20" y="40" width="70" height="70" rx="12" className="fill-muted stroke-border" strokeWidth="2" />
-        {/* wheels: for a clean spin (correct or reversed direction) they're angled tangentially (pinwheel) —
+        {/* wheels: for a clean spin (correct or reversed direction) they're angled tangentially (pinwheel);
             the steering angle alone doesn't tell you the rotation direction, that's set by which way each
             drive wheel spins. Left forward-facing (undefined) for the drift case, which never got steered
             into spin position at all. */}
@@ -83,13 +83,13 @@ export function SpinTestAnimation() {
       </ComparisonPanel>
       <ComparisonPanel
         variant="incorrect"
-        caption="The robot spins cleanly, but the wrong way (clockwise (CW) instead of CCW) — check for inverted drive motors, a diagonal module swap (front-left ↔ back-right, front-right ↔ back-left), or absolute encoder offsets that were captured with the bevel gear facing right instead of left."
+        caption="The robot spins cleanly, but the wrong way (clockwise (CW) instead of CCW): check for inverted drive motors, a diagonal module swap (front-left ↔ back-right, front-right ↔ back-left), or absolute encoder offsets that were captured with the bevel gear facing right instead of left."
       >
         <SpinScene mode="reverse" />
       </ComparisonPanel>
       <ComparisonPanel
         variant="incorrect"
-        caption="Wheels stay pointed the same direction, so the robot drifts or translates instead of spinning in place — check module CAN IDs and absolute encoder offsets."
+        caption="Wheels stay pointed the same direction, so the robot drifts or translates instead of spinning in place: check module CAN IDs and absolute encoder offsets."
       >
         <SpinScene mode="drift" />
       </ComparisonPanel>

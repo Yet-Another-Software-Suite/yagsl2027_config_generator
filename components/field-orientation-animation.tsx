@@ -47,8 +47,8 @@ function FieldScene({ mirrored, heading = 0 }: { mirrored: boolean; heading?: nu
         driver station
       </text>
 
-      {/* robot: position on the field, then its own heading (rotation is purely cosmetic here — field-oriented
-          drive means the movement direction below does NOT depend on this rotation) */}
+      {/* robot: position on the field, then its own heading (rotation is purely cosmetic here;
+          field-oriented drive means the movement direction below does NOT depend on this rotation) */}
       <g transform="translate(80 60)">
         <g className={mirrored ? "field-dot-mirrored" : "field-dot"}>
           <g transform={`rotate(${heading})`}>
@@ -80,7 +80,7 @@ export function FieldOrientationAnimation({ heading = 0 }: { heading?: number })
       </ComparisonPanel>
       <ComparisonPanel
         variant="incorrect"
-        caption="The field widget moves opposite what you'd expect — check the gyro offset/inversion."
+        caption="The field widget moves opposite what you'd expect: check the gyro offset/inversion."
       >
         <FieldScene mirrored heading={heading} />
       </ComparisonPanel>

@@ -96,6 +96,91 @@ function PidTuningLinks() {
   )
 }
 
+function YamsLiveTuningSteps({ real }: { real: boolean }) {
+  return (
+    <>
+      <p>
+        <strong>Skip the edit-and-{real ? "redeploy" : "restart"} loop.</strong> YAGSL runs on{" "}
+        <ExternalDocLink href="https://yams.yassrobotics.com/details/swerve-drive">YAMS</ExternalDocLink> under the
+        hood now, so if the <NTPath>SwerveDriveConfig</NTPath> you build in code and pass to{" "}
+        <NTPath>SwerveParser.createSwerveDrive(...)</NTPath>/<NTPath>createSwerveDriveDevices(...)</NTPath> has
+        telemetry configured, these same drive/azimuth PID gains (and their kS/kV/kA feedforward) become live-tunable
+        over NetworkTables: edit a value from your dashboard and watch {real ? "the real robot" : "the sim"} respond
+        immediately, no JSON editing, no {real ? "redeploying" : "restarting the sim"}.
+      </p>
+      <pre className="mt-2 overflow-x-auto rounded bg-muted p-2.5 text-xs leading-relaxed">
+        <code className="font-mono">
+          {[
+            "var cfg = new SwerveDriveConfig()",
+            "    .withSubsystem(this)",
+            "    .withTranslationController(new PIDController(4, 0, 0))",
+            "    .withRotationController(new PIDController(1, 0, 0))",
+            '    .withTelemetry("swerve", new SwerveDriveTelemetryConfig(TelemetryVerbosity.HIGH));',
+            "",
+            'SwerveParser.parse(new File(Filesystem.getDeployDirectory(), "swerve/base"));',
+            "drive = SwerveParser.createSwerveDrive(cfg);",
+          ].map((line, i) => (
+            <div key={i}>{line || " "}</div>
+          ))}
+        </code>
+      </pre>
+      <p className="mt-2">
+        With that in place (already true if you named your drive <NTPath>"swerve"</NTPath> and used{" "}
+        <NTPath>TelemetryVerbosity.HIGH</NTPath>, both shown above):
+      </p>
+      <ol className="mt-1 list-decimal space-y-2 pl-5">
+        <li>
+          In SmartDashboard (Elastic/Shuffleboard work too), find and enable the tuning command at{" "}
+          <NTPath>SmartDashboard/Mechanisms/swerve/tuning/driveToPose</NTPath>. It has to be running, none of the
+          fields below do anything while it's idle.
+        </li>
+        <li>
+          Set <NTPath>Tuning/swerve/modules/azimuth/enabled</NTPath> to <NTPath>true</NTPath>.
+        </li>
+        <li>
+          Tune the azimuth PID: edit <NTPath>Tuning/swerve/modules/azimuth/feedback/p</NTPath>,{" "}
+          <NTPath>Tuning/swerve/modules/azimuth/feedback/i</NTPath>, and{" "}
+          <NTPath>Tuning/swerve/modules/azimuth/feedback/d</NTPath>. Feedforward gains, if you want them, are at{" "}
+          <NTPath>Tuning/swerve/modules/azimuth/feedforward/s</NTPath>,{" "}
+          <NTPath>Tuning/swerve/modules/azimuth/feedforward/v</NTPath>, and{" "}
+          <NTPath>Tuning/swerve/modules/azimuth/feedforward/a</NTPath>. Set{" "}
+          <NTPath>Tuning/swerve/modules/azimuth/angle</NTPath> (degrees) to a target angle and watch every module
+          track it.
+        </li>
+        <li>
+          Set <NTPath>Tuning/swerve/modules/azimuth/enabled</NTPath> back to <NTPath>false</NTPath>, then set{" "}
+          <NTPath>Tuning/swerve/modules/drive/enabled</NTPath> to <NTPath>true</NTPath>.
+        </li>
+        <li>
+          Tune the drive PID the same way: <NTPath>Tuning/swerve/modules/drive/feedback/p</NTPath>,{" "}
+          <NTPath>Tuning/swerve/modules/drive/feedback/i</NTPath>,{" "}
+          <NTPath>Tuning/swerve/modules/drive/feedback/d</NTPath>, and feedforward at{" "}
+          <NTPath>Tuning/swerve/modules/drive/feedforward/s</NTPath>,{" "}
+          <NTPath>Tuning/swerve/modules/drive/feedforward/v</NTPath>,{" "}
+          <NTPath>Tuning/swerve/modules/drive/feedforward/a</NTPath>. Set{" "}
+          <NTPath>Tuning/swerve/modules/drive/velocity</NTPath> (meters per second) to a target speed and watch every
+          module track it.
+        </li>
+        <li>
+          Set <NTPath>Tuning/swerve/modules/drive/enabled</NTPath> back to <NTPath>false</NTPath> when you're done,
+          then copy the gains that worked back into your{" "}
+          <NTPath>SmartMotorControllerConfig.withClosedLoopController(...)</NTPath>/
+          <NTPath>withFeedforward(...)</NTPath> calls in code.
+        </li>
+      </ol>
+      <p className="mt-2">
+        <NTPath>autoalign/enabled</NTPath>, <NTPath>modules/drive/enabled</NTPath>, and{" "}
+        <NTPath>modules/azimuth/enabled</NTPath> are mutually exclusive, only one can drive the modules at a time, so
+        there's no need to worry about them fighting each other. See the{" "}
+        <ExternalDocLink href="https://yams.yassrobotics.com/details/swerve-drive">
+          YAMS swerve drive tuning guide
+        </ExternalDocLink>{" "}
+        for the full field list.
+      </p>
+    </>
+  )
+}
+
 function NTPath({ children }: { children: string }) {
   return <code className="break-all rounded bg-muted px-1.5 py-0.5 text-xs font-mono">{children}</code>
 }
@@ -134,11 +219,11 @@ const TABS = [
 const TAB_STEPS: Record<(typeof TABS)[number], string[]> = {
   setup: ["setup-1", "setup-2", "setup-3", "setup-4", "setup-5"],
   "sim-connect": ["sim-connect-1", "sim-connect-2", "sim-connect-3", "sim-connect-4"],
-  "sim-tune": ["sim-tune-1", "sim-tune-2", "sim-tune-3", "sim-tune-4"],
+  "sim-tune": ["sim-tune-1", "sim-tune-live", "sim-tune-2", "sim-tune-3", "sim-tune-4"],
   "robot-connect": ["robot-connect-1", "robot-connect-2", "robot-connect-3", "robot-connect-4", "robot-connect-5"],
   locations: ["locations-2"],
   align: ["align-1", "align-2", "align-3"],
-  "robot-tune": ["robot-tune-1", "robot-tune-2", "robot-tune-3", "robot-tune-4"],
+  "robot-tune": ["robot-tune-1", "robot-tune-2", "robot-tune-live", "robot-tune-3", "robot-tune-4"],
   field: ["field-1", "field-2", "field-3", "field-4", "field-5"],
   maintenance: ["maintenance-1", "maintenance-2", "maintenance-3", "maintenance-4"],
 }
@@ -287,7 +372,7 @@ export function TuningGuide() {
                       value={tab.value}
                       aria-disabled={locked}
                       title={locked ? "Double click to preview" : undefined}
-                      aria-label={locked ? `${tab.label} — double click to preview` : undefined}
+                      aria-label={locked ? `${tab.label}: double click to preview` : undefined}
                       onDoubleClick={() => setActiveTab(tab.value)}
                       className={cn("whitespace-nowrap gap-1.5", locked && "cursor-not-allowed opacity-60")}
                     >
@@ -325,7 +410,7 @@ export function TuningGuide() {
                   <>
                     Copy the contents of the{" "}
                     <ExternalDocLink href={EXAMPLE_PROJECT_URL}>example project</ExternalDocLink> folder out of the
-                    cloned repository and into your own robot project directory — that's what you'll actually
+                    cloned repository and into your own robot project directory. That's what you'll actually
                     build and deploy.
                   </>
                 }
@@ -335,7 +420,7 @@ export function TuningGuide() {
               <Step
                 id="setup-3"
                 title="Change the team number."
-                detail="In your new project, set it to your own team number — with the WPILib VS Code extension, that's Ctrl+Shift+P → WPILib: Set Team Number (or edit it directly in .wpilib/wpilib_preferences.json)."
+                detail="In your new project, set it to your own team number. With the WPILib VS Code extension, that's Ctrl+Shift+P → WPILib: Set Team Number (or edit it directly in .wpilib/wpilib_preferences.json)."
                 checked={checkedSteps.has("setup-3")}
                 onCheckedChange={(c) => toggleStep("setup-3", c)}
               />
@@ -344,7 +429,7 @@ export function TuningGuide() {
                 title="Delete src/main/deploy/swerve."
                 detail={
                   <>
-                    Delete the example project's default <NTPath>src/main/deploy/swerve</NTPath> folder — you'll
+                    Delete the example project's default <NTPath>src/main/deploy/swerve</NTPath> folder. You'll
                     replace it with your own generated configuration next.
                   </>
                 }
@@ -499,6 +584,13 @@ export function TuningGuide() {
                 />
               </Step>
               <Step
+                id="sim-tune-live"
+                title="(Optional) Enable Swerve Drive Tuning to tune PID gains live over NetworkTables instead."
+                detail={<YamsLiveTuningSteps real={false} />}
+                checked={checkedSteps.has("sim-tune-live")}
+                onCheckedChange={(c) => toggleStep("sim-tune-live", c)}
+              />
+              <Step
                 id="sim-tune-2"
                 title="Restart the simulator to apply the changes."
                 checked={checkedSteps.has("sim-tune-2")}
@@ -596,7 +688,7 @@ export function TuningGuide() {
               <ModuleLocationDiagram />
               <Alert>
                 <AlertDescription>
-                  The "center of robot" in the diagram above is actually the center of rotation — and ideally, that
+                  The "center of robot" in the diagram above is actually the center of rotation, and ideally, that
                   should also be your robot's center of mass. If the center of rotation isn't the center of mass,
                   the robot will drift while rotating instead of spinning cleanly in place.
                 </AlertDescription>
@@ -785,7 +877,7 @@ export function TuningGuide() {
                   <>
                   The absolute encoder reading should be counterclockwise positive (CCW+) (increasing as the module rotates counterclockwise
                     from a top-down view). If it isn't, you need to set that module's{" "}
-                    <NTPath>absoluteEncoderInverted</NTPath> to <NTPath>true</NTPath>. This is rare — most absolute
+                    <NTPath>absoluteEncoderInverted</NTPath> to <NTPath>true</NTPath>. This is rare: most absolute
                     encoders already read counterclockwise positive (CCW+) by default, so only change this if you've confirmed the reading is
                     backwards.
                     </>
@@ -877,7 +969,7 @@ export function TuningGuide() {
               <Alert>
                 <AlertDescription>
                   If something is only happening to one module, there's likely something physically wrong with that
-                  module. When in doubt, check wiring first, then gears — and if all else fails, rebuild the module,
+                  module. When in doubt, check wiring first, then gears, and if all else fails, rebuild the module,
                   paying special attention to the instructions.
                 </AlertDescription>
               </Alert>
@@ -892,7 +984,7 @@ export function TuningGuide() {
                 <GyroCheckAnimation />
                 <p className="text-sm text-muted-foreground">
                   Only change <NTPath>gyroInvert</NTPath> if the CCW test above failed (the gyro decreased instead
-                  of increased). If it read correctly, leave it alone — there's nothing to change here.
+                  of increased). If it read correctly, leave it alone, there's nothing to change here.
                 </p>
                 <JsonDiff
                   filename="swervedrive.json"
@@ -941,7 +1033,7 @@ export function TuningGuide() {
                   <>
                     <p>
                       Just like in simulation, edit <NTPath>modules/pidfproperties.json</NTPath> to tune the drive
-                      and angle PID gains — this time for the real robot. <PidTuningLinks />
+                      and angle PID gains, this time for the real robot. <PidTuningLinks />
                     </p>
                     <ModuleMotorAnimation />
                     <ul className="mt-1 list-disc space-y-1 pl-5">
@@ -956,7 +1048,7 @@ export function TuningGuide() {
                       </li>
                       <li>
                         <strong>You must redeploy to test.</strong> Editing the json file alone doesn't change
-                        anything on the robot — redeploy the code every time you want to test a change.
+                        anything on the robot, redeploy the code every time you want to test a change.
                       </li>
                     </ul>
                   </>
@@ -1023,13 +1115,20 @@ export function TuningGuide() {
                       </li>
                       <li>
                         <strong>Check that motor's stator (output) current.</strong> A stalling motor draws
-                        exceedingly high stator current and heats up quickly — that usually means a dead or dying
+                        exceedingly high stator current and heats up quickly, that usually means a dead or dying
                         motor.
                       </li>
                     </ul>
                   </AlertDescription>
                 </Alert>
               </Step>
+              <Step
+                id="robot-tune-live"
+                title="(Optional) Enable Swerve Drive Tuning to tune PID gains live over NetworkTables instead."
+                detail={<YamsLiveTuningSteps real />}
+                checked={checkedSteps.has("robot-tune-live")}
+                onCheckedChange={(c) => toggleStep("robot-tune-live", c)}
+              />
               <Step
                 id="robot-tune-3"
                 title="Spin each module 5 full turns and check it lands back where it started."
@@ -1038,7 +1137,7 @@ export function TuningGuide() {
                     With the <strong>robot disabled</strong> (motors not fighting you, but telemetry still live) and
                     off the ground,
                     by hand rotate one module's azimuth exactly 5 full turns (360° × 5), then check that module's
-                    current state in AdvantageScope — it should read the relatively close same angle it started at. If it
+                    current state in AdvantageScope, it should read the relatively close same angle it started at. If it
                     doesn't, that module's gear ratio is wrong:
                     <ul className="mt-1 list-disc space-y-1 pl-5">
                       <li>
@@ -1053,9 +1152,9 @@ export function TuningGuide() {
                       </li>
                     </ul>
                     <p className="mt-2">
-                      You can run the same 5-turn test on each drive motor too — rotate the wheel by hand exactly 5
+                      You can run the same 5-turn test on each drive motor too: rotate the wheel by hand exactly 5
                       full turns and confirm the reported distance traveled matches what you'd expect. This only
-                      matters on the real robot — simulation doesn't model gearing mistakes.
+                      matters on the real robot, simulation doesn't model gearing mistakes.
                     </p>
                   </>
                 }
@@ -1109,7 +1208,7 @@ export function TuningGuide() {
                   <>
                     <p>
                       Still with the robot off the ground, hold the right stick to the left. The right stick's
-                      left/right axis controls angular velocity — left commands the robot to rotate left (CCW),
+                      left/right axis controls angular velocity: left commands the robot to rotate left (CCW),
                       right commands it to rotate right (CW). Verify the robot matches the AdvantageScope swerve
                       widget below (top-down view). Common problems:
                     </p>
@@ -1122,7 +1221,7 @@ export function TuningGuide() {
                         <strong>Spins cleanly but the wrong way (clockwise (CW) instead of CCW):</strong>
                         <ul className="mt-1 list-[circle] space-y-1 pl-5">
                           <li>Inverted drive motors.</li>
-                          <li>A diagonal module swap — front-left ↔ back-right, front-right ↔ back-left.</li>
+                          <li>A diagonal module swap: front-left ↔ back-right, front-right ↔ back-left.</li>
                           <li>Absolute encoder offsets that were captured with the bevel gear facing right instead of left.</li>
                         </ul>
                       </li>
@@ -1186,7 +1285,7 @@ export function TuningGuide() {
                           <li>A wrong CAN ID: a module assigned an incorrect ID.</li>
                         </ul>
                         <p className="mt-1">
-                          Verify the wiring and CAN IDs are correct first — they're the quickest to rule out. If the
+                          Verify the wiring and CAN IDs are correct first, they're the quickest to rule out. If the
                           problem persists, redo the guide's tuning steps starting from Align Modules to recapture
                           everything.
                         </p>
@@ -1210,7 +1309,7 @@ export function TuningGuide() {
                 detail={
                   <>
                     <p>
-                      Spin the robot in place again (right stick held left, CCW) — but this time watch the field
+                      Spin the robot in place again (right stick held left, CCW), but this time watch the field
                       widget's heading instead of the swerve module states widget. Common problems:
                     </p>
                     <ul className="mt-1 list-disc space-y-1 pl-5">
@@ -1222,7 +1321,7 @@ export function TuningGuide() {
                         <strong>Spins cleanly but the wrong way (clockwise (CW) instead of CCW):</strong>
                         <ul className="mt-1 list-[circle] space-y-1 pl-5">
                           <li>Inverted drive motors.</li>
-                          <li>A diagonal module swap — front-left ↔ back-right, front-right ↔ back-left.</li>
+                          <li>A diagonal module swap: front-left ↔ back-right, front-right ↔ back-left.</li>
                           <li>Absolute encoder offsets that were captured with the bevel gear facing right instead of left.</li>
                         </ul>
                       </li>
@@ -1248,7 +1347,7 @@ export function TuningGuide() {
               <Step
                 id="field-4"
                 title="Retest cardinal directions at a 45° heading."
-                detail="Rotate the robot so its heading reads about 45°, then test all four cardinal directions again — the robot should still move the same way relative to the driver station, no matter which way its chassis is pointing."
+                detail="Rotate the robot so its heading reads about 45°, then test all four cardinal directions again. The robot should still move the same way relative to the driver station, no matter which way its chassis is pointing."
                 checked={checkedSteps.has("field-4")}
                 onCheckedChange={(c) => toggleStep("field-4", c)}
               >
@@ -1268,7 +1367,7 @@ export function TuningGuide() {
                 <AlertTitle>Watch for absolute encoder drift</AlertTitle>
                 <AlertDescription>
                   Your absolute encoder offsets should not change over time. If they do, it's likely because there's
-                  no loctite/glue on the magnet — if you're using magnetic encoders — on that module. Check that
+                  no loctite/glue on the magnet (if you're using magnetic encoders) on that module. Check that
                   module's build instructions for how to properly loctite/glue the magnet in place, and reapply it.
                 </AlertDescription>
               </Alert>
@@ -1278,14 +1377,14 @@ export function TuningGuide() {
             <TabsContent value="maintenance" forceMount className="space-y-3">
               <h3 className="text-lg font-semibold">Swerve Maintenance</h3>
               <p className="text-sm text-muted-foreground">
-                Your swerve drive doesn't stop needing attention once it's tuned — keep these in mind for the rest of
+                Your swerve drive doesn't stop needing attention once it's tuned. Keep these in mind for the rest of
                 the season.
               </p>
 
               <Step
                 id="maintenance-1"
                 title="Grease the swerve modules regularly."
-                detail="Regular greasing keeps modules performing optimally. Grease them at the beginning of tuning, and again in between events. Don't overgrease them, though — excess grease attracts debris and adds resistance instead of reducing it."
+                detail="Regular greasing keeps modules performing optimally. Grease them at the beginning of tuning, and again in between events. Don't overgrease them, though: excess grease attracts debris and adds resistance instead of reducing it."
                 checked={checkedSteps.has("maintenance-1")}
                 onCheckedChange={(c) => toggleStep("maintenance-1", c)}
               />
@@ -1346,14 +1445,14 @@ export function TuningGuide() {
               <Step
                 id="maintenance-3"
                 title="Watch for consistent azimuth angle drift."
-                detail="If a module's azimuth angle is consistently off in real life — not just a one-time calibration slip — the gear may be skipping under load, or it may have been replaced with the wrong gear at some point. Recheck that module's gear against the vendor's spec, and rebuild the module if needed."
+                detail="If a module's azimuth angle is consistently off in real life (not just a one-time calibration slip), the gear may be skipping under load, or it may have been replaced with the wrong gear at some point. Recheck that module's gear against the vendor's spec, and rebuild the module if needed."
                 checked={checkedSteps.has("maintenance-3")}
                 onCheckedChange={(c) => toggleStep("maintenance-3", c)}
               />
               <Step
                 id="maintenance-4"
                 title="If it's only happening to one module, suspect that module."
-                detail="When an issue is isolated to a single module instead of the whole drivetrain, there's likely something physically wrong with that module specifically. When in doubt, check wiring first, then gears — and if all else fails, rebuild the module, paying special attention to the instructions."
+                detail="When an issue is isolated to a single module instead of the whole drivetrain, there's likely something physically wrong with that module specifically. When in doubt, check wiring first, then gears, and if all else fails, rebuild the module, paying special attention to the instructions."
                 checked={checkedSteps.has("maintenance-4")}
                 onCheckedChange={(c) => toggleStep("maintenance-4", c)}
               />
@@ -1373,7 +1472,7 @@ export function TuningGuide() {
                       className="h-8 w-8 opacity-70 transition-opacity group-hover:opacity-100"
                       style={{ imageRendering: "pixelated" }}
                     />
-                    <span className="sr-only">You found Rivet — play a hidden game</span>
+                    <span className="sr-only">You found Rivet, play a hidden game</span>
                   </button>
                 </div>
               )}
@@ -1431,8 +1530,8 @@ export function TuningGuide() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              You haven't checked off all the steps on this tab. Skipping means you might miss something important
-              — you can always come back to it later.
+              You haven't checked off all the steps on this tab. Skipping means you might miss something important.
+              You can always come back to it later.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

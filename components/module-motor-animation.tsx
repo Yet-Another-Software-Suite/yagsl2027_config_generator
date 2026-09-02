@@ -8,7 +8,7 @@ function AzimuthPanel() {
         viewBox="0 0 120 120"
         className="mx-auto h-auto w-28"
         role="img"
-        aria-label="A swerve module rotating in place to change its steering direction — this is the angle motor, not the drive wheel"
+        aria-label="A swerve module rotating in place to change its steering direction: this is the angle motor, not the drive wheel"
       >
         <style>{`
           .az-wheel { transform-box: fill-box; transform-origin: center; animation: az-spin 3s linear infinite; }
@@ -25,7 +25,7 @@ function AzimuthPanel() {
         <circle cx="60" cy="60" r="3" className="fill-foreground" />
       </svg>
       <p className="mt-2 text-center text-xs text-muted-foreground">
-        Turns the wheel to point a new direction — this is what the angle PID controls.
+        Turns the wheel to point a new direction: this is what the angle PID controls.
       </p>
     </div>
   )
@@ -39,7 +39,7 @@ function DrivePanel() {
         viewBox="0 0 120 120"
         className="mx-auto h-auto w-28"
         role="img"
-        aria-label="A swerve module's wheel spinning in place to roll forward, with its steering direction unchanged — this is the drive motor, not the angle motor"
+        aria-label="A swerve module's wheel spinning in place to roll forward, with its steering direction unchanged: this is the drive motor, not the angle motor"
       >
         <style>{`
           .dr-tread { animation: dr-scroll 0.6s linear infinite; }
@@ -64,7 +64,7 @@ function DrivePanel() {
         </g>
       </svg>
       <p className="mt-2 text-center text-xs text-muted-foreground">
-        Spins the wheel to roll forward/backward, without changing its heading — this is what the drive PID
+        Spins the wheel to roll forward/backward, without changing its heading: this is what the drive PID
         controls.
       </p>
     </div>

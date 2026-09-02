@@ -57,7 +57,7 @@ export function GyroCheckAnimation() {
       </ComparisonPanel>
       <ComparisonPanel
         variant="incorrect"
-        caption="The gyro decreases instead — set gyroInvert to true in swervedrive.json, redeploy, and recheck."
+        caption="The gyro decreases instead: set gyroInvert to true in swervedrive.json, redeploy, and recheck."
       >
         <RobotWithDial needleDirection="cw" />
       </ComparisonPanel>

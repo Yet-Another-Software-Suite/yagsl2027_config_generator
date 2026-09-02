@@ -51,6 +51,6 @@ export const ENCODER_TYPES = [
   "dutycycle_attached",
 ]
 
-export const GYRO_TYPES = ["navx3_can", "pigeon2_can", "canandgyro_can", "systemcore_internal"]
+export const GYRO_TYPES = ["navx3_can", "pigeon2_can", "canandgyro_can", "systemcore_internal", "custom"]
 
 export const GYRO_AXES = ["yaw", "pitch", "roll"]
