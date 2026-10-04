@@ -116,7 +116,9 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
               are ignored for a custom gyro, YAGSL doesn't build a gyro device for you in this case.
             </p>
             <p>
-              Instead, read your gyro yourself and pass it (and its inversion, if any) to the{" "}
+              Instead, read your gyro yourself and pass its full attitude as a{" "}
+              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">Rotation3d</code> (and its inversion,
+              if any) to the{" "}
               <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">SwerveDriveConfig</code> you build in
               code, before handing it to{" "}
               <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
@@ -128,9 +130,11 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
             <pre className="overflow-x-auto rounded bg-muted p-2.5 text-xs leading-relaxed">
               <code className="font-mono">
                 {[
+                  "// import swervelib.commands2.SwerveParser; (swervelib.commands3.SwerveParser for Commands v3)",
                   "var cfg = new SwerveDriveConfig()",
-                  "    .withSubsystem(this)",
-                  "    .withGyro(() -> myCustomGyro.getYaw())",
+                  "    .withSubsystem(this) // .withMechanism(this) for Commands v3",
+                  "    // The gyro's attitude: its yaw is the robot's heading, its roll and pitch feed anti-tipping.",
+                  "    .withGyro(myCustomGyro::getRotation3d)",
                   "    .withGyroInverted(true)",
                   "    // .withGyroOffset(...), .withGyroVelocity(...) are also available",
                   "    .withTranslationController(new PIDController(4, 0, 0))",

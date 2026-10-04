@@ -143,8 +143,9 @@ function LiveTuningSteps({
             <pre className="mt-2 overflow-x-auto rounded bg-muted p-2.5 text-xs leading-relaxed">
               <code className="font-mono">
                 {[
+                  "// import swervelib.commands2.SwerveParser; (swervelib.commands3.SwerveParser for Commands v3)",
                   "var cfg = new SwerveDriveConfig()",
-                  "    .withSubsystem(this)",
+                  "    .withSubsystem(this) // .withMechanism(this) for Commands v3",
                   "    .withTranslationController(new PIDController(4, 0, 0))",
                   "    .withRotationController(new PIDController(1, 0, 0))",
                   '    .withTelemetry("swerve", new SwerveDriveTelemetryConfig(TelemetryVerbosity.HIGH));',

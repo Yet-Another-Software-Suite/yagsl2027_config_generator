@@ -4,6 +4,7 @@
 export const MOTOR_TYPES = [
   "talonfx_krakenx44",
   "talonfx_krakenx60",
+  "talonfx_falcon",
   "talonfxs_neo",
   "talonfxs_neo2",
   "talonfxs_neo550",
