@@ -55,3 +55,20 @@ export const ENCODER_TYPES = [
 export const GYRO_TYPES = ["navx3_can", "pigeon2_can", "canandgyro_can", "systemcore_internal", "custom"]
 
 export const GYRO_AXES = ["yaw", "pitch", "roll"]
+
+// Thrifty Novas take a CAN bus number (such as "1") instead of a CAN bus name.
+export function isNova(motorType: string) {
+  return motorType.startsWith("nova_")
+}
+
+// Warns about attached absolute encoders the angle motor controller can't read: the Thrifty 10 pin encoder only
+// plugs into a Nova, and the Nova has no 5V analog input.
+export function attachedEncoderWarning(encoderType: string, angleMotorType: string): string | null {
+  if (encoderType === "thrifty_attached" && !isNova(angleMotorType)) {
+    return "thrifty_attached needs a Thrifty Nova angle motor."
+  }
+  if (encoderType === "analog5v_attached" && isNova(angleMotorType)) {
+    return "A Thrifty Nova can't read analog5v_attached encoders. Use analog_attached instead."
+  }
+  return null
+}

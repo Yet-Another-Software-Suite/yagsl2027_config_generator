@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import type { ModuleConfigData } from "@/lib/types"
-import { MOTOR_TYPES, ENCODER_TYPES } from "@/lib/config-options"
+import { MOTOR_TYPES, ENCODER_TYPES, isNova, attachedEncoderWarning } from "@/lib/config-options"
 
 interface ModuleConfigProps {
   moduleName: string
@@ -18,6 +18,7 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
   const isAttached = config.absoluteEncoder.type.endsWith("_attached")
   const usesChannel = config.absoluteEncoder.type.endsWith("_dio") || config.absoluteEncoder.type.endsWith("_analog")
   const showEncoderFields = !isAttached
+  const encoderWarning = attachedEncoderWarning(config.absoluteEncoder.type, config.angle.type)
 
   return (
     <div className="space-y-6">
@@ -69,7 +70,7 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
             <Label>CAN Bus</Label>
             <Input
               value={config.drive.canbus}
-              placeholder="Default"
+              placeholder={isNova(config.drive.type) ? "Default (or bus number, e.g. 1)" : "Default"}
               onChange={(e) =>
                 onChange({
                   ...config,
@@ -129,7 +130,7 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
             <Label>CAN Bus</Label>
             <Input
               value={config.angle.canbus}
-              placeholder="Default"
+              placeholder={isNova(config.angle.type) ? "Default (or bus number, e.g. 1)" : "Default"}
               onChange={(e) =>
                 onChange({
                   ...config,
@@ -169,6 +170,7 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
                 ))}
               </SelectContent>
             </Select>
+            {encoderWarning && <p className="text-xs text-destructive">{encoderWarning}</p>}
           </div>
 
           {showEncoderFields && !usesChannel && (
