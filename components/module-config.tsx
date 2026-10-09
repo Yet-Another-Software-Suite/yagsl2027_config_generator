@@ -6,7 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import type { ModuleConfigData } from "@/lib/types"
-import { MOTOR_TYPES, ENCODER_TYPES, isNova, attachedEncoderWarning } from "@/lib/config-options"
+import {
+  MOTOR_TYPES,
+  ENCODER_TYPES,
+  attachedEncoderWarning,
+  canbusError,
+  canbusPlaceholder,
+} from "@/lib/config-options"
 
 interface ModuleConfigProps {
   moduleName: string
@@ -19,6 +25,9 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
   const usesChannel = config.absoluteEncoder.type.endsWith("_dio") || config.absoluteEncoder.type.endsWith("_analog")
   const showEncoderFields = !isAttached
   const encoderWarning = attachedEncoderWarning(config.absoluteEncoder.type, config.angle.type)
+  const driveCanbusError = canbusError(config.drive.type, config.drive.canbus)
+  const angleCanbusError = canbusError(config.angle.type, config.angle.canbus)
+  const encoderCanbusError = canbusError(config.absoluteEncoder.type, config.absoluteEncoder.canbus)
 
   return (
     <div className="space-y-6">
@@ -70,7 +79,8 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
             <Label>CAN Bus</Label>
             <Input
               value={config.drive.canbus}
-              placeholder={isNova(config.drive.type) ? "Default (or bus number, e.g. 1)" : "Default"}
+              placeholder={canbusPlaceholder(config.drive.type)}
+              aria-invalid={driveCanbusError ? true : undefined}
               onChange={(e) =>
                 onChange({
                   ...config,
@@ -78,6 +88,7 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
                 })
               }
             />
+            {driveCanbusError && <p className="text-xs text-destructive">{driveCanbusError}</p>}
           </div>
         </div>
       </div>
@@ -130,7 +141,8 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
             <Label>CAN Bus</Label>
             <Input
               value={config.angle.canbus}
-              placeholder={isNova(config.angle.type) ? "Default (or bus number, e.g. 1)" : "Default"}
+              placeholder={canbusPlaceholder(config.angle.type)}
+              aria-invalid={angleCanbusError ? true : undefined}
               onChange={(e) =>
                 onChange({
                   ...config,
@@ -138,6 +150,7 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
                 })
               }
             />
+            {angleCanbusError && <p className="text-xs text-destructive">{angleCanbusError}</p>}
           </div>
         </div>
       </div>
@@ -216,7 +229,8 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
               <Label>CAN Bus</Label>
               <Input
                 value={config.absoluteEncoder.canbus}
-                placeholder="Default"
+                placeholder={canbusPlaceholder(config.absoluteEncoder.type)}
+                aria-invalid={encoderCanbusError ? true : undefined}
                 onChange={(e) =>
                   onChange({
                     ...config,
@@ -227,6 +241,7 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
                   })
                 }
               />
+              {encoderCanbusError && <p className="text-xs text-destructive">{encoderCanbusError}</p>}
             </div>
           )}
         </div>
