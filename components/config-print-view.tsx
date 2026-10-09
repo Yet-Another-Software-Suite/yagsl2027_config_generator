@@ -209,8 +209,12 @@ export function ConfigPrintView({ config }: { config: ConfigData }) {
           </p>
         ) : (
           <>
-            <InlineFields fields={[{ label: "CAN ID", value: config.swervedrive.gyro.id }]} />
-            <LongField label="CAN bus" {...canbusField(config.swervedrive.gyro.canbus)} />
+            {!config.swervedrive.gyro.type.endsWith("_internal") && (
+              <>
+                <InlineFields fields={[{ label: "CAN ID", value: config.swervedrive.gyro.id }]} />
+                <LongField label="CAN bus" {...canbusField(config.swervedrive.gyro.canbus)} />
+              </>
+            )}
             <ChoiceRow label="Gyro axis" options={GYRO_AXES} value={config.swervedrive.gyroAxis} />
             <BoolChoiceRow label="Invert gyroscope" value={config.swervedrive.gyroInvert} />
           </>

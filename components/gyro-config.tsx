@@ -14,6 +14,8 @@ interface GyroConfigProps {
 
 export function GyroConfig({ config, onChange }: GyroConfigProps) {
   const isCustom = config.gyro.type === "custom"
+  // Internal gyros (e.g. the Systemcore's onboard IMU) aren't on CAN, so YAGSL ignores the ID and bus.
+  const usesCan = !isCustom && !config.gyro.type.endsWith("_internal")
 
   return (
     <div className="space-y-6">
@@ -44,7 +46,7 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
             </Select>
           </div>
 
-          {!isCustom && (
+          {usesCan && (
             <>
               <div className="space-y-2">
                 <Label htmlFor="gyro-id">CAN ID</Label>
