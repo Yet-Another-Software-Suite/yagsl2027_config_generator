@@ -109,6 +109,36 @@ function liveTuningStepIds(idPrefix: string): string[] {
   ].map((suffix) => `${idPrefix}-${suffix}`)
 }
 
+function GuideFigure({
+  src,
+  alt,
+  width,
+  height,
+  caption,
+  small,
+}: {
+  src: string
+  alt: string
+  width: number
+  height: number
+  caption?: ReactNode
+  small?: boolean
+}) {
+  return (
+    <figure className={small ? "mt-2 max-w-sm" : "mt-2"}>
+      <Image
+        src={withBasePath(src)}
+        alt={alt}
+        width={width}
+        height={height}
+        unoptimized
+        className="w-full rounded border border-border"
+      />
+      {caption && <figcaption className="mt-1 text-xs text-muted-foreground">{caption}</figcaption>}
+    </figure>
+  )
+}
+
 function LiveTuningSteps({
   real,
   idPrefix,
@@ -171,14 +201,39 @@ function LiveTuningSteps({
         title="Enable the tuning command."
         detail={
           <>
-            In SmartDashboard (Elastic/Shuffleboard work too), find and enable the command at{" "}
-            <NTPath>SmartDashboard/Mechanisms/swerve/tuning/driveToPose</NTPath>. It has to be running, none of the
-            fields below do anything while it's idle.
+            <p>
+              Put the robot in <strong>Utility</strong> mode with no OpMode selected and enable it,{" "}
+              {real ? "from the Driver Station" : "in the sim GUI's Robot State panel"}. A teleop OpMode would
+              drive the modules and fight the tuning.
+            </p>
+            <p className="mt-2">
+              Then in AdvantageScope, turn on tuning mode (the sliders button beside the sidebar search) and
+              click <NTPath>running</NTPath> under <NTPath>Mechanisms/swerve/tuning</NTPath>. It has to be
+              running, none of the fields below do anything while it's idle.
+            </p>
           </>
         }
         checked={checked("enable")}
         onCheckedChange={onChange("enable")}
-      />
+      >
+        {!real && (
+          <GuideFigure
+            src="/guide/yagsl-sim-utility-mode.png"
+            alt="The Robot State panel of the WPILib simulation GUI with Utility (1) and Enable (2) marked. The OpMode dropdown is left at NONE."
+            width={674}
+            height={372}
+            caption="In simulation: pick Utility (1), then Enable (2). Leave the OpMode at NONE."
+            small
+          />
+        )}
+        <GuideFigure
+          src="/guide/yagsl-ascope-enable-tuning.png"
+          alt="AdvantageScope with four numbered markers: 1 the tuning mode button beside the sidebar search, 2 the running switch under Mechanisms/swerve/tuning, 3 the angle field under Tuning/swerve/modules/azimuth, and 4 the enabled switch under the same folder."
+          width={1400}
+          height={900}
+          caption="Turn on tuning mode (1) and click running (2). The next steps type a setpoint (3) and turn one tuning mode on (4)."
+        />
+      </Step>
       <Step
         id={stepId("azimuth-enable")}
         title="Switch to azimuth tuning."
@@ -193,7 +248,7 @@ function LiveTuningSteps({
       <Step
         id={stepId("azimuth-tune")}
         title="Tune the azimuth PID."
-        detail="Edit these fields and watch every module track the target angle:"
+        detail="Switch the angle between 0 and 15 degrees, then edit these fields and watch every module track the target angle. Raise p until it rings, back it off, then add a little d:"
         checked={checked("azimuth-tune")}
         onCheckedChange={onChange("azimuth-tune")}
       >
@@ -220,6 +275,22 @@ function LiveTuningSteps({
             <NTPath>Tuning/swerve/modules/azimuth/angle</NTPath> (degrees, the target angle setpoint)
           </li>
         </ul>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          <GuideFigure
+            src="/guide/yagsl-tune-azimuth.gif"
+            alt="An animation of every module turning from 0 to 15 degrees beside a graph of the desired and current angle: too slow with a low p, overshooting and ringing with a high p, and quick and settled with a little less p plus some d. The values are only an example."
+            width={720}
+            height={360}
+            caption="Too slow, ringing, then quick and settled. The values are only an example."
+          />
+          <GuideFigure
+            src="/guide/yagsl-ascope-azimuth-graph.png"
+            alt="An AdvantageScope line graph of Tuning/swerve/modules/azimuth/angle stepping between 0 and 15 degrees and Mechanisms/swerve/modules/frontleft/encoder following it."
+            width={1100}
+            height={707}
+            caption="In AdvantageScope: graph Tuning/swerve/modules/azimuth/angle against a module's encoder."
+          />
+        </div>
       </Step>
       <Step
         id={stepId("drive-enable")}
@@ -236,7 +307,7 @@ function LiveTuningSteps({
       <Step
         id={stepId("drive-tune")}
         title="Tune the drive PID."
-        detail="Edit these fields and watch every module track the target speed:"
+        detail="Set a target speed, zero the feedback, raise feedforward/v until the speed settles on the target, then add feedback/p until it gets there quickly and holds:"
         checked={checked("drive-tune")}
         onCheckedChange={onChange("drive-tune")}
       >
@@ -263,6 +334,22 @@ function LiveTuningSteps({
             <NTPath>Tuning/swerve/modules/drive/velocity</NTPath> (meters per second, the target speed setpoint)
           </li>
         </ul>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          <GuideFigure
+            src="/guide/yagsl-tune-drive.gif"
+            alt="An animation of the drive velocity against a 2 meters per second setpoint: with feedforward v too low it settles below, with v right it settles on 2 meters per second, and adding p makes it get there quickly and hold. The values are only an example."
+            width={720}
+            height={360}
+            caption="Feedforward first, then feedback. The values are only an example."
+          />
+          <GuideFigure
+            src="/guide/yagsl-ascope-drive-graph.png"
+            alt="An AdvantageScope line graph of Tuning/swerve/modules/drive/velocity stepping between 0 and 1.5 meters per second and Mechanisms/swerve/modules/frontleft/drive/measurement/velocity following it."
+            width={1100}
+            height={707}
+            caption="In AdvantageScope: graph Tuning/swerve/modules/drive/velocity against a module's drive/measurement/velocity."
+          />
+        </div>
       </Step>
       <Step
         id={stepId("inplace")}
@@ -306,9 +393,10 @@ function LiveTuningSteps({
           <>
             <p>
               Set <NTPath>Tuning/swerve/modules/drive/enabled</NTPath> back to <NTPath>false</NTPath> when you're
-              done, then copy the gains that worked into your{" "}
-              <NTPath>SmartMotorControllerConfig.withClosedLoopController(...)</NTPath>/
-              <NTPath>withFeedforward(...)</NTPath> calls in code.
+              done, then copy the gains that worked into{" "}
+              <NTPath>{real ? "modules/pidfproperties.json" : "modules/pidfproperties_sim.json"}</NTPath>
+              {real ? ", the file the real robot reads." : ", which YAGSL reads only in simulation."} Values typed
+              on the dashboard are gone the next time the robot program starts.
             </p>
             <p className="mt-2">
               <NTPath>autoalign/enabled</NTPath>, <NTPath>modules/drive/enabled</NTPath>, and{" "}
@@ -323,7 +411,14 @@ function LiveTuningSteps({
         }
         checked={checked("finish")}
         onCheckedChange={onChange("finish")}
-      />
+      >
+        <GuideFigure
+          src="/guide/yagsl-live-tuning-save.png"
+          alt="The tuning values under Tuning/swerve/modules map to the JSON: azimuth/feedback/p to angle.p, azimuth/feedback/d to angle.d, drive/feedforward/v to drive.v and drive/feedback/p to drive.p. In simulation they go into pidfproperties_sim.json, on the real robot into pidfproperties.json."
+          width={720}
+          height={330}
+        />
+      </Step>
     </>
   )
 }
@@ -936,13 +1031,19 @@ export function TuningGuide() {
                 detail={
                   <>
                     With AdvantageScope connected to the robot, for each module read the value at{" "}
-                    <NTPath>NT:/Mechanisms/swerve/[module_name]/azimuth/encoder</NTPath> while it's held in this
+                    <NTPath>NT:/Mechanisms/swerve/modules/[module_name]/encoder</NTPath> while it's held in this
                     aligned position, and copy that value into that module's <NTPath>absoluteEncoderOffset</NTPath>.
                   </>
                 }
                 checked={checkedSteps.has("align-2")}
                 onCheckedChange={(c) => toggleStep("align-2", c)}
               >
+                <GuideFigure
+                  src="/guide/yagsl-record-offsets.gif"
+                  alt="An animation of each module's encoder reading in AdvantageScope being copied into its JSON, one module at a time: frontleft 132.363 degrees, frontright minus 50.977, backleft 271.143 and backright 12.656, each into that module's absoluteEncoderOffset."
+                  width={720}
+                  height={360}
+                />
                 <JsonDiff
                   filename="modules/frontleft.json"
                   before={[
