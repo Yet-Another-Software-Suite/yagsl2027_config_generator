@@ -56,9 +56,33 @@ export const GYRO_TYPES = ["navx3_can", "pigeon2_can", "canandgyro_can", "system
 
 export const GYRO_AXES = ["yaw", "pitch", "roll"]
 
-// Thrifty Novas take a CAN bus number (such as "1") instead of a CAN bus name.
 export function isNova(motorType: string) {
   return motorType.startsWith("nova_")
+}
+
+// CTRE devices can also be on a CANivore, given by its name (or serial number) instead of a CAN bus number.
+export function isCTRE(deviceType: string) {
+  return /^(talonfx|talonfxs|cancoder|pigeon2)_/.test(deviceType)
+}
+
+// YAGSL reads every device's canbus the same way: empty for the Systemcore CAN bus can_s0, or the bus number, such as
+// "1" for can_s1 ("5" to "24" are the Motioncore CAN buses can_d0 to can_d19). Only CTRE devices take anything else.
+export function canbusPlaceholder(deviceType: string) {
+  return isCTRE(deviceType) ? "Default (can_s0), bus number, or CANivore name" : "Default (can_s0), or bus number"
+}
+
+export function canbusError(deviceType: string, canbus: string): string | null {
+  const value = canbus.trim()
+  if (value === "") return null
+  if (/^\d+$/.test(value)) {
+    if (/^0\d/.test(value)) return `Write the bus number without leading zeros, such as "${value.replace(/^0+/, "") || "0"}".`
+    if (value.length > 2 || Number(value) > 24) {
+      return `CAN bus ${value} does not exist. The Systemcore CAN buses are 0 to 4 (can_s0 to can_s4).`
+    }
+    return null
+  }
+  if (isCTRE(deviceType)) return null
+  return `Use the CAN bus number, such as "1" for can_s1, or leave it empty for can_s0.`
 }
 
 // Warns about attached absolute encoders the angle motor controller can't read: the Thrifty 10 pin encoder only
