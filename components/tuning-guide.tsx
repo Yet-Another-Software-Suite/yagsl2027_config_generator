@@ -43,6 +43,17 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { PrintButton } from "@/components/print-button"
 import { cn } from "@/lib/utils"
 import { withBasePath } from "@/lib/base-path"
+import { LiveProvider, useLive } from "@/components/live/live-context"
+import { LiveConnectionCard, LiveModeToggle } from "@/components/live/live-connection"
+import { LiveTuner } from "@/components/live/live-tuner"
+import {
+  LiveFinish,
+  LiveInPlace,
+  LiveModeSwitch,
+  LiveStopBar,
+  LiveTelemetryCheck,
+  LiveTuningCommand,
+} from "@/components/live/live-steps"
 
 const EXAMPLE_PROJECT_URL = "https://github.com/Yet-Another-Software-Suite/YAGSL/tree/main/example"
 
@@ -153,9 +164,11 @@ function LiveTuningSteps({
   const stepId = (suffix: string) => `${idPrefix}-${suffix}`
   const checked = (suffix: string) => checkedSteps.has(stepId(suffix))
   const onChange = (suffix: string) => (c: boolean) => toggleStep(stepId(suffix), c)
+  const done = (suffix: string) => () => toggleStep(stepId(suffix), true)
 
   return (
     <>
+      <LiveConnectionCard real={real} />
       <Step
         id={stepId("setup")}
         title="Wire up telemetry so the drive/azimuth PID gains become live-tunable over NetworkTables."
@@ -195,7 +208,9 @@ function LiveTuningSteps({
         }
         checked={checked("setup")}
         onCheckedChange={onChange("setup")}
-      />
+      >
+        <LiveTelemetryCheck onFound={done("setup")} />
+      </Step>
       <Step
         id={stepId("enable")}
         title="Enable the tuning command."
@@ -216,6 +231,7 @@ function LiveTuningSteps({
         checked={checked("enable")}
         onCheckedChange={onChange("enable")}
       >
+        <LiveTuningCommand real={real} onStarted={done("enable")} />
         {!real && (
           <GuideFigure
             src="/guide/yagsl-sim-utility-mode.png"
@@ -244,7 +260,9 @@ function LiveTuningSteps({
         }
         checked={checked("azimuth-enable")}
         onCheckedChange={onChange("azimuth-enable")}
-      />
+      >
+        <LiveModeSwitch mode="azimuth" onEnabled={done("azimuth-enable")} />
+      </Step>
       <Step
         id={stepId("azimuth-tune")}
         title="Tune the azimuth PID."
@@ -252,6 +270,7 @@ function LiveTuningSteps({
         checked={checked("azimuth-tune")}
         onCheckedChange={onChange("azimuth-tune")}
       >
+        <LiveTuner mode="azimuth" />
         <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
           <li>
             <NTPath>Tuning/swerve/modules/azimuth/feedback/p</NTPath>
@@ -303,7 +322,9 @@ function LiveTuningSteps({
         }
         checked={checked("drive-enable")}
         onCheckedChange={onChange("drive-enable")}
-      />
+      >
+        <LiveModeSwitch mode="drive" onEnabled={done("drive-enable")} />
+      </Step>
       <Step
         id={stepId("drive-tune")}
         title="Tune the drive PID."
@@ -311,6 +332,7 @@ function LiveTuningSteps({
         checked={checked("drive-tune")}
         onCheckedChange={onChange("drive-tune")}
       >
+        <LiveTuner mode="drive" />
         <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
           <li>
             <NTPath>Tuning/swerve/modules/drive/feedback/p</NTPath>
@@ -367,6 +389,7 @@ function LiveTuningSteps({
         checked={checked("inplace")}
         onCheckedChange={onChange("inplace")}
       >
+        <LiveInPlace real={real} />
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           <Image
             src={withBasePath("/module-drive-inplace.gif")}
@@ -412,6 +435,7 @@ function LiveTuningSteps({
         checked={checked("finish")}
         onCheckedChange={onChange("finish")}
       >
+        <LiveFinish real={real} onSaved={done("finish")} />
         <GuideFigure
           src="/guide/yagsl-live-tuning-save.png"
           alt="The tuning values under Tuning/swerve/modules map to the JSON: azimuth/feedback/p to angle.p, azimuth/feedback/d to angle.d, drive/feedforward/v to drive.v and drive/feedback/p to drive.p. In simulation they go into pidfproperties_sim.json, on the real robot into pidfproperties.json."
@@ -471,6 +495,15 @@ const TAB_STEPS: Record<(typeof TABS)[number], string[]> = {
 }
 
 export function TuningGuide() {
+  return (
+    <LiveProvider>
+      <TuningGuideContent />
+    </LiveProvider>
+  )
+}
+
+function TuningGuideContent() {
+  const live = useLive()
   const [activeTab, setActiveTab] = useState<string>(TABS[0])
   const [furthestIndex, setFurthestIndex] = useState(0)
   const [checkedSteps, setCheckedSteps] = useState<Set<string>>(new Set())
@@ -497,7 +530,8 @@ export function TuningGuide() {
   useEffect(() => {
     const index = TABS.indexOf(activeTab as (typeof TABS)[number])
     if (index <= 0) {
-      if (window.location.hash) window.history.replaceState(null, "", window.location.pathname)
+      if (window.location.hash)
+        window.history.replaceState(null, "", window.location.pathname + window.location.search)
       return
     }
     window.history.replaceState(null, "", `#${activeTab}`)
@@ -580,6 +614,7 @@ export function TuningGuide() {
                   Need Help?
                 </a>
               </Button>
+              <LiveModeToggle />
               <PrintButton />
               <ThemeToggle />
             </div>
@@ -587,7 +622,7 @@ export function TuningGuide() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-4 md:py-8 print:max-w-none print:p-0">
+      <main className={cn("container mx-auto px-4 py-4 md:py-8 print:max-w-none print:p-0", live.enabled && "pb-20 md:pb-24")}>
         <Card className="p-4 md:p-6 print:border-none print:p-0 print:shadow-none">
           <Tabs
             value={activeTab}
@@ -1766,6 +1801,7 @@ export function TuningGuide() {
           </Tabs>
         </Card>
       </main>
+      <LiveStopBar />
 
       <AlertDialog open={skipConfirmOpen} onOpenChange={setSkipConfirmOpen}>
         <AlertDialogContent className="no-print">

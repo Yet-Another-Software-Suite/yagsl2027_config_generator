@@ -202,3 +202,17 @@
 .print-all-tabs [data-slot="tabs-content"][data-state="inactive"] {
   display: none;
 }
+
+/* Live mode graphs: categorical slots 1 to 4 of the reference chart palette, one per swerve module. */
+.live-chart {
+  --live-series-1: #2a78d6;
+  --live-series-2: #eb6834;
+  --live-series-3: #1baf7a;
+  --live-series-4: #eda100;
+}
+.dark .live-chart {
+  --live-series-1: #3987e5;
+  --live-series-2: #d95926;
+  --live-series-3: #199e70;
+  --live-series-4: #c98500;
+}
