@@ -19,7 +19,7 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
   // Internal gyros (e.g. the Systemcore's onboard IMU) aren't on CAN, so YAGSL ignores the ID and bus.
   const usesCan = !isCustom && !config.gyro.type.endsWith("_internal")
   const gyroCanbusError = canbusError(config.gyro.type, config.gyro.canbus)
-  // Another axis is usually a gyro mounted on its side or upside down, which calibrating fixes better.
+  // Recommend calibrating the gyro when its heading is read from another axis.
   const offYaw = !isCustom && config.gyroAxis !== "yaw"
 
   return (
@@ -122,11 +122,8 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
             <AlertTitle>Calibrate your gyro</AlertTitle>
             <AlertDescription>
               <p>
-                Using the <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{config.gyroAxis}</code>{" "}
-                axis for the heading usually means the gyro is mounted on its side or upside down. Rather than
-                changing the axis, we recommend calibrating the gyro for how it is mounted, with its vendor&apos;s
-                tool, so that its yaw is the robot&apos;s heading, and keeping the axis on{" "}
-                <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">yaw</code>.
+                When using the <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{config.gyroAxis}</code>{" "}
+                axis, we recommend calibrating your gyro with its vendor&apos;s tool.
               </p>
             </AlertDescription>
           </Alert>
