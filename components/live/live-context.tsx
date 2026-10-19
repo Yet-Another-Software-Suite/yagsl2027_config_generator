@@ -2,10 +2,13 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react"
 import { LiveNT, decodeControlWord, type ConnectionStatus, type LiveTarget, type RobotState } from "@/lib/live-nt"
+import { LIVE_PASSWORD_SHA256, LivePasswordDialog } from "@/components/live/live-password"
 
 const MODE_KEY = "yagsl-live-mode"
 const TEAM_KEY = "yagsl-live-team"
 const NAME_KEY = "yagsl-live-drive-name"
+// Holds the password hash once it has been entered, so a new password locks Live mode again.
+const UNLOCK_KEY = "yagsl-live-unlock"
 
 /** NetworkTables paths for a SwerveDrive whose telemetry is named `name`. */
 export function swerveTopics(name: string) {
@@ -99,10 +102,16 @@ export function LiveProvider({ children }: { children: ReactNode }) {
   const [team, setTeamState] = useState("")
   const [safetyConfirmed, setSafetyConfirmed] = useState(false)
   const [connectedTarget, setConnectedTarget] = useState<LiveTarget | null>(null)
+  const [unlocked, setUnlocked] = useState(false)
+  const [passwordOpen, setPasswordOpen] = useState(false)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    setEnabledState(params.has("live") || readStorage(MODE_KEY, "") === "on")
+    const isUnlocked = readStorage(UNLOCK_KEY, "") === LIVE_PASSWORD_SHA256
+    setUnlocked(isUnlocked)
+    const wanted = params.has("live") || readStorage(MODE_KEY, "") === "on"
+    if (wanted && isUnlocked) setEnabledState(true)
+    else if (params.has("live")) setPasswordOpen(true)
     setDriveNameState(readStorage(NAME_KEY, "swerve") || "swerve")
     setTeamState(readStorage(TEAM_KEY, ""))
   }, [])
@@ -139,12 +148,24 @@ export function LiveProvider({ children }: { children: ReactNode }) {
 
   const setEnabled = useCallback(
     (on: boolean) => {
+      if (on && !unlocked) {
+        setPasswordOpen(true)
+        return
+      }
       setEnabledState(on)
       writeStorage(MODE_KEY, on ? "on" : "off")
       if (!on) disconnect()
     },
-    [disconnect],
+    [disconnect, unlocked],
   )
+
+  const onUnlocked = useCallback(() => {
+    writeStorage(UNLOCK_KEY, LIVE_PASSWORD_SHA256)
+    setUnlocked(true)
+    setPasswordOpen(false)
+    setEnabledState(true)
+    writeStorage(MODE_KEY, "on")
+  }, [])
 
   const setDriveName = useCallback((name: string) => {
     setDriveNameState(name)
@@ -186,7 +207,12 @@ export function LiveProvider({ children }: { children: ReactNode }) {
     [enabled, setEnabled, nt, status, host, driveName, setDriveName, team, setTeam, safetyConfirmed, connect, disconnect, stopAll, connectedTarget],
   )
 
-  return <LiveContext.Provider value={api}>{children}</LiveContext.Provider>
+  return (
+    <LiveContext.Provider value={api}>
+      {children}
+      <LivePasswordDialog open={passwordOpen} onOpenChange={setPasswordOpen} onUnlocked={onUnlocked} />
+    </LiveContext.Provider>
+  )
 }
 
 export function useLive(): LiveApi {
