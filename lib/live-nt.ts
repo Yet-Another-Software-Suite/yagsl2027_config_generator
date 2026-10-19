@@ -99,12 +99,16 @@ function installLocalNetworkWebSocket() {
 
 type Listener = () => void
 
+/** Called with every value received, with its server timestamp in microseconds. */
+export type SampleListener = (topic: string, timestampUs: number, value: unknown) => void
+
 /** One live NetworkTables connection, with the latest value of every subscribed topic. */
 export class LiveNT {
   private client: Nt4ClientLike | null = null
   private values = new Map<string, unknown>()
   private types = new Map<string, string>()
   private listeners = new Set<Listener>()
+  private sampleListeners = new Set<SampleListener>()
   private notifyScheduled = false
   private version = 0
   private status: ConnectionStatus = "idle"
@@ -152,6 +156,12 @@ export class LiveNT {
     return () => this.listeners.delete(listener)
   }
 
+  /** Listen to every value received, rather than only the latest of each topic. */
+  onSample = (listener: SampleListener): (() => void) => {
+    this.sampleListeners.add(listener)
+    return () => this.sampleListeners.delete(listener)
+  }
+
   private notify() {
     if (this.notifyScheduled) return
     this.notifyScheduled = true
@@ -194,6 +204,7 @@ export class LiveNT {
         if (this.client !== client) return
         if (timestampUs > this.newestServerTimeUs) this.newestServerTimeUs = timestampUs
         this.values.set(topic.name, value)
+        this.sampleListeners.forEach((l) => l(topic.name, timestampUs, value))
         this.notify()
       },
       () => {

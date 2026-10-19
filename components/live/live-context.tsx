@@ -24,6 +24,9 @@ export function swerveTopics(name: string) {
       angle: `${tuning}/modules/azimuth/angle`,
       gain: (key: GainKey) => `${tuning}/modules/azimuth/${GAIN_PATHS[key]}`,
       measured: (module: string) => `${mechanisms}/modules/${module}/azimuth/mechanism/position`,
+      voltageEnabled: `${tuning}/modules/azimuth/voltage/enabled`,
+      voltage: `${tuning}/modules/azimuth/voltage/setpoint`,
+      period: (module: string) => `${mechanisms}/modules/${module}/azimuth/closedloop/period`,
     },
     drive: {
       enabled: `${tuning}/modules/drive/enabled`,
@@ -31,6 +34,9 @@ export function swerveTopics(name: string) {
       inplace: `${tuning}/modules/drive/inplace`,
       gain: (key: GainKey) => `${tuning}/modules/drive/${GAIN_PATHS[key]}`,
       measured: (module: string) => `${mechanisms}/modules/${module}/drive/measurement/velocity`,
+      voltageEnabled: `${tuning}/modules/drive/voltage/enabled`,
+      voltage: `${tuning}/modules/drive/voltage/setpoint`,
+      period: (module: string) => `${mechanisms}/modules/${module}/drive/closedloop/period`,
     },
     autoalignEnabled: `${tuning}/autoalign/enabled`,
   }
@@ -121,6 +127,10 @@ export function LiveProvider({ children }: { children: ReactNode }) {
 
   const stopAll = useCallback(() => {
     const t = swerveTopics(driveName)
+    nt.set(t.drive.voltage, 0)
+    nt.set(t.drive.voltageEnabled, false)
+    nt.set(t.azimuth.voltage, 0)
+    nt.set(t.azimuth.voltageEnabled, false)
     nt.set(t.drive.velocity, 0)
     nt.set(t.drive.inplace, false)
     nt.set(t.drive.enabled, false)

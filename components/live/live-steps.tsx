@@ -155,6 +155,8 @@ export function LiveModeSwitch({ mode, onEnabled }: { mode: TuneMode; onEnabled?
       live.nt.set(t.autoalignEnabled, false)
       live.nt.set(t.drive.inplace, false)
       live.nt.set(t.drive.velocity, 0)
+      live.nt.set(t.drive.voltageEnabled, false)
+      live.nt.set(t.azimuth.voltageEnabled, false)
       if (mode === "azimuth") {
         live.nt.set(t.drive.enabled, false)
         live.nt.set(t.azimuth.angle, 0)

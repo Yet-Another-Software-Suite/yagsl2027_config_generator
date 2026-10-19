@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import { GAIN_KEYS, swerveTopics, useLive, useModuleNames, useNtValue, type GainKey } from "@/components/live/live-context"
 import { LiveBox, NotConnected, useConnected } from "@/components/live/live-connection"
+import { LiveAutoGains } from "@/components/live/live-auto"
 
 export type TuneMode = "azimuth" | "drive"
 
@@ -81,7 +82,10 @@ export function LiveSetpoint({ mode }: { mode: TuneMode }) {
   const t = swerveTopics(live.driveName)
   const topic = mode === "azimuth" ? t.azimuth.angle : t.drive.velocity
   const value = useNtValue<number>(topic)
-  const on = useNtValue<boolean>(t[mode].enabled)
+  const tuningOn = useNtValue<boolean>(t[mode].enabled)
+  const voltageOn = useNtValue<boolean>(t[mode].voltageEnabled)
+  // The setpoint is ignored while Auto drives the motors at a voltage.
+  const on = tuningOn === true && voltageOn !== true
   const spec = SETPOINTS[mode]
   const [auto, setAuto] = useState(false)
   const autoId = useId()
@@ -144,6 +148,21 @@ export function LiveSetpoint({ mode }: { mode: TuneMode }) {
         </Label>
       </div>
     </div>
+  )
+}
+
+/** Where the closed loop runs, from the first module's telemetry: it sets the period gains are worked out for. */
+function ClosedLoopPeriod({ mode }: { mode: TuneMode }) {
+  const live = useLive()
+  const modules = useModuleNames()
+  const t = swerveTopics(live.driveName)
+  const period = useNtValue<number>(modules.length ? t[mode].period(modules[0]) : "")
+  if (period === undefined || !(period > 0)) return null
+  const where = period <= 0.0015 ? "on the motor controller" : "on the SystemCore"
+  return (
+    <p className="text-xs text-muted-foreground">
+      The {mode} closed loop runs {where}, every {Number((period * 1000).toPrecision(3))} ms.
+    </p>
   )
 }
 
@@ -351,7 +370,9 @@ export function LiveTuner({ mode }: { mode: TuneMode }) {
       )}
       <LiveSetpoint mode={mode} />
       <LiveTrace mode={mode} />
+      <LiveAutoGains mode={mode} />
       <LiveGains mode={mode} />
+      <ClosedLoopPeriod mode={mode} />
       <p className="text-xs text-muted-foreground">
         Type a gain and press Enter: the robot uses it on its next loop. Nothing is saved until you download the gains
         in the last step.
