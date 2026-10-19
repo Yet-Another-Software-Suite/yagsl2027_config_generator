@@ -4,6 +4,8 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { TriangleAlert } from "lucide-react"
 import type { SwervedriveConfig } from "@/lib/types"
 import { GYRO_TYPES, GYRO_AXES, canbusError, canbusPlaceholder } from "@/lib/config-options"
 
@@ -17,6 +19,8 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
   // Internal gyros (e.g. the Systemcore's onboard IMU) aren't on CAN, so YAGSL ignores the ID and bus.
   const usesCan = !isCustom && !config.gyro.type.endsWith("_internal")
   const gyroCanbusError = canbusError(config.gyro.type, config.gyro.canbus)
+  // Another axis is usually a gyro mounted on its side or upside down, which calibrating fixes better.
+  const offYaw = !isCustom && config.gyroAxis !== "yaw"
 
   return (
     <div className="space-y-6">
@@ -111,6 +115,22 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
             </Label>
           </div>
         </div>
+
+        {offYaw && (
+          <Alert className="mt-4">
+            <TriangleAlert />
+            <AlertTitle>Calibrate your gyro</AlertTitle>
+            <AlertDescription>
+              <p>
+                Using the <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{config.gyroAxis}</code>{" "}
+                axis for the heading usually means the gyro is mounted on its side or upside down. Rather than
+                changing the axis, we recommend calibrating the gyro for how it is mounted, with its vendor&apos;s
+                tool, so that its yaw is the robot&apos;s heading, and keeping the axis on{" "}
+                <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">yaw</code>.
+              </p>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {isCustom && (
           <div className="mt-4 space-y-2 rounded-lg border p-3 text-sm">
