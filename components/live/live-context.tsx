@@ -27,6 +27,7 @@ export function swerveTopics(name: string) {
       voltageEnabled: `${tuning}/modules/azimuth/voltage/enabled`,
       voltage: `${tuning}/modules/azimuth/voltage/setpoint`,
       period: (module: string) => `${mechanisms}/modules/${module}/azimuth/closedloop/period`,
+      measurementDelay: (module: string) => `${mechanisms}/modules/${module}/azimuth/closedloop/measurementDelay`,
     },
     drive: {
       enabled: `${tuning}/modules/drive/enabled`,
@@ -37,6 +38,7 @@ export function swerveTopics(name: string) {
       voltageEnabled: `${tuning}/modules/drive/voltage/enabled`,
       voltage: `${tuning}/modules/drive/voltage/setpoint`,
       period: (module: string) => `${mechanisms}/modules/${module}/drive/closedloop/period`,
+      measurementDelay: (module: string) => `${mechanisms}/modules/${module}/drive/closedloop/measurementDelay`,
     },
     autoalignEnabled: `${tuning}/autoalign/enabled`,
   }

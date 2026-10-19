@@ -32,6 +32,10 @@ interface Result {
   gains: Record<"p" | "i" | "d" | "s" | "v" | "a", number>
   period: number
   periodAssumed: boolean
+  /** How far behind the measured velocity is, in seconds. */
+  delay: number
+  /** Whether the robot published the delay, rather than it being typed. */
+  delayPublished: boolean
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -53,6 +57,8 @@ export function LiveAutoGains({ mode }: { mode: TuneMode }) {
   // How long the velocity takes to reach the closed loop: a robot loop in simulation, plus any filtering by the
   // motor controller on a robot.
   const [delayMs, setDelayMs] = useState("20")
+  // YAMS publishes the delay from the motor controller's velocity filtering, or the simulation period.
+  const publishedDelay = useNtValue<number>(modules.length ? t[mode].measurementDelay(modules[0]) : "")
   const [status, setStatus] = useState<string | null>(null)
   const [result, setResult] = useState<Result | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -164,7 +170,10 @@ export function LiveAutoGains({ mode }: { mode: TuneMode }) {
       const publishedPeriod = live.nt.get<number>(t[mode].period(modules[0]))
       const period = publishedPeriod && publishedPeriod > 0 ? publishedPeriod : DEFAULT_PERIOD
       const ka = Math.max(0, ff.ka)
-      const delay = Math.max(0, Number.parseFloat(delayMs) || 0) / 1000
+      const delay =
+        publishedDelay !== undefined && publishedDelay >= 0
+          ? publishedDelay
+          : Math.max(0, Number.parseFloat(delayMs) || 0) / 1000
       const fit = { ...ff, ka }
       const gains =
         mode === "drive"
@@ -178,7 +187,14 @@ export function LiveAutoGains({ mode }: { mode: TuneMode }) {
       for (const [key, value] of Object.entries(all)) {
         live.nt.set(t[mode].gain(key as keyof typeof all), Number(value.toPrecision(6)))
       }
-      setResult({ ff, gains: all, period, periodAssumed: !(publishedPeriod && publishedPeriod > 0) })
+      setResult({
+        ff,
+        gains: all,
+        period,
+        periodAssumed: !(publishedPeriod && publishedPeriod > 0),
+        delay,
+        delayPublished: publishedDelay !== undefined,
+      })
       setStatus(null)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -205,21 +221,23 @@ export function LiveAutoGains({ mode }: { mode: TuneMode }) {
             Auto
           </Button>
         )}
-        <div className="flex items-center gap-1">
-          <Label htmlFor={`${mode}-delay`} className="text-xs">
-            Measurement delay
-          </Label>
-          <Input
-            id={`${mode}-delay`}
-            className="h-7 w-16"
-            type="number"
-            step={1}
-            value={delayMs}
-            disabled={busy}
-            onChange={(e) => setDelayMs(e.target.value)}
-          />
-          <span className="text-xs text-muted-foreground">ms</span>
-        </div>
+        {publishedDelay === undefined && (
+          <div className="flex items-center gap-1">
+            <Label htmlFor={`${mode}-delay`} className="text-xs">
+              Measurement delay
+            </Label>
+            <Input
+              id={`${mode}-delay`}
+              className="h-7 w-16"
+              type="number"
+              step={1}
+              value={delayMs}
+              disabled={busy}
+              onChange={(e) => setDelayMs(e.target.value)}
+            />
+            <span className="text-xs text-muted-foreground">ms</span>
+          </div>
+        )}
         {needsWheel && (
           <div className="flex items-center gap-1">
             <Label htmlFor={`${mode}-wheel`} className="text-xs">
@@ -249,8 +267,8 @@ export function LiveAutoGains({ mode }: { mode: TuneMode }) {
         <p className="text-xs text-muted-foreground" data-live={`${mode}-auto-result`}>
           Set from {result.ff.samples} samples (the fit explains {(result.ff.r2 * 100).toFixed(1)}% of the voltage), with
           the feedback worked out for a closed loop every {Number((result.period * 1000).toPrecision(3))} ms
-          {result.periodAssumed ? ", assumed since the robot doesn't publish it" : ""}, with the velocity arriving{" "}
-          {delayMs || 0} ms late. Check them against the graph, and adjust from there.
+          {result.periodAssumed ? ", assumed since the robot doesn't publish it" : ""}, with the velocity measured{" "}
+          {Number((result.delay * 1000).toPrecision(3))} ms late{result.delayPublished ? ", as the robot publishes it" : ""}. Check them against the graph, and adjust from there.
         </p>
       )}
     </div>
