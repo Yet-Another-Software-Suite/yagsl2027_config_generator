@@ -2,6 +2,8 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+/* A phone on its side: wide enough for two columns, too short for one long one. */
+@custom-variant short (@media (orientation: landscape) and (max-height: 500px));
 
 :root {
   /* The YASS website's palette (yassrobotics.com): graphite surfaces and Bright Fern green. */

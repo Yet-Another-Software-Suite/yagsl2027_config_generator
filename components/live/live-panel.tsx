@@ -167,7 +167,7 @@ export function LiveTuningPanel({
         )}
       </div>
 
-      <p className="text-sm text-muted-foreground">{HOW_TO[shown]}</p>
+      <p className="text-sm text-muted-foreground short:text-xs">{HOW_TO[shown]}</p>
       {active !== shown && (
         <p className="text-xs text-muted-foreground">
           {ready

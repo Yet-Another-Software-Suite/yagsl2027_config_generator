@@ -179,7 +179,7 @@ export function LiveGains({ mode }: { mode: TuneMode }) {
   const live = useLive()
   const t = swerveTopics(live.driveName)
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6 short:grid-cols-2!">
       {GAIN_KEYS.map((key) => (
         <GainField key={key} topic={t[mode].gain(key)} label={GAIN_LABELS[key]} name={`${mode}-${key}`} />
       ))}
@@ -259,7 +259,7 @@ export function LiveTrace({ mode }: { mode: TuneMode }) {
         {mode === "azimuth" ? "Module angle against the setpoint" : "Wheel speed against the setpoint"}, last{" "}
         {WINDOW_SECONDS} seconds
       </figcaption>
-      <div className="h-56 w-full rounded border border-border bg-background">
+      <div className="h-56 w-full rounded border border-border bg-background short:h-36">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 8, right: 12, bottom: 4, left: 0 }}>
             <CartesianGrid stroke="var(--border)" vertical={false} />
@@ -355,16 +355,21 @@ function LatestReadings({
 /** Everything for tuning one motor: the setpoint, the graph and the gains. */
 export function LiveTunerControls({ mode }: { mode: TuneMode }) {
   return (
-    <div className="space-y-3">
-      <LiveSetpoint mode={mode} />
-      <LiveTrace mode={mode} />
-      <LiveAutoGains mode={mode} />
-      <LiveGains mode={mode} />
-      <ClosedLoopPeriod mode={mode} />
-      <p className="text-xs text-muted-foreground">
-        Type a gain and press Enter: the robot uses it on its next loop. Nothing is saved until you download the
-        gains.
-      </p>
+    // On a phone on its side, the gains sit beside the graph so both fit on the screen.
+    <div className="space-y-3 short:grid short:grid-cols-[3fr_2fr] short:gap-4 short:space-y-0">
+      <div className="min-w-0 space-y-3">
+        <LiveSetpoint mode={mode} />
+        <LiveTrace mode={mode} />
+      </div>
+      <div className="min-w-0 space-y-3">
+        <LiveAutoGains mode={mode} />
+        <LiveGains mode={mode} />
+        <ClosedLoopPeriod mode={mode} />
+        <p className="text-xs text-muted-foreground">
+          Type a gain and press Enter: the robot uses it on its next loop. Nothing is saved until you download the
+          gains.
+        </p>
+      </div>
     </div>
   )
 }

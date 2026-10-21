@@ -221,13 +221,17 @@ export function FlappyRivetGame() {
     <div className="flex flex-col items-center gap-3">
       <div
         className="relative select-none overflow-hidden rounded-lg border border-border shadow-sm"
-        style={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }}
+        // Shrinks to fit a short screen, such as a phone on its side, keeping its shape.
+        style={{
+          width: `min(${CANVAS_WIDTH}px, calc((90dvh - 6rem) * ${CANVAS_WIDTH / CANVAS_HEIGHT}), calc(100vw - 5rem))`,
+          aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
+        }}
         onPointerDown={(e) => {
           e.preventDefault()
           flap()
         }}
       >
-        <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="block touch-none" />
+        <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="block h-full w-full touch-none" />
 
         <div className="pointer-events-none absolute left-2 top-2 rounded bg-black/40 px-2 py-1 text-xs font-semibold text-white">
           Best: {highScore}
