@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { isLoopbackHost, targetHost, type LiveTarget } from "@/lib/live-nt"
-import { useLive, useRobotState } from "@/components/live/live-context"
+import { useLive, useRobotState, useSwerveDrives } from "@/components/live/live-context"
 
 export function Path({ children }: { children: string }) {
   return <code className="break-all rounded bg-muted px-1.5 py-0.5 text-xs font-mono">{children}</code>
@@ -180,18 +181,7 @@ export function LiveConnectionCard({ real }: { real: boolean }) {
             </div>
           )}
           <div className="flex flex-wrap items-end gap-3">
-            <div className="space-y-1">
-              <Label htmlFor={`live-name-${real ? "robot" : "sim"}`} className="text-xs">
-                Swerve telemetry name
-              </Label>
-              <Input
-                id={`live-name-${real ? "robot" : "sim"}`}
-                className="h-8 w-32"
-                value={live.driveName}
-                onChange={(e) => live.setDriveName(e.target.value.replace(/[^\w-]/g, ""))}
-              />
-            </div>
-            <Button size="sm" disabled={!host || !live.driveName || otherConnection} onClick={() => host && live.connect(target, host)}>
+            <Button size="sm" disabled={!host || otherConnection} onClick={() => host && live.connect(target, host)}>
               <Plug className="mr-2 h-4 w-4" />
               Connect{host ? ` to ${real ? host : "the simulator"}` : ""}
             </Button>
@@ -233,10 +223,77 @@ export function LiveConnectionCard({ real }: { real: boolean }) {
               Disconnect
             </Button>
           </div>
-          {live.status === "connected" && <RobotStatus requireUtility />}
+          {live.status === "connected" && (
+            <>
+              <SwerveDrivePicker id={`live-drive-${real ? "robot" : "sim"}`} />
+              <RobotStatus requireUtility />
+            </>
+          )}
           {showHelp && <ConnectionHelp real={real} />}
         </div>
       )}
+    </div>
+  )
+}
+
+const NO_DRIVE_AFTER_MS = 3000
+
+/** Pick the swerve drive to tune, from the ones publishing telemetry under /Mechanisms. */
+function SwerveDrivePicker({ id }: { id: string }) {
+  const live = useLive()
+  const drives = useSwerveDrives()
+  const [waited, setWaited] = useState(false)
+  const { driveName, setDriveName } = live
+
+  // Keep the drive picked last time while it is there, or else take the first one found.
+  useEffect(() => {
+    if (drives.length && !drives.includes(driveName)) setDriveName(drives[0])
+  }, [drives, driveName, setDriveName])
+
+  useEffect(() => {
+    const timer = setTimeout(() => setWaited(true), NO_DRIVE_AFTER_MS)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (!drives.length) {
+    return waited ? (
+      <p className="flex items-start gap-2 text-sm text-amber-700 dark:text-amber-400">
+        <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
+        <span>
+          No swerve drive is publishing telemetry under <Path>/Mechanisms</Path>. Give its SwerveDriveConfig a{" "}
+          <Path>.withTelemetry(...)</Path>, as in the next step.
+        </span>
+      </p>
+    ) : (
+      <p className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Looking for swerve drives under <Path>/Mechanisms</Path>...
+      </p>
+    )
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <Label htmlFor={id} className="text-sm">
+        Swerve drive
+      </Label>
+      <Select value={drives.includes(driveName) ? driveName : undefined} onValueChange={setDriveName}>
+        <SelectTrigger id={id} size="sm" className="h-8 min-w-36" data-live="drive-picker">
+          <SelectValue placeholder="Pick one" />
+        </SelectTrigger>
+        <SelectContent>
+          {drives.map((name) => (
+            <SelectItem key={name} value={name}>
+              {name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <span className="text-xs text-muted-foreground">
+        {drives.length === 1
+          ? `Found under /Mechanisms/${driveName}.`
+          : `${drives.length} found under /Mechanisms.`}
+      </span>
     </div>
   )
 }

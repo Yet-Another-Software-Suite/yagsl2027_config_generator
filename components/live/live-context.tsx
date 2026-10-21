@@ -57,6 +57,15 @@ const GAIN_PATHS: Record<GainKey, string> = {
 
 export const CONTROL_WORD = "/DriverStation/ControlWord"
 
+/** Every mechanism publishes its telemetry under here, a SwerveDrive's included. */
+const MECHANISMS_PREFIX = "/Mechanisms/"
+
+/** The topics whose values Live mode needs for the swerve drive named `name`. */
+function valuePrefixes(name: string) {
+  const t = swerveTopics(name)
+  return [t.tuningPrefix, t.mechanismsPrefix, CONTROL_WORD]
+}
+
 // The order YAGSL's generated config lists the modules in; any other names follow alphabetically.
 const MODULE_ORDER = ["frontleft", "frontright", "backleft", "backright"]
 
@@ -156,8 +165,8 @@ export function LiveProvider({ children }: { children: ReactNode }) {
     async (target: LiveTarget, targetHostName: string) => {
       setSafetyConfirmed(false)
       setConnectedTarget(target)
-      const t = swerveTopics(driveName)
-      await nt.connect(targetHostName, [t.tuningPrefix, t.mechanismsPrefix, CONTROL_WORD])
+      // Only the names under /Mechanisms, to find the swerve drives, plus the values of the chosen one.
+      await nt.connect(targetHostName, valuePrefixes(driveName), [MECHANISMS_PREFIX])
     },
     [nt, driveName],
   )
@@ -205,10 +214,20 @@ export function LiveProvider({ children }: { children: ReactNode }) {
     if (!open) afterUnlock.current = null
   }, [])
 
-  const setDriveName = useCallback((name: string) => {
-    setDriveNameState(name)
-    writeStorage(NAME_KEY, name)
-  }, [])
+  const setDriveName = useCallback(
+    (name: string) => {
+      if (name === driveName) return
+      // Switching drives must not leave the old one moving.
+      if (nt.getStatus() !== "idle") {
+        stopAll()
+        setSafetyConfirmed(false)
+        nt.setPrefixes(valuePrefixes(name))
+      }
+      setDriveNameState(name)
+      writeStorage(NAME_KEY, name)
+    },
+    [nt, driveName, stopAll],
+  )
 
   const setTeam = useCallback((value: string) => {
     setTeamState(value)
@@ -301,5 +320,34 @@ export function useModuleNames(): string[] {
     // version changes whenever a topic arrives
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nt, prefix, version])
+  return useMemo(() => (key ? key.split("|") : []), [key])
+}
+
+/**
+ * The swerve drives publishing telemetry, by name: the folders under /Mechanisms with the shape of a SwerveDrive's
+ * telemetry, its module states and a folder per module. The ones with live tuning come first.
+ */
+export function useSwerveDrives(): string[] {
+  const { nt } = useLive()
+  const version = useSyncExternalStore(nt.subscribe, () => nt.getVersion(), () => 0)
+  const key = useMemo(() => {
+    const states = new Set<string>()
+    const modules = new Set<string>()
+    const tunable = new Set<string>()
+    for (const topic of nt.announcedTopics()) {
+      if (!topic.startsWith(MECHANISMS_PREFIX)) continue
+      const [name, ...rest] = topic.slice(MECHANISMS_PREFIX.length).split("/")
+      const path = rest.join("/")
+      if (path === "states/current") states.add(name)
+      else if (path.startsWith("modules/")) modules.add(name)
+      else if (path === "tuning/running") tunable.add(name)
+    }
+    return Array.from(states)
+      .filter((name) => modules.has(name))
+      .sort((a, b) => Number(tunable.has(b)) - Number(tunable.has(a)) || a.localeCompare(b))
+      .join("|")
+    // version changes whenever a topic is announced
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nt, version])
   return useMemo(() => (key ? key.split("|") : []), [key])
 }

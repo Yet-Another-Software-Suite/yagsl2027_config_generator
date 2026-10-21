@@ -107,6 +107,9 @@ export class LiveNT {
   private client: Nt4ClientLike | null = null
   private values = new Map<string, unknown>()
   private types = new Map<string, string>()
+  /** Every topic the server has announced, values or not. */
+  private announced = new Set<string>()
+  private valueSubscription: number | null = null
   private listeners = new Set<Listener>()
   private sampleListeners = new Set<SampleListener>()
   private notifyScheduled = false
@@ -151,6 +154,11 @@ export class LiveNT {
     return Array.from(this.values.keys())
   }
 
+  /** The names of every announced topic, including those subscribed to without their values. */
+  announcedTopics(): string[] {
+    return Array.from(this.announced)
+  }
+
   subscribe = (listener: Listener): (() => void) => {
     this.listeners.add(listener)
     return () => this.listeners.delete(listener)
@@ -180,7 +188,10 @@ export class LiveNT {
     this.notify()
   }
 
-  async connect(host: string, prefixes: string[]): Promise<void> {
+  /**
+   * Connect, receiving the values of the topics under `prefixes` and only the names of those under `namePrefixes`.
+   */
+  async connect(host: string, prefixes: string[], namePrefixes: string[] = []): Promise<void> {
     this.disconnect()
     installLocalNetworkWebSocket()
     const { Nt4Client } = await import("@frc-web-components/fwc/source-providers/nt4")
@@ -193,10 +204,13 @@ export class LiveNT {
       (topic) => {
         if (this.client !== client) return
         this.types.set(topic.name, topic.type)
+        this.announced.add(topic.name)
+        this.notify()
       },
       (topic) => {
         if (this.client !== client) return
         this.types.delete(topic.name)
+        this.announced.delete(topic.name)
         this.values.delete(topic.name)
         this.notify()
       },
@@ -218,14 +232,23 @@ export class LiveNT {
         // The client keeps retrying on its own.
         this.values.clear()
         this.types.clear()
+        this.announced.clear()
         this.connectedAt = null
         this.attemptStartedAt = this.attemptStartedAt ?? Date.now()
         this.setStatus("connecting")
       },
     )
     this.client = client
-    client.subscribePeriodic(prefixes, true, 0.02)
+    this.valueSubscription = client.subscribePeriodic(prefixes, true, 0.02)
+    if (namePrefixes.length) client.subscribeTopicsOnly(namePrefixes, true)
     client.connect()
+  }
+
+  /** Receive the values under these prefixes instead, without reconnecting. */
+  setPrefixes(prefixes: string[]) {
+    if (!this.client) return
+    if (this.valueSubscription !== null) this.client.unsubscribe(this.valueSubscription)
+    this.valueSubscription = this.client.subscribePeriodic(prefixes, true, 0.02)
   }
 
   disconnect() {
@@ -233,8 +256,10 @@ export class LiveNT {
       this.client.disconnect()
       this.client = null
     }
+    this.valueSubscription = null
     this.values.clear()
     this.types.clear()
+    this.announced.clear()
     this.host = null
     this.newestServerTimeUs = 0
     this.connectedAt = null
