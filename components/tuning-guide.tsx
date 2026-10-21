@@ -45,15 +45,8 @@ import { cn } from "@/lib/utils"
 import { withBasePath } from "@/lib/base-path"
 import { LiveProvider, useLive } from "@/components/live/live-context"
 import { LiveConnectionCard, LiveModeToggle } from "@/components/live/live-connection"
-import { LiveTuner } from "@/components/live/live-tuner"
-import {
-  LiveFinish,
-  LiveInPlace,
-  LiveModeSwitch,
-  LiveStopBar,
-  LiveTelemetryCheck,
-  LiveTuningCommand,
-} from "@/components/live/live-steps"
+import { LiveTuningInvite, LiveTuningPanel } from "@/components/live/live-panel"
+import { LiveFinish, LiveStopBar, LiveTelemetryCheck } from "@/components/live/live-steps"
 
 const EXAMPLE_PROJECT_URL = "https://github.com/Yet-Another-Software-Suite/YAGSL/tree/main/example"
 
@@ -107,17 +100,13 @@ function PidTuningLinks() {
   )
 }
 
-function liveTuningStepIds(idPrefix: string): string[] {
-  return [
-    "setup",
-    "enable",
-    "azimuth-enable",
-    "azimuth-tune",
-    "drive-enable",
-    "drive-tune",
-    "inplace",
-    "finish",
-  ].map((suffix) => `${idPrefix}-${suffix}`)
+/** The live tuning steps: with Live mode on, the tuning panel stands in for the steps between setup and finish. */
+function liveTuningStepIds(idPrefix: string, live: boolean): string[] {
+  return (
+    live
+      ? ["setup", "tune", "finish"]
+      : ["setup", "enable", "azimuth-enable", "azimuth-tune", "drive-enable", "drive-tune", "inplace", "finish"]
+  ).map((suffix) => `${idPrefix}-${suffix}`)
 }
 
 function GuideFigure({
@@ -165,9 +154,15 @@ function LiveTuningSteps({
   const checked = (suffix: string) => checkedSteps.has(stepId(suffix))
   const onChange = (suffix: string) => (c: boolean) => toggleStep(stepId(suffix), c)
   const done = (suffix: string) => () => toggleStep(stepId(suffix), true)
+  const live = useLive()
+  const doneTuning = () => {
+    toggleStep(stepId("tune"), true)
+    document.getElementById(stepId("finish"))?.scrollIntoView({ behavior: "smooth", block: "center" })
+  }
 
   return (
     <>
+      <LiveTuningInvite real={real} />
       <LiveConnectionCard real={real} />
       <Step
         id={stepId("setup")}
@@ -211,204 +206,235 @@ function LiveTuningSteps({
       >
         <LiveTelemetryCheck onFound={done("setup")} />
       </Step>
-      <Step
-        id={stepId("enable")}
-        title="Enable the tuning command."
-        detail={
-          <>
-            <p>
-              Put the robot in <strong>Utility</strong> mode with no OpMode selected and enable it,{" "}
-              {real ? "from the Driver Station" : "in the sim GUI's Robot State panel"}. A teleop OpMode would
-              drive the modules and fight the tuning.
-            </p>
-            <p className="mt-2">
-              Then in AdvantageScope, turn on tuning mode (the sliders button beside the sidebar search) and
-              click <NTPath>running</NTPath> under <NTPath>Mechanisms/swerve/tuning</NTPath>. It has to be
-              running, none of the fields below do anything while it's idle.
-            </p>
-          </>
-        }
-        checked={checked("enable")}
-        onCheckedChange={onChange("enable")}
-      >
-        <LiveTuningCommand real={real} onStarted={done("enable")} />
-        {!real && (
-          <GuideFigure
-            src="/guide/yagsl-sim-utility-mode.png"
-            alt="The Robot State panel of the WPILib simulation GUI with Utility (1) and Enable (2) marked. The OpMode dropdown is left at NONE."
-            width={674}
-            height={372}
-            caption="In simulation: pick Utility (1), then Enable (2). Leave the OpMode at NONE."
-            small
+      {live.enabled ? (
+        <Step
+          id={stepId("tune")}
+          title="Tune the azimuth and drive PID."
+          detail="Start azimuth tuning, get every module tracking the angle, then switch to drive. Nothing moves until you press Start, and Stop at the bottom of the screen turns everything off."
+          checked={checked("tune")}
+          onCheckedChange={onChange("tune")}
+        >
+          <LiveTuningPanel
+            real={real}
+            onDone={doneTuning}
+            notReadyHelp={
+              real ? (
+                <>
+                  Enable the robot in <strong>Utility</strong> mode from the Driver Station, with no OpMode selected. A
+                  teleop OpMode would drive the modules and fight the tuning.
+                </>
+              ) : (
+                <>
+                  In the sim GUI's Robot State panel, pick <strong>Utility</strong> and enable it, leaving the OpMode at
+                  NONE.
+                  <GuideFigure
+                    src="/guide/yagsl-sim-utility-mode.png"
+                    alt="The Robot State panel of the WPILib simulation GUI with Utility (1) and Enable (2) marked. The OpMode dropdown is left at NONE."
+                    width={674}
+                    height={372}
+                    small
+                  />
+                </>
+              )
+            }
           />
-        )}
-        <GuideFigure
-          src="/guide/yagsl-ascope-enable-tuning.png"
-          alt="AdvantageScope with four numbered markers: 1 the tuning mode button beside the sidebar search, 2 the running switch under Mechanisms/swerve/tuning, 3 the angle field under Tuning/swerve/modules/azimuth, and 4 the enabled switch under the same folder."
-          width={1400}
-          height={900}
-          caption="Turn on tuning mode (1) and click running (2). The next steps type a setpoint (3) and turn one tuning mode on (4)."
-        />
-      </Step>
-      <Step
-        id={stepId("azimuth-enable")}
-        title="Switch to azimuth tuning."
-        detail={
-          <>
-            Set <NTPath>Tuning/swerve/modules/azimuth/enabled</NTPath> to <NTPath>true</NTPath>.
-          </>
-        }
-        checked={checked("azimuth-enable")}
-        onCheckedChange={onChange("azimuth-enable")}
-      >
-        <LiveModeSwitch mode="azimuth" onEnabled={done("azimuth-enable")} />
-      </Step>
-      <Step
-        id={stepId("azimuth-tune")}
-        title="Tune the azimuth PID."
-        detail="Switch the angle between 0 and 15 degrees, then edit these fields and watch every module track the target angle. Raise p until it rings, back it off, then add a little d:"
-        checked={checked("azimuth-tune")}
-        onCheckedChange={onChange("azimuth-tune")}
-      >
-        <LiveTuner mode="azimuth" />
-        <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-          <li>
-            <NTPath>Tuning/swerve/modules/azimuth/feedback/p</NTPath>
-          </li>
-          <li>
-            <NTPath>Tuning/swerve/modules/azimuth/feedback/i</NTPath>
-          </li>
-          <li>
-            <NTPath>Tuning/swerve/modules/azimuth/feedback/d</NTPath>
-          </li>
-          <li>
-            <NTPath>Tuning/swerve/modules/azimuth/feedforward/s</NTPath> (optional)
-          </li>
-          <li>
-            <NTPath>Tuning/swerve/modules/azimuth/feedforward/v</NTPath> (optional)
-          </li>
-          <li>
-            <NTPath>Tuning/swerve/modules/azimuth/feedforward/a</NTPath> (optional)
-          </li>
-          <li>
-            <NTPath>Tuning/swerve/modules/azimuth/angle</NTPath> (degrees, the target angle setpoint)
-          </li>
-        </ul>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
-          <GuideFigure
-            src="/guide/yagsl-tune-azimuth.gif"
-            alt="An animation of every module turning from 0 to 15 degrees beside a graph of the desired and current angle: too slow with a low p, overshooting and ringing with a high p, and quick and settled with a little less p plus some d. The values are only an example."
-            width={720}
-            height={360}
-            caption="Too slow, ringing, then quick and settled. The values are only an example."
-          />
-          <GuideFigure
-            src="/guide/yagsl-ascope-azimuth-graph.png"
-            alt="An AdvantageScope line graph of Tuning/swerve/modules/azimuth/angle stepping between 0 and 15 degrees and Mechanisms/swerve/modules/frontleft/encoder following it."
-            width={1100}
-            height={707}
-            caption="In AdvantageScope: graph Tuning/swerve/modules/azimuth/angle against a module's encoder."
-          />
-        </div>
-      </Step>
-      <Step
-        id={stepId("drive-enable")}
-        title="Switch to drive tuning."
-        detail={
-          <>
-            Set <NTPath>Tuning/swerve/modules/azimuth/enabled</NTPath> back to <NTPath>false</NTPath>, then set{" "}
-            <NTPath>Tuning/swerve/modules/drive/enabled</NTPath> to <NTPath>true</NTPath>.
-          </>
-        }
-        checked={checked("drive-enable")}
-        onCheckedChange={onChange("drive-enable")}
-      >
-        <LiveModeSwitch mode="drive" onEnabled={done("drive-enable")} />
-      </Step>
-      <Step
-        id={stepId("drive-tune")}
-        title="Tune the drive PID."
-        detail="Set a target speed, zero the feedback, raise feedforward/v until the speed settles on the target, then add feedback/p until it gets there quickly and holds:"
-        checked={checked("drive-tune")}
-        onCheckedChange={onChange("drive-tune")}
-      >
-        <LiveTuner mode="drive" />
-        <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-          <li>
-            <NTPath>Tuning/swerve/modules/drive/feedback/p</NTPath>
-          </li>
-          <li>
-            <NTPath>Tuning/swerve/modules/drive/feedback/i</NTPath>
-          </li>
-          <li>
-            <NTPath>Tuning/swerve/modules/drive/feedback/d</NTPath>
-          </li>
-          <li>
-            <NTPath>Tuning/swerve/modules/drive/feedforward/s</NTPath> (optional)
-          </li>
-          <li>
-            <NTPath>Tuning/swerve/modules/drive/feedforward/v</NTPath> (optional)
-          </li>
-          <li>
-            <NTPath>Tuning/swerve/modules/drive/feedforward/a</NTPath> (optional)
-          </li>
-          <li>
-            <NTPath>Tuning/swerve/modules/drive/velocity</NTPath> (meters per second, the target speed setpoint)
-          </li>
-        </ul>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
-          <GuideFigure
-            src="/guide/yagsl-tune-drive.gif"
-            alt="An animation of the drive velocity against a 2 meters per second setpoint: with feedforward v too low it settles below, with v right it settles on 2 meters per second, and adding p makes it get there quickly and hold. The values are only an example."
-            width={720}
-            height={360}
-            caption="Feedforward first, then feedback. The values are only an example."
-          />
-          <GuideFigure
-            src="/guide/yagsl-ascope-drive-graph.png"
-            alt="An AdvantageScope line graph of Tuning/swerve/modules/drive/velocity stepping between 0 and 1.5 meters per second and Mechanisms/swerve/modules/frontleft/drive/measurement/velocity following it."
-            width={1100}
-            height={707}
-            caption="In AdvantageScope: graph Tuning/swerve/modules/drive/velocity against a module's drive/measurement/velocity."
-          />
-        </div>
-      </Step>
-      <Step
-        id={stepId("inplace")}
-        title="Run the spin test over NetworkTables."
-        detail={
-          <>
-            Want to run the spin test from the dashboard instead of a joystick? Flip{" "}
-            <NTPath>Tuning/swerve/modules/drive/inplace</NTPath> to <NTPath>true</NTPath> while{" "}
-            <NTPath>modules/drive/enabled</NTPath> is still <NTPath>true</NTPath>. Every module snaps 90&deg; off its
-            radial angle (tangent to the robot center), so raising <NTPath>modules/drive/velocity</NTPath> spins the
-            whole chassis in place instead of driving it straight, the same test as holding the right stick left, but
-            drivable entirely over NetworkTables.
-          </>
-        }
-        checked={checked("inplace")}
-        onCheckedChange={onChange("inplace")}
-      >
-        <LiveInPlace real={real} />
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
-          <Image
-            src={withBasePath("/module-drive-inplace.gif")}
-            alt="Raising modules/drive/velocity with modules/drive/inplace set to true: every module points tangent to the robot center and the chassis spins in place, faster as the value increases."
-            width={760}
-            height={563}
-            unoptimized
-            className="w-full rounded border border-border"
-          />
-          <Image
-            src={withBasePath("/module-drive-inplace.png")}
-            alt="modules/drive/enabled and modules/drive/inplace both true with velocity at -3: each module is pinwheeled 90 degrees off its radial angle and the swerve widget's rotation arrow confirms the robot is spinning cleanly about its center."
-            width={1005}
-            height={745}
-            unoptimized
-            className="w-full rounded border border-border"
-          />
-        </div>
-      </Step>
+        </Step>
+      ) : (
+        <>
+          <Step
+            id={stepId("enable")}
+            title="Enable the tuning command."
+            detail={
+              <>
+                <p>
+                  Put the robot in <strong>Utility</strong> mode with no OpMode selected and enable it,{" "}
+                  {real ? "from the Driver Station" : "in the sim GUI's Robot State panel"}. A teleop OpMode would
+                  drive the modules and fight the tuning.
+                </p>
+                <p className="mt-2">
+                  Then in AdvantageScope, turn on tuning mode (the sliders button beside the sidebar search) and
+                  click <NTPath>running</NTPath> under <NTPath>Mechanisms/swerve/tuning</NTPath>. It has to be
+                  running, none of the fields below do anything while it's idle.
+                </p>
+              </>
+            }
+            checked={checked("enable")}
+            onCheckedChange={onChange("enable")}
+          >
+            {!real && (
+              <GuideFigure
+                src="/guide/yagsl-sim-utility-mode.png"
+                alt="The Robot State panel of the WPILib simulation GUI with Utility (1) and Enable (2) marked. The OpMode dropdown is left at NONE."
+                width={674}
+                height={372}
+                caption="In simulation: pick Utility (1), then Enable (2). Leave the OpMode at NONE."
+                small
+              />
+            )}
+            <GuideFigure
+              src="/guide/yagsl-ascope-enable-tuning.png"
+              alt="AdvantageScope with four numbered markers: 1 the tuning mode button beside the sidebar search, 2 the running switch under Mechanisms/swerve/tuning, 3 the angle field under Tuning/swerve/modules/azimuth, and 4 the enabled switch under the same folder."
+              width={1400}
+              height={900}
+              caption="Turn on tuning mode (1) and click running (2). The next steps type a setpoint (3) and turn one tuning mode on (4)."
+            />
+          </Step>
+          <Step
+            id={stepId("azimuth-enable")}
+            title="Switch to azimuth tuning."
+            detail={
+              <>
+                Set <NTPath>Tuning/swerve/modules/azimuth/enabled</NTPath> to <NTPath>true</NTPath>.
+              </>
+            }
+            checked={checked("azimuth-enable")}
+            onCheckedChange={onChange("azimuth-enable")}
+          >
+          </Step>
+          <Step
+            id={stepId("azimuth-tune")}
+            title="Tune the azimuth PID."
+            detail="Switch the angle between 0 and 15 degrees, then edit these fields and watch every module track the target angle. Raise p until it rings, back it off, then add a little d:"
+            checked={checked("azimuth-tune")}
+            onCheckedChange={onChange("azimuth-tune")}
+          >
+            <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+              <li>
+                <NTPath>Tuning/swerve/modules/azimuth/feedback/p</NTPath>
+              </li>
+              <li>
+                <NTPath>Tuning/swerve/modules/azimuth/feedback/i</NTPath>
+              </li>
+              <li>
+                <NTPath>Tuning/swerve/modules/azimuth/feedback/d</NTPath>
+              </li>
+              <li>
+                <NTPath>Tuning/swerve/modules/azimuth/feedforward/s</NTPath> (optional)
+              </li>
+              <li>
+                <NTPath>Tuning/swerve/modules/azimuth/feedforward/v</NTPath> (optional)
+              </li>
+              <li>
+                <NTPath>Tuning/swerve/modules/azimuth/feedforward/a</NTPath> (optional)
+              </li>
+              <li>
+                <NTPath>Tuning/swerve/modules/azimuth/angle</NTPath> (degrees, the target angle setpoint)
+              </li>
+            </ul>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              <GuideFigure
+                src="/guide/yagsl-tune-azimuth.gif"
+                alt="An animation of every module turning from 0 to 15 degrees beside a graph of the desired and current angle: too slow with a low p, overshooting and ringing with a high p, and quick and settled with a little less p plus some d. The values are only an example."
+                width={720}
+                height={360}
+                caption="Too slow, ringing, then quick and settled. The values are only an example."
+              />
+              <GuideFigure
+                src="/guide/yagsl-ascope-azimuth-graph.png"
+                alt="An AdvantageScope line graph of Tuning/swerve/modules/azimuth/angle stepping between 0 and 15 degrees and Mechanisms/swerve/modules/frontleft/encoder following it."
+                width={1100}
+                height={707}
+                caption="In AdvantageScope: graph Tuning/swerve/modules/azimuth/angle against a module's encoder."
+              />
+            </div>
+          </Step>
+          <Step
+            id={stepId("drive-enable")}
+            title="Switch to drive tuning."
+            detail={
+              <>
+                Set <NTPath>Tuning/swerve/modules/azimuth/enabled</NTPath> back to <NTPath>false</NTPath>, then set{" "}
+                <NTPath>Tuning/swerve/modules/drive/enabled</NTPath> to <NTPath>true</NTPath>.
+              </>
+            }
+            checked={checked("drive-enable")}
+            onCheckedChange={onChange("drive-enable")}
+          >
+          </Step>
+          <Step
+            id={stepId("drive-tune")}
+            title="Tune the drive PID."
+            detail="Set a target speed, zero the feedback, raise feedforward/v until the speed settles on the target, then add feedback/p until it gets there quickly and holds:"
+            checked={checked("drive-tune")}
+            onCheckedChange={onChange("drive-tune")}
+          >
+            <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+              <li>
+                <NTPath>Tuning/swerve/modules/drive/feedback/p</NTPath>
+              </li>
+              <li>
+                <NTPath>Tuning/swerve/modules/drive/feedback/i</NTPath>
+              </li>
+              <li>
+                <NTPath>Tuning/swerve/modules/drive/feedback/d</NTPath>
+              </li>
+              <li>
+                <NTPath>Tuning/swerve/modules/drive/feedforward/s</NTPath> (optional)
+              </li>
+              <li>
+                <NTPath>Tuning/swerve/modules/drive/feedforward/v</NTPath> (optional)
+              </li>
+              <li>
+                <NTPath>Tuning/swerve/modules/drive/feedforward/a</NTPath> (optional)
+              </li>
+              <li>
+                <NTPath>Tuning/swerve/modules/drive/velocity</NTPath> (meters per second, the target speed setpoint)
+              </li>
+            </ul>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              <GuideFigure
+                src="/guide/yagsl-tune-drive.gif"
+                alt="An animation of the drive velocity against a 2 meters per second setpoint: with feedforward v too low it settles below, with v right it settles on 2 meters per second, and adding p makes it get there quickly and hold. The values are only an example."
+                width={720}
+                height={360}
+                caption="Feedforward first, then feedback. The values are only an example."
+              />
+              <GuideFigure
+                src="/guide/yagsl-ascope-drive-graph.png"
+                alt="An AdvantageScope line graph of Tuning/swerve/modules/drive/velocity stepping between 0 and 1.5 meters per second and Mechanisms/swerve/modules/frontleft/drive/measurement/velocity following it."
+                width={1100}
+                height={707}
+                caption="In AdvantageScope: graph Tuning/swerve/modules/drive/velocity against a module's drive/measurement/velocity."
+              />
+            </div>
+          </Step>
+          <Step
+            id={stepId("inplace")}
+            title="Run the spin test over NetworkTables."
+            detail={
+              <>
+                Want to run the spin test from the dashboard instead of a joystick? Flip{" "}
+                <NTPath>Tuning/swerve/modules/drive/inplace</NTPath> to <NTPath>true</NTPath> while{" "}
+                <NTPath>modules/drive/enabled</NTPath> is still <NTPath>true</NTPath>. Every module snaps 90&deg; off its
+                radial angle (tangent to the robot center), so raising <NTPath>modules/drive/velocity</NTPath> spins the
+                whole chassis in place instead of driving it straight, the same test as holding the right stick left, but
+                drivable entirely over NetworkTables.
+              </>
+            }
+            checked={checked("inplace")}
+            onCheckedChange={onChange("inplace")}
+          >
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              <Image
+                src={withBasePath("/module-drive-inplace.gif")}
+                alt="Raising modules/drive/velocity with modules/drive/inplace set to true: every module points tangent to the robot center and the chassis spins in place, faster as the value increases."
+                width={760}
+                height={563}
+                unoptimized
+                className="w-full rounded border border-border"
+              />
+              <Image
+                src={withBasePath("/module-drive-inplace.png")}
+                alt="modules/drive/enabled and modules/drive/inplace both true with velocity at -3: each module is pinwheeled 90 degrees off its radial angle and the swerve widget's rotation arrow confirms the robot is spinning cleanly about its center."
+                width={1005}
+                height={745}
+                unoptimized
+                className="w-full rounded border border-border"
+              />
+            </div>
+          </Step>
+        </>
+      )}
       <Step
         id={stepId("finish")}
         title="Wrap up: disable drive tuning and copy the gains back into code."
@@ -482,17 +508,17 @@ const TABS = [
   "maintenance",
 ] as const
 
-const TAB_STEPS: Record<(typeof TABS)[number], string[]> = {
+const tabSteps = (live: boolean): Record<(typeof TABS)[number], string[]> => ({
   setup: ["setup-1", "setup-2", "setup-3", "setup-4", "setup-5"],
   "sim-connect": ["sim-connect-1", "sim-connect-2", "sim-connect-3", "sim-connect-4"],
-  "sim-tune": ["sim-tune-1", ...liveTuningStepIds("sim-tune-live"), "sim-tune-3", "sim-tune-4"],
+  "sim-tune": ["sim-tune-1", ...liveTuningStepIds("sim-tune-live", live), "sim-tune-3", "sim-tune-4"],
   "robot-connect": ["robot-connect-1", "robot-connect-2", "robot-connect-3", "robot-connect-4", "robot-connect-5"],
   locations: ["locations-2"],
   align: ["align-1", "align-2", "align-3"],
-  "robot-tune": ["robot-tune-1", "robot-tune-2", ...liveTuningStepIds("robot-tune-live"), "robot-tune-3", "robot-tune-4"],
+  "robot-tune": ["robot-tune-1", "robot-tune-2", ...liveTuningStepIds("robot-tune-live", live), "robot-tune-3", "robot-tune-4"],
   field: ["field-1", "field-2", "field-3", "field-4", "field-5"],
   maintenance: ["maintenance-1", "maintenance-2", "maintenance-3", "maintenance-4"],
-}
+})
 
 export function TuningGuide() {
   return (
@@ -541,10 +567,11 @@ function TuningGuideContent() {
   const isFirstTab = currentTabIndex === 0
   const isLastTab = currentTabIndex === TABS.length - 1
 
-  const currentStepIds = TAB_STEPS[activeTab as (typeof TABS)[number]]
+  const steps = tabSteps(live.enabled)
+  const currentStepIds = steps[activeTab as (typeof TABS)[number]]
   const remainingSteps = currentStepIds.filter((id) => !checkedSteps.has(id)).length
   const allStepsChecked = remainingSteps === 0
-  const guideFinished = TAB_STEPS.maintenance.every((id) => checkedSteps.has(id))
+  const guideFinished = steps.maintenance.every((id) => checkedSteps.has(id))
 
   const toggleStep = (id: string, checked: boolean) => {
     setCheckedSteps((prev) => {

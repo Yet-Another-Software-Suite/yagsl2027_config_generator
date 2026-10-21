@@ -32,7 +32,7 @@ export function Step({
           onCheckedChange={(value) => onCheckedChange(value === true)}
           className="mt-0.5 shrink-0"
         />
-        <div className="flex-1 space-y-2">
+        <div className="min-w-0 flex-1 space-y-2">
           <Label
             htmlFor={id}
             className={cn(

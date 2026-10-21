@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import { GAIN_KEYS, swerveTopics, useLive, useModuleNames, useNtValue, type GainKey } from "@/components/live/live-context"
-import { LiveBox, NotConnected, useConnected } from "@/components/live/live-connection"
 import { LiveAutoGains } from "@/components/live/live-auto"
 
 export type TuneMode = "azimuth" | "drive"
@@ -354,29 +353,18 @@ function LatestReadings({
 }
 
 /** Everything for tuning one motor: the setpoint, the graph and the gains. */
-export function LiveTuner({ mode }: { mode: TuneMode }) {
-  const live = useLive()
-  const connected = useConnected()
-  const t = swerveTopics(live.driveName)
-  const on = useNtValue<boolean>(t[mode].enabled)
-  if (!live.enabled) return null
-  if (!connected) return <NotConnected />
+export function LiveTunerControls({ mode }: { mode: TuneMode }) {
   return (
-    <LiveBox>
-      {!on && (
-        <p className="text-xs text-amber-700 dark:text-amber-400">
-          {mode === "azimuth" ? "Azimuth" : "Drive"} tuning is off. Turn it on in the step above to move the modules.
-        </p>
-      )}
+    <div className="space-y-3">
       <LiveSetpoint mode={mode} />
       <LiveTrace mode={mode} />
       <LiveAutoGains mode={mode} />
       <LiveGains mode={mode} />
       <ClosedLoopPeriod mode={mode} />
       <p className="text-xs text-muted-foreground">
-        Type a gain and press Enter: the robot uses it on its next loop. Nothing is saved until you download the gains
-        in the last step.
+        Type a gain and press Enter: the robot uses it on its next loop. Nothing is saved until you download the
+        gains.
       </p>
-    </LiveBox>
+    </div>
   )
 }

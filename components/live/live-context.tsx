@@ -64,6 +64,8 @@ interface LiveApi {
   /** Live mode is on: the guide shows its live controls. */
   enabled: boolean
   setEnabled: (enabled: boolean) => void
+  /** Turn Live mode on, asking for the password if needed, then run `then` once it is on. */
+  turnOn: (then?: () => void) => void
   nt: LiveNT
   status: ConnectionStatus
   host: string | null
@@ -112,6 +114,8 @@ export function LiveProvider({ children }: { children: ReactNode }) {
   const [connectedTarget, setConnectedTarget] = useState<LiveTarget | null>(null)
   const [unlocked, setUnlocked] = useState(false)
   const [passwordOpen, setPasswordOpen] = useState(false)
+  // What to do once the password is entered, for turnOn.
+  const afterUnlock = useRef<(() => void) | null>(null)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -177,6 +181,28 @@ export function LiveProvider({ children }: { children: ReactNode }) {
     setPasswordOpen(false)
     setEnabledState(true)
     writeStorage(MODE_KEY, "on")
+    const then = afterUnlock.current
+    afterUnlock.current = null
+    then?.()
+  }, [])
+
+  const turnOn = useCallback(
+    (then?: () => void) => {
+      if (!unlocked) {
+        afterUnlock.current = then ?? null
+        setPasswordOpen(true)
+        return
+      }
+      setEnabledState(true)
+      writeStorage(MODE_KEY, "on")
+      then?.()
+    },
+    [unlocked],
+  )
+
+  const onPasswordOpenChange = useCallback((open: boolean) => {
+    setPasswordOpen(open)
+    if (!open) afterUnlock.current = null
   }, [])
 
   const setDriveName = useCallback((name: string) => {
@@ -202,6 +228,7 @@ export function LiveProvider({ children }: { children: ReactNode }) {
     () => ({
       enabled,
       setEnabled,
+      turnOn,
       nt,
       status,
       host,
@@ -216,13 +243,13 @@ export function LiveProvider({ children }: { children: ReactNode }) {
       stopAll,
       connectedTarget,
     }),
-    [enabled, setEnabled, nt, status, host, driveName, setDriveName, team, setTeam, safetyConfirmed, connect, disconnect, stopAll, connectedTarget],
+    [enabled, setEnabled, turnOn, nt, status, host, driveName, setDriveName, team, setTeam, safetyConfirmed, connect, disconnect, stopAll, connectedTarget],
   )
 
   return (
     <LiveContext.Provider value={api}>
       {children}
-      <LivePasswordDialog open={passwordOpen} onOpenChange={setPasswordOpen} onUnlocked={onUnlocked} />
+      <LivePasswordDialog open={passwordOpen} onOpenChange={onPasswordOpenChange} onUnlocked={onUnlocked} />
     </LiveContext.Provider>
   )
 }
