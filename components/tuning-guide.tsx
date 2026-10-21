@@ -581,7 +581,7 @@ function TuningGuideContent() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card">
+      <header className="border-b border-border bg-background">
         <div className="container mx-auto px-4 py-4 md:py-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
@@ -594,8 +594,8 @@ function TuningGuideContent() {
                 style={{ imageRendering: "pixelated" }}
               />
               <div>
-                <h1 className="text-xl md:text-2xl font-bold text-foreground">Quick Start Guide</h1>
-                <p className="text-xs md:text-sm text-muted-foreground">
+                <h1 className="font-pixel text-[11px] leading-relaxed text-primary md:text-sm">Quick Start Guide</h1>
+                <p className="mt-1 text-xs md:text-sm text-muted-foreground">
                   Your configuration has been downloaded. Check off each step as you complete it,
                   so nothing important gets missed.
                 </p>
@@ -621,6 +621,7 @@ function TuningGuideContent() {
           </div>
         </div>
       </header>
+      <div className="yass-stripe no-print" aria-hidden />
 
       <main className={cn("container mx-auto px-4 py-4 md:py-8 print:max-w-none print:p-0", live.enabled && "pb-20 md:pb-24")}>
         <Card className="p-4 md:p-6 print:border-none print:p-0 print:shadow-none">

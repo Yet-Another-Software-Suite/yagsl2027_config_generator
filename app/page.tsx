@@ -141,7 +141,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card">
+      <header className="border-b border-border bg-background">
         <div className="container mx-auto px-4 py-4 md:py-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
@@ -154,8 +154,8 @@ export default function Home() {
                 style={{ imageRendering: "pixelated" }}
               />
               <div>
-                <h1 className="text-xl md:text-2xl font-bold text-foreground">Swerve Drive Config Generator</h1>
-                <p className="text-xs md:text-sm text-muted-foreground">
+                <h1 className="font-pixel text-[11px] leading-relaxed text-primary md:text-sm">Swerve Drive Config Generator</h1>
+                <p className="mt-1 font-mono text-[11px] uppercase tracking-widest text-muted-foreground md:text-xs">
                   Configure your robot's swerve drive system (YAGSL)
                 </p>
               </div>
@@ -194,6 +194,7 @@ export default function Home() {
           </div>
         </div>
       </header>
+      <div className="yass-stripe no-print" aria-hidden />
 
       <main className="container mx-auto px-4 py-4 md:py-8 print:max-w-none print:p-0">
         <Card className="p-4 md:p-6 no-print">
