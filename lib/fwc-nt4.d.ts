@@ -22,6 +22,8 @@ declare module "@frc-web-components/fwc/source-providers/nt4" {
     disconnect(): void
     subscribePeriodic(topicPatterns: string[], prefixMode: boolean, period: number): number
     subscribeAll(topicPatterns: string[], prefixMode: boolean): number
+    subscribeTopicsOnly(topicPatterns: string[], prefixMode: boolean): number
+    unsubscribe(subscriptionId: number): void
     publishNewTopic(topic: string, type: string): void
     addSample(topic: string, value: unknown): void
     addTimestampedSample(topic: string, timestamp: number, value: unknown): void
