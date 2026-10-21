@@ -17,8 +17,8 @@ export const metadata: Metadata = {
   description: "Generate and manage swerve drive configurations for robotics",
   generator: "v0.app",
   icons: {
-    icon: withBasePath("/logo.png"),
-    apple: withBasePath("/logo.png"),
+    icon: withBasePath("/yagsl-logo.png"),
+    apple: withBasePath("/yagsl-logo.png"),
   },
 }
 
