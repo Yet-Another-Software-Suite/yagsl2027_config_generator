@@ -1,0 +1,12 @@
+Package: yagsl-config
+Version: ${VERSION}
+Description: YAGSL Swerve Drive Config Generator, with its Quick Start Guide and live swerve tuning
+Section: development
+Priority: optional
+Maintainer: Yet Another Software Suite
+Architecture: all
+Source: https://github.com/Yet-Another-Software-Suite/yagsl2027_config_generator
+X-Port: 5813
+X-Has-UI: true
+X-Auto-Start: true
+X-Icon-Path: /usr/share/yagsl-config.png

@@ -36,7 +36,7 @@ If a dropdown is missing an option YAGSL supports, or the exported JSON doesn't 
 - `components/tuning-step.tsx` — the individual step/checklist UI each tab is built from
 - `components/*-animation.tsx`, `module-location-diagram.tsx`, `tuning-comparison.tsx`, `json-diff.tsx` — visual aids embedded in specific steps (module rotation animation, gyro CCW+ check, field alignment, before/after PID comparisons, etc.)
 
-If something's wrong with the instructions themselves — a step is in the wrong order, a diagram is misleading, a doc link is stale — this is the half to fix. If you're adding a new step, add its id to both the tab's step array and `TAB_STEPS` in `tuning-guide.tsx`.
+If something's wrong with the instructions themselves (a step is in the wrong order, a diagram is misleading, a doc link is stale), this is the half to fix. If you're adding a new step, add its id to both the tab's step array and `tabSteps` in `tuning-guide.tsx`.
 
 ## Local dev
 
@@ -48,3 +48,12 @@ pnpm dev
 `pnpm run build` does the static export into `out/`, which is what actually gets deployed. `next.config.mjs` has `typescript.ignoreBuildErrors: true`, so a bad build won't fail on type errors alone — run `pnpm exec tsc --noEmit` if you want that check.
 
 Deployment is automatic on push to `main` via `.github/workflows/nextjs.yml` — installs with `pnpm install --frozen-lockfile` (never `pnpm update` in CI; that silently ignores the lockfile), builds, and pushes `out/` to GitHub Pages.
+
+## SystemCore package
+
+The site can be installed on SystemCore as a package (`yagsl-config`), so it is served from the robot itself at `http://<systemcore>:5813/`. Install it by dragging the `.ipk` onto the SystemCore web interface at http://robot.local, then open the `yagsl-config` tile. On the robot, Live mode connects to the robot serving the page by default, from any browser.
+
+- `systemcore/` holds the package: the control scripts, the socket activated systemd units, the small Python web server, and the tile image.
+- `.github/workflows/build-ipk.yml` builds the site with `NEXT_PUBLIC_SYSTEMCORE=1` and packages it with opkg-build. It runs on every push and pull request.
+- The Pages deploy builds the package too and serves it beside the site, so the **Download for SystemCore** button at the bottom of each page gets the package built from the same commit. The version shown beside it links to that commit.
+- `.github/workflows/release.yml` (run by hand from the **Actions** tab) builds a package with a release version and attaches it to a GitHub release.

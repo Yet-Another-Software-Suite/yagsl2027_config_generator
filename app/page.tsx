@@ -20,6 +20,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { PrintButton } from "@/components/print-button"
 import { ConfigPrintView } from "@/components/config-print-view"
 import { withBasePath } from "@/lib/base-path"
+import { SiteFooter } from "@/components/site-footer"
 import type { ConfigData } from "@/lib/types"
 
 export default function Home() {
@@ -317,6 +318,7 @@ export default function Home() {
           <ConfigPrintView config={config} />
         </div>
       </main>
+      <SiteFooter />
     </div>
   )
 }

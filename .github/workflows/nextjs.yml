@@ -25,8 +25,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # The SystemCore package, served beside the site so the download button gets the one built from this commit
+  ipk:
+    uses: ./.github/workflows/build-ipk.yml
+
   # Build job
   build:
+    needs: ipk
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -67,6 +72,16 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Build with Next.js
         run: pnpm run build
+        env:
+          APP_VERSION: ${{ needs.ipk.outputs.version }}
+          NEXT_PUBLIC_IPK_FILE: ${{ needs.ipk.outputs.file }}
+          NEXT_PUBLIC_IPK_VERSION: ${{ needs.ipk.outputs.version }}
+          NEXT_TELEMETRY_DISABLED: 1
+      - name: Add the IPK to the site
+        uses: actions/download-artifact@v4
+        with:
+          name: yagsl-config-ipk
+          path: ./out
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

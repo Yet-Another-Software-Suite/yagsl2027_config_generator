@@ -43,6 +43,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { PrintButton } from "@/components/print-button"
 import { cn } from "@/lib/utils"
 import { withBasePath } from "@/lib/base-path"
+import { SiteFooter } from "@/components/site-footer"
 import { LiveProvider, useLive } from "@/components/live/live-context"
 import { LiveConnectionCard, LiveModeToggle } from "@/components/live/live-connection"
 import { LiveTuningInvite, LiveTuningPanel } from "@/components/live/live-panel"
@@ -650,7 +651,7 @@ function TuningGuideContent() {
       </header>
       <div className="yass-stripe no-print" aria-hidden />
 
-      <main className={cn("container mx-auto px-4 py-4 md:py-8 print:max-w-none print:p-0", live.enabled && "pb-20 md:pb-24")}>
+      <main className="container mx-auto px-4 py-4 md:py-8 print:max-w-none print:p-0">
         <Card className="p-4 md:p-6 print:border-none print:p-0 print:shadow-none">
           <Tabs
             value={activeTab}
@@ -1829,6 +1830,8 @@ function TuningGuideContent() {
           </Tabs>
         </Card>
       </main>
+      {/* With Live mode on, room for the stop bar along the bottom */}
+      <SiteFooter className={cn(live.enabled && "pb-16")} />
       <LiveStopBar />
 
       <AlertDialog open={skipConfirmOpen} onOpenChange={setSkipConfirmOpen}>

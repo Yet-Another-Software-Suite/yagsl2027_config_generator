@@ -1,7 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Courier_Prime, Inter, JetBrains_Mono, Press_Start_2P } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
 import { withBasePath } from "@/lib/base-path"
@@ -38,7 +37,6 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
           {children}
           <Toaster />
-          <Analytics />
         </ThemeProvider>
       </body>
     </html>

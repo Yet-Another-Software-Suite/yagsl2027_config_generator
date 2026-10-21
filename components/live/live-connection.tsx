@@ -9,6 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { isLoopbackHost, targetHost, type LiveTarget } from "@/lib/live-nt"
+import { ON_SYSTEMCORE } from "@/lib/site"
 import { useLive, useRobotState, useSwerveDrives } from "@/components/live/live-context"
 
 export function Path({ children }: { children: string }) {
@@ -98,6 +99,13 @@ export function LiveConnectionCard({ real }: { real: boolean }) {
   const [custom, setCustom] = useState("")
   const [now, setNow] = useState(() => Date.now())
 
+  // Served from a SystemCore, the robot to connect to is the one serving the page.
+  useEffect(() => {
+    if (!ON_SYSTEMCORE) return
+    setKind("custom")
+    setCustom(window.location.hostname)
+  }, [])
+
   useEffect(() => {
     if (live.status !== "connecting") return
     const id = setInterval(() => setNow(Date.now()), 500)
@@ -118,8 +126,13 @@ export function LiveConnectionCard({ real }: { real: boolean }) {
   const attemptStarted = live.nt.getAttemptStartedAt()
   const showHelp =
     connectedHere && live.status === "connecting" && attemptStarted !== null && now - attemptStarted > TROUBLESHOOT_AFTER_MS
+  // A page served from the robot over HTTP reaches it fine; only the hosted site needs HTTPS.
   const insecurePage =
-    typeof window !== "undefined" && !window.isSecureContext && host !== null && !isLoopbackHost(host)
+    !ON_SYSTEMCORE &&
+    typeof window !== "undefined" &&
+    !window.isSecureContext &&
+    host !== null &&
+    !isLoopbackHost(host)
   const where = live.host === "localhost" ? "the simulator" : live.host
 
   return (

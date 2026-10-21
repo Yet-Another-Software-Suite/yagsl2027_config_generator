@@ -1,0 +1,20 @@
+[Unit]
+Description=yagsl-config web server (socket activated)
+Requires=yagsl-config.socket
+After=yagsl-config.socket
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/env python3 /usr/local/bin/yagsl-config/server.py /usr/share/yagsl-config/www
+Restart=no
+KillMode=mixed
+TimeoutStopSec=3
+
+DynamicUser=true
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+# Started by the socket unit only
+[Install]
