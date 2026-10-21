@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useId, useMemo, useRef, useState } from "react"
-import { CircleAlert, CircleCheck, Download, Loader2, OctagonX, Play } from "lucide-react"
+import { CircleAlert, CircleCheck, Download, Loader2, OctagonX } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -12,12 +12,11 @@ import {
   useLive,
   useNtValue,
   useNtVersion,
-  useRobotState,
   type GainKey,
 } from "@/components/live/live-context"
-import { LiveBox, NotConnected, Path, RobotStatus, useConnected } from "@/components/live/live-connection"
-import { ON_BLOCKS_CHECKLIST, ON_FLOOR_CHECKLIST, SafetyDialog } from "@/components/live/live-safety"
-import { LiveSetpoint, type TuneMode } from "@/components/live/live-tuner"
+import { LiveBox, NotConnected, Path, useConnected } from "@/components/live/live-connection"
+import { ON_FLOOR_CHECKLIST, SafetyDialog } from "@/components/live/live-safety"
+import { LiveSetpoint } from "@/components/live/live-tuner"
 
 /** Calls `onDone` once, the first time `done` becomes true. */
 function useOnce(done: boolean, onDone?: () => void) {
@@ -78,124 +77,6 @@ export function LiveTelemetryCheck({ onFound }: { onFound?: () => void }) {
   )
 }
 
-/** Starts and stops the SwerveDrive tuning command. On a real robot, the safety checklist comes first. */
-export function LiveTuningCommand({ real, onStarted }: { real: boolean; onStarted?: () => void }) {
-  const live = useLive()
-  const connected = useConnected()
-  const t = swerveTopics(live.driveName)
-  const running = useNtValue<boolean>(t.command)
-  const state = useRobotState()
-  const [dialog, setDialog] = useState(false)
-  useOnce(running === true, onStarted)
-
-  if (!live.enabled) return null
-  if (!connected) return <NotConnected />
-
-  const start = () => live.nt.set(t.command, true)
-  const ready = state !== null && state.enabled && state.mode === "utility" && !state.eStop
-
-  return (
-    <LiveBox>
-      <RobotStatus requireUtility />
-      <div className="flex flex-wrap items-center gap-3">
-        {running ? (
-          <>
-            <span className="flex items-center gap-2 text-sm font-medium text-green-700 dark:text-green-400">
-              <CircleCheck className="h-4 w-4" />
-              The tuning command is running.
-            </span>
-            <Button size="sm" variant="outline" className="bg-transparent" onClick={live.stopAll}>
-              Stop it
-            </Button>
-          </>
-        ) : (
-          <Button size="sm" disabled={!ready} onClick={() => (real && !live.safetyConfirmed ? setDialog(true) : start())}>
-            <Play className="mr-2 h-4 w-4" />
-            Start the tuning command
-          </Button>
-        )}
-      </div>
-      {!running && !ready && (
-        <p className="text-xs text-muted-foreground">
-          The command only runs while the robot is enabled in Utility mode. Started any other time, it stops right away.
-        </p>
-      )}
-      <SafetyDialog
-        open={dialog}
-        onOpenChange={setDialog}
-        title="Before the modules move"
-        intro="Live tuning sends what you type straight to the motors, and the modules move as soon as a tuning mode is on. Check each of these:"
-        items={ON_BLOCKS_CHECKLIST}
-        confirmLabel="Everything is clear, start"
-        onConfirm={() => {
-          live.setSafetyConfirmed(true)
-          start()
-        }}
-      />
-    </LiveBox>
-  )
-}
-
-/** Turns azimuth or drive tuning on, after turning the other modes off. */
-export function LiveModeSwitch({ mode, onEnabled }: { mode: TuneMode; onEnabled?: () => void }) {
-  const live = useLive()
-  const connected = useConnected()
-  const t = swerveTopics(live.driveName)
-  const running = useNtValue<boolean>(t.command)
-  const on = useNtValue<boolean>(t[mode].enabled)
-  const switchId = useId()
-  useOnce(on === true, onEnabled)
-
-  if (!live.enabled) return null
-  if (!connected) return <NotConnected />
-
-  const set = (value: boolean) => {
-    if (value) {
-      // YAMS keeps only one mode on anyway; turning the others off first makes it the one asked for.
-      live.nt.set(t.autoalignEnabled, false)
-      live.nt.set(t.drive.inplace, false)
-      live.nt.set(t.drive.velocity, 0)
-      live.nt.set(t.drive.voltageEnabled, false)
-      live.nt.set(t.azimuth.voltageEnabled, false)
-      if (mode === "azimuth") {
-        live.nt.set(t.drive.enabled, false)
-        live.nt.set(t.azimuth.angle, 0)
-      } else {
-        live.nt.set(t.azimuth.enabled, false)
-      }
-    } else if (mode === "drive") {
-      live.nt.set(t.drive.velocity, 0)
-      live.nt.set(t.drive.inplace, false)
-    }
-    live.nt.set(t[mode].enabled, value)
-  }
-
-  return (
-    <LiveBox>
-      <div className="flex items-center gap-3">
-        <Switch
-          id={switchId}
-          data-live={`${mode}-enabled`}
-          checked={on === true}
-          disabled={!running}
-          onCheckedChange={set}
-        />
-        <Label htmlFor={switchId} className="text-sm">
-          {mode === "azimuth" ? "Azimuth tuning" : "Drive tuning"} {on ? "on" : "off"}
-        </Label>
-      </div>
-      {!running && <p className="text-xs text-muted-foreground">Start the tuning command first.</p>}
-      {on && (
-        <p className="text-xs text-muted-foreground">
-          {mode === "azimuth"
-            ? "The angle starts at 0°, so the modules turn to where you expect."
-            : "The velocity starts at 0 m/s."}
-        </p>
-      )}
-    </LiveBox>
-  )
-}
-
 /** Spin in place over NetworkTables. On a real robot it has to come off the blocks first. */
 export function LiveInPlace({ real }: { real: boolean }) {
   const live = useLive()
@@ -212,7 +93,7 @@ export function LiveInPlace({ real }: { real: boolean }) {
     live.nt.set(t.drive.inplace, true)
   }
   return (
-    <LiveBox>
+    <div className="space-y-3 rounded-md border border-border p-3">
       <div className="flex items-center gap-3">
         <Switch
           id={switchId}
@@ -249,7 +130,7 @@ export function LiveInPlace({ real }: { real: boolean }) {
         confirmLabel="Turn spin in place on"
         onConfirm={turnOn}
       />
-    </LiveBox>
+    </div>
   )
 }
 
