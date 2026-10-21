@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Download } from "lucide-react"
+import { Download, Github } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { ON_SYSTEMCORE, REPO, REPO_URL } from "@/lib/site"
@@ -52,7 +52,7 @@ function IpkDownload() {
   }, [])
 
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+    <div className="flex flex-col items-center gap-x-3 gap-y-1 md:flex-row">
       <Button variant="outline" size="sm" className="bg-transparent" asChild>
         <a
           href={ipk?.url ?? RELEASES_URL}
@@ -65,19 +65,36 @@ function IpkDownload() {
           Download for SystemCore (.ipk)
         </a>
       </Button>
-      <span className="text-xs text-muted-foreground">
+      <span className="text-center text-xs text-muted-foreground md:text-left" data-live="ipk-hint">
         Install it by dragging the .ipk onto http://robot.local, then open the yagsl-config tile.
       </span>
     </div>
   )
 }
 
-/** The version of this build and, off the robot, a download of it as a SystemCore package. */
+/**
+ * The footer the YASS web tools share: who made it and its source, then a download of this build as a SystemCore
+ * package with how to install it, and its version.
+ */
 export function SiteFooter({ className }: { className?: string }) {
   const label = `YAGSL Config Generator v${VERSION}`
   return (
-    <footer className={cn("no-print border-t border-border", className)}>
-      <div className="container mx-auto flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+    <footer className={cn("no-print border-t border-border py-6 md:py-8", className)}>
+      <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 md:flex-row">
+        <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
+          Made with 💚 by nstrike, Rivet, and Yet Another Software Suite
+        </p>
+        <a
+          href={REPO_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-1 text-sm font-medium transition-colors hover:text-foreground/80"
+        >
+          <Github className="h-4 w-4" />
+          <span>GitHub</span>
+        </a>
+      </div>
+      <div className="container mx-auto mt-4 flex flex-col items-center justify-between gap-3 px-4 md:flex-row">
         {ON_SYSTEMCORE ? (
           <span className="text-xs text-muted-foreground">Served from this SystemCore.</span>
         ) : (
