@@ -7,7 +7,7 @@ export function ComparisonGrid({ children }: { children: React.ReactNode }) {
   // (Safari/WebKit in particular), so it goes on this plain wrapper instead
   return (
     <div className="print-avoid-break">
-      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))] print:grid-cols-3 print:gap-2">{children}</div>
+      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))] print:[grid-template-columns:repeat(auto-fit,minmax(0,1fr))] print:gap-2">{children}</div>
     </div>
   )
 }
