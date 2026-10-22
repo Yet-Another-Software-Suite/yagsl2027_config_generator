@@ -324,7 +324,7 @@ function LiveTuningSteps({
                 <NTPath>Tuning/swerve/modules/azimuth/angle</NTPath> (degrees, the target angle setpoint)
               </li>
             </ul>
-            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <div className="mt-2 grid gap-2 sm:grid-cols-2 print:grid-cols-2">
               <GuideFigure
                 src="/guide/yagsl-tune-azimuth.gif"
                 alt="An animation of every module turning from 0 to 15 degrees beside a graph of the desired and current angle: too slow with a low p, overshooting and ringing with a high p, and quick and settled with a little less p plus some d. The values are only an example."
@@ -384,7 +384,7 @@ function LiveTuningSteps({
                 <NTPath>Tuning/swerve/modules/drive/velocity</NTPath> (meters per second, the target speed setpoint)
               </li>
             </ul>
-            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <div className="mt-2 grid gap-2 sm:grid-cols-2 print:grid-cols-2">
               <GuideFigure
                 src="/guide/yagsl-tune-drive.gif"
                 alt="An animation of the drive velocity against a 2 meters per second setpoint: with feedforward v too low it settles below, with v right it settles on 2 meters per second, and adding p makes it get there quickly and hold. The values are only an example."
@@ -417,7 +417,7 @@ function LiveTuningSteps({
             checked={checked("inplace")}
             onCheckedChange={onChange("inplace")}
           >
-            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <div className="mt-2 grid gap-2 sm:grid-cols-2 print:grid-cols-2">
               <Image
                 src={withBasePath("/module-drive-inplace.gif")}
                 alt="Raising modules/drive/velocity with modules/drive/inplace set to true: every module points tangent to the robot center and the chassis spins in place, faster as the value increases."
@@ -615,7 +615,7 @@ function TuningGuideContent() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-background">
         <div className="container mx-auto px-4 py-4 md:py-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:flex-row print:items-center print:justify-between">
             <div className="flex items-center gap-3">
               <Image
                 src={withBasePath("/yagsl-logo.png")}

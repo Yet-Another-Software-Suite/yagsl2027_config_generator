@@ -31,7 +31,7 @@ export function JsonDiff({
   return (
     <div className="rounded-lg border p-3 print-avoid-break">
       <p className="mb-2 text-xs font-medium text-muted-foreground">{filename}</p>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2 print:grid-cols-2">
         <div className="min-w-0">
           <p className="mb-1 text-xs font-semibold text-muted-foreground">Before</p>
           <CodeLines lines={before} />

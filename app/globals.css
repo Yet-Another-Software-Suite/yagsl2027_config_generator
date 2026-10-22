@@ -196,6 +196,13 @@
     --ring: #2f6b12;
   }
 
+  /* Lay the printout out at the width of a Letter page inside its margins, whatever the screen. Phones print at
+     their own narrow width otherwise, where the side-by-side panels stack and steps grow taller than a page; a
+     wider layout is shrunk to fit the paper. */
+  body {
+    min-width: 7.3in;
+  }
+
   /* plain paper: no blueprint grid behind the page, and no dark page edges. The theme sets color-scheme on <html>
      itself, which would paint the page margins dark, so this overrides it. */
   html,
@@ -235,6 +242,12 @@
   h3,
   h4 {
     break-after: avoid;
+    page-break-after: avoid;
+  }
+  /* and so does the rest of a section's opening (its warnings and intro), up to and including its first step */
+  [data-slot="tabs-content"] > :not([data-slot="step"]):not([data-slot="step"] ~ *) {
+    break-after: avoid;
+    page-break-after: avoid;
   }
 
   .no-print {
@@ -265,7 +278,9 @@
   pre,
   img,
   svg {
+    /* page-break-inside too: WebKit, which every browser on iPhone and iPad uses, honours it more reliably */
     break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   /* code and JSON in a tighter monospace, so a step with a before/after diff fits on one page */

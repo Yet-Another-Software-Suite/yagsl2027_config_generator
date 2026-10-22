@@ -76,7 +76,7 @@ export function ModuleMotorAnimation({ className }: { className?: string }) {
   // (Safari/WebKit in particular), so it goes on this plain wrapper instead
   return (
     <div className={className ? `print-avoid-break ${className}` : "print-avoid-break"}>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2 print:grid-cols-2">
         <AzimuthPanel />
         <DrivePanel />
       </div>
