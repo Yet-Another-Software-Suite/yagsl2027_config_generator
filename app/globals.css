@@ -207,6 +207,11 @@
   /* checkboxes to tick with a pen */
   [data-slot="checkbox"] {
     border: 1.5px solid #000000 !important;
+    box-shadow: none !important;
+  }
+  /* the dark theme fills an empty box grey: on paper it's white, ready to tick */
+  [data-slot="checkbox"]:not([data-state="checked"]) {
+    background: #ffffff !important;
   }
 
   /* paper can't be clicked, so links to other sites show where they go, in the run of the text */
