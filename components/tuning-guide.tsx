@@ -117,6 +117,8 @@ function GuideFigure({
   height,
   caption,
   small,
+  printSrc,
+  printCaption,
 }: {
   src: string
   alt: string
@@ -124,6 +126,10 @@ function GuideFigure({
   height: number
   caption?: ReactNode
   small?: boolean
+  /** A still to print in place of an animated GIF, which would print only its first frame. Same size as src. */
+  printSrc?: string
+  /** The caption for printSrc, when the animation's caption describes more than that one frame. */
+  printCaption?: ReactNode
 }) {
   return (
     <figure className={small ? "mt-2 max-w-sm" : "mt-2"}>
@@ -135,9 +141,25 @@ function GuideFigure({
         unoptimized
         // Loaded up front: a lazy image that hasn't been scrolled to prints as an empty box.
         loading="eager"
-        className="w-full rounded border border-border"
+        className={printSrc ? "w-full rounded border border-border print:hidden" : "w-full rounded border border-border"}
       />
-      {caption && <figcaption className="mt-1 text-xs text-muted-foreground">{caption}</figcaption>}
+      {printSrc && (
+        <Image
+          src={withBasePath(printSrc)}
+          alt={alt}
+          width={width}
+          height={height}
+          unoptimized
+          loading="eager"
+          className="hidden w-full rounded border border-border print:block"
+        />
+      )}
+      {caption && (
+        <figcaption className={printCaption ? "mt-1 text-xs text-muted-foreground print:hidden" : "mt-1 text-xs text-muted-foreground"}>
+          {caption}
+        </figcaption>
+      )}
+      {printCaption && <figcaption className="mt-1 hidden text-xs text-muted-foreground print:block">{printCaption}</figcaption>}
     </figure>
   )
 }
@@ -327,10 +349,12 @@ function LiveTuningSteps({
             <div className="mt-2 grid gap-2 sm:grid-cols-2 print:grid-cols-2">
               <GuideFigure
                 src="/guide/yagsl-tune-azimuth.gif"
+                printSrc="/guide/yagsl-tune-azimuth-print.png"
                 alt="An animation of every module turning from 0 to 15 degrees beside a graph of the desired and current angle: too slow with a low p, overshooting and ringing with a high p, and quick and settled with a little less p plus some d. The values are only an example."
                 width={720}
                 height={360}
                 caption="Too slow, ringing, then quick and settled. The values are only an example."
+                printCaption="The result to aim for: quick and settled, after raising p until it rings, backing it off and adding a little d. The values are only an example."
               />
               <GuideFigure
                 src="/guide/yagsl-ascope-azimuth-graph.png"
@@ -387,10 +411,12 @@ function LiveTuningSteps({
             <div className="mt-2 grid gap-2 sm:grid-cols-2 print:grid-cols-2">
               <GuideFigure
                 src="/guide/yagsl-tune-drive.gif"
+                printSrc="/guide/yagsl-tune-drive-print.png"
                 alt="An animation of the drive velocity against a 2 meters per second setpoint: with feedforward v too low it settles below, with v right it settles on 2 meters per second, and adding p makes it get there quickly and hold. The values are only an example."
                 width={720}
                 height={360}
                 caption="Feedforward first, then feedback. The values are only an example."
+                printCaption="The result to aim for: v set so it settles on the setpoint, then p so it gets there fast and holds. The values are only an example."
               />
               <GuideFigure
                 src="/guide/yagsl-ascope-drive-graph.png"
@@ -425,7 +451,17 @@ function LiveTuningSteps({
                 height={563}
                 unoptimized
                 loading="eager"
-                className="w-full rounded border border-border"
+                className="w-full rounded border border-border print:hidden"
+              />
+              {/* A GIF prints only its first frame, before anything moves, so paper gets a frame mid-spin. */}
+              <Image
+                src={withBasePath("/module-drive-inplace-print.png")}
+                alt="With modules/drive/inplace true and velocity raised, every module points tangent to the robot center and the chassis spins in place."
+                width={760}
+                height={563}
+                unoptimized
+                loading="eager"
+                className="hidden w-full rounded border border-border print:block"
               />
               <Image
                 src={withBasePath("/module-drive-inplace.png")}
@@ -1108,6 +1144,7 @@ function TuningGuideContent() {
               >
                 <GuideFigure
                   src="/guide/yagsl-record-offsets.gif"
+                  printSrc="/guide/yagsl-record-offsets-print.png"
                   alt="An animation of each module's encoder reading in AdvantageScope being copied into its JSON, one module at a time: frontleft 132.363 degrees, frontright minus 50.977, backleft 271.143 and backright 12.656, each into that module's absoluteEncoderOffset."
                   width={720}
                   height={360}
