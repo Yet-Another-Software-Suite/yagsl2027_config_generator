@@ -71,11 +71,11 @@ function DrivePanel() {
   )
 }
 
-export function ModuleMotorAnimation() {
+export function ModuleMotorAnimation({ className }: { className?: string }) {
   // break-inside:avoid isn't reliably honored on the grid box itself in every print engine
   // (Safari/WebKit in particular), so it goes on this plain wrapper instead
   return (
-    <div className="print-avoid-break">
+    <div className={className ? `print-avoid-break ${className}` : "print-avoid-break"}>
       <div className="grid gap-3 sm:grid-cols-2">
         <AzimuthPanel />
         <DrivePanel />

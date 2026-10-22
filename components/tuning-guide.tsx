@@ -49,7 +49,7 @@ import { LiveConnectionCard, LiveModeToggle } from "@/components/live/live-conne
 import { LiveTuningInvite, LiveTuningPanel } from "@/components/live/live-panel"
 import { LiveFinish, LiveStopBar, LiveTelemetryCheck } from "@/components/live/live-steps"
 
-const EXAMPLE_PROJECT_URL = "https://github.com/Yet-Another-Software-Suite/YAGSL/tree/main/example"
+const EXAMPLE_PROJECT_URL = "https://github.com/Yet-Another-Software-Suite/YAGSL/tree/main/examples"
 
 function ExampleProjectNote() {
   return (
@@ -65,7 +65,7 @@ function ExampleProjectNote() {
           YAGSL example project
           <ExternalLink className="h-3 w-3" />
         </Link>
-        . (Note: this link isn't live yet, but will be by the time you're using this site.)
+        .
       </AlertDescription>
     </Alert>
   )
@@ -715,13 +715,13 @@ function TuningGuideContent() {
               />
               <Step
                 id="setup-2"
-                title="Copy the example project out."
+                title="Copy an example project out."
                 detail={
                   <>
-                    Copy the contents of the{" "}
-                    <ExternalDocLink href={EXAMPLE_PROJECT_URL}>example project</ExternalDocLink> folder out of the
-                    cloned repository and into your own robot project directory. That's what you'll actually
-                    build and deploy.
+                    The repository's <ExternalDocLink href={EXAMPLE_PROJECT_URL}>examples</ExternalDocLink> folder
+                    has two: <NTPath>commands2</NTPath> for WPILib Commands v2, and <NTPath>commands3</NTPath> for
+                    Commands v3. Copy the contents of the one your team uses out of the cloned repository and into
+                    your own robot project directory. That's what you'll actually build and deploy.
                   </>
                 }
                 checked={checkedSteps.has("setup-2")}
@@ -1345,7 +1345,8 @@ function TuningGuideContent() {
                       Just like in simulation, edit <NTPath>modules/pidfproperties.json</NTPath> to tune the drive
                       and angle PID gains, this time for the real robot. <PidTuningLinks />
                     </p>
-                    <ModuleMotorAnimation />
+                    {/* Printed once already, in the simulator's tuning step, so the repeat is left off paper. */}
+                    <ModuleMotorAnimation className="print:hidden" />
                     <ul className="mt-1 list-disc space-y-1 pl-5">
                       <li>
                         <strong>Feedforward is optional.</strong> <NTPath>s</NTPath>, <NTPath>v</NTPath>, and{" "}

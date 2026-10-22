@@ -263,9 +263,17 @@
     break-inside: avoid;
   }
 
+  /* code and JSON in a tighter monospace, so a step with a before/after diff fits on one page */
+  pre {
+    font-size: 8.5px !important;
+    line-height: 1.3 !important;
+    padding: 6px !important;
+  }
+
   /* screenshots at a size that reads on paper without taking a page each */
-  figure img {
-    max-height: 3.5in;
+  figure img,
+  .print-avoid-break img {
+    max-height: 3in;
     width: auto !important;
     max-width: 100%;
     margin-inline: auto;
