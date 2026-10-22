@@ -133,6 +133,8 @@ function GuideFigure({
         width={width}
         height={height}
         unoptimized
+        // Loaded up front: a lazy image that hasn't been scrolled to prints as an empty box.
+        loading="eager"
         className="w-full rounded border border-border"
       />
       {caption && <figcaption className="mt-1 text-xs text-muted-foreground">{caption}</figcaption>}
@@ -422,6 +424,7 @@ function LiveTuningSteps({
                 width={760}
                 height={563}
                 unoptimized
+                loading="eager"
                 className="w-full rounded border border-border"
               />
               <Image
@@ -430,6 +433,7 @@ function LiveTuningSteps({
                 width={1005}
                 height={745}
                 unoptimized
+                loading="eager"
                 className="w-full rounded border border-border"
               />
             </div>
