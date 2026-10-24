@@ -207,7 +207,7 @@ export function LiveStopBar() {
   if (!connected || !(running || azimuth || drive)) return null
   const what = drive ? "Drive tuning is on" : azimuth ? "Azimuth tuning is on" : "The tuning command is running"
   return (
-    <div className="no-print fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/95 px-4 py-2 shadow-lg backdrop-blur">
+    <div className="no-print fixed inset-x-0 bottom-0 z-50 border-t border-transparent bg-card/95 px-4 py-2 shadow-lg backdrop-blur">
       <div className="container mx-auto flex items-center justify-between gap-3">
         <span className="text-sm">
           <span className="font-medium">{what}</span>

@@ -145,7 +145,7 @@ export function LiveTuningPanel({
               data-live={`tab-${mode}`}
               onClick={() => pick(mode)}
               className={cn(
-                "flex items-center gap-1.5 rounded-sm px-3 py-1 text-sm font-medium transition-colors",
+                "flex items-center gap-1.5 rounded-sm px-3 py-[3px] text-sm font-medium transition-colors",
                 shown === mode ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
               )}
             >

@@ -129,7 +129,7 @@ export function LiveSetpoint({ mode }: { mode: TuneMode }) {
         <NumberField
           value={value}
           step={spec.step}
-          className="w-24"
+          className="h-7 w-24"
           ariaLabel={mode === "azimuth" ? "Angle in degrees" : "Velocity in meters per second"}
           disabled={!on}
           onCommit={(n) => {
@@ -286,7 +286,8 @@ export function LiveTrace({ mode }: { mode: TuneMode }) {
               contentStyle={{
                 background: "var(--popover)",
                 border: "1px solid var(--border)",
-                borderRadius: 6,
+                borderRadius: "var(--radius)",
+                boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
                 fontSize: 12,
                 color: "var(--popover-foreground)",
               }}
@@ -341,7 +342,11 @@ function LatestReadings({
             aria-hidden
             className="inline-block h-0.5 w-3"
             style={{
-              background: i === 0 ? "var(--foreground)" : SERIES_VARS[(i - 1) % SERIES_VARS.length],
+              // The setpoint is dashed on the chart, so its key is too.
+              background:
+                i === 0
+                  ? "repeating-linear-gradient(90deg, var(--foreground) 0 5px, transparent 5px 9px)"
+                  : SERIES_VARS[(i - 1) % SERIES_VARS.length],
             }}
           />
           <dt className="text-muted-foreground">{name}</dt>

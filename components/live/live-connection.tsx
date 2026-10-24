@@ -154,13 +154,31 @@ export function LiveConnectionCard({ real }: { real: boolean }) {
             <div className="flex flex-wrap items-end gap-3">
               <div className="space-y-1">
                 <Label className="text-xs">Connect by</Label>
-                <div className="flex gap-1">
-                  <Button size="sm" variant={kind === "robot" ? "default" : "outline"} onClick={() => setKind("robot")}>
-                    Team number
-                  </Button>
-                  <Button size="sm" variant={kind === "custom" ? "default" : "outline"} onClick={() => setKind("custom")}>
-                    Address
-                  </Button>
+                {/* The same segmented control as "What to tune" in live-panel.tsx. */}
+                <div
+                  role="group"
+                  aria-label="Connect by"
+                  className="inline-flex rounded-[calc(var(--radius)+3px)] border border-border bg-background p-0.5"
+                >
+                  {(
+                    [
+                      { value: "robot", label: "Team number" },
+                      { value: "custom", label: "Address" },
+                    ] as const
+                  ).map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      aria-pressed={kind === value}
+                      onClick={() => setKind(value)}
+                      className={cn(
+                        "flex items-center rounded-sm px-3 py-[3px] text-sm font-medium transition-colors",
+                        kind === value ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
               </div>
               {kind === "robot" ? (
