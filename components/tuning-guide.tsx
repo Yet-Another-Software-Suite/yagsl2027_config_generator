@@ -141,7 +141,7 @@ function GuideFigure({
         unoptimized
         // Loaded up front: a lazy image that hasn't been scrolled to prints as an empty box.
         loading="eager"
-        className={printSrc ? "w-full rounded border border-border print:hidden" : "w-full rounded border border-border"}
+        className={printSrc ? "w-full rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10 print:hidden" : "w-full rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10"}
       />
       {printSrc && (
         <Image
@@ -151,7 +151,7 @@ function GuideFigure({
           height={height}
           unoptimized
           loading="eager"
-          className="hidden w-full rounded border border-border print:block"
+          className="hidden w-full rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10 print:block"
         />
       )}
       {caption && (
@@ -451,7 +451,7 @@ function LiveTuningSteps({
                 height={563}
                 unoptimized
                 loading="eager"
-                className="w-full rounded border border-border print:hidden"
+                className="w-full rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10 print:hidden"
               />
               {/* A GIF prints only its first frame, before anything moves, so paper gets a frame mid-spin. */}
               <Image
@@ -461,7 +461,7 @@ function LiveTuningSteps({
                 height={563}
                 unoptimized
                 loading="eager"
-                className="hidden w-full rounded border border-border print:block"
+                className="hidden w-full rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10 print:block"
               />
               <Image
                 src={withBasePath("/module-drive-inplace.png")}
@@ -470,7 +470,7 @@ function LiveTuningSteps({
                 height={745}
                 unoptimized
                 loading="eager"
-                className="w-full rounded border border-border"
+                className="w-full rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10"
               />
             </div>
           </Step>
@@ -1810,7 +1810,7 @@ function TuningGuideContent() {
                   <button
                     type="button"
                     onClick={() => setFlappyOpen(true)}
-                    className="group rounded-full p-1 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="group rounded-full p-1 transition-transform motion-safe:hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <Image
                       src={withBasePath("/rivet.png")}
@@ -1893,7 +1893,7 @@ function TuningGuideContent() {
       </AlertDialog>
 
       <Dialog open={flappyOpen} onOpenChange={setFlappyOpen}>
-        <DialogContent className="w-auto max-h-[90vh] overflow-y-auto no-print">
+        <DialogContent className="w-auto max-h-[90vh] overflow-y-auto overscroll-contain no-print">
           <DialogTitle className="sr-only">Flappy Rivet</DialogTitle>
           <FlappyRivetGame />
         </DialogContent>
