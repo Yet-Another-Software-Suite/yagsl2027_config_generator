@@ -48,7 +48,7 @@ export function LiveTuningInvite({ real }: { real: boolean }) {
         </div>
       </div>
       <Button size="sm" className="shrink-0" onClick={start}>
-        <Plug className="mr-2 h-4 w-4" />
+        <Plug className="h-4 w-4" />
         {real ? "Turn on Live mode" : "Connect to the simulator"}
       </Button>
     </div>
@@ -135,7 +135,7 @@ export function LiveTuningPanel({
       {!ready && notReadyHelp && <div className="text-sm text-muted-foreground">{notReadyHelp}</div>}
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div role="tablist" aria-label="What to tune" className="inline-flex rounded-md border border-border bg-background p-0.5">
+        <div role="tablist" aria-label="What to tune" className="inline-flex rounded-[calc(var(--radius)+3px)] border border-border bg-background p-0.5">
           {MODES.map(({ mode, label }) => (
             <button
               key={mode}
@@ -145,7 +145,7 @@ export function LiveTuningPanel({
               data-live={`tab-${mode}`}
               onClick={() => pick(mode)}
               className={cn(
-                "flex items-center gap-1.5 rounded px-3 py-1 text-sm font-medium transition-colors",
+                "flex items-center gap-1.5 rounded-sm px-3 py-1 text-sm font-medium transition-colors",
                 shown === mode ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
               )}
             >
@@ -156,12 +156,12 @@ export function LiveTuningPanel({
         </div>
         {active === shown ? (
           <Button size="sm" variant="outline" className="bg-transparent" onClick={pause} data-live="pause">
-            <Pause className="mr-2 h-4 w-4" />
+            <Pause className="h-4 w-4" />
             Pause
           </Button>
         ) : (
           <Button size="sm" disabled={!ready} onClick={() => start(shown)} data-live={`start-${shown}`}>
-            <Play className="mr-2 h-4 w-4" />
+            <Play className="h-4 w-4" />
             Start {shown} tuning
           </Button>
         )}
@@ -181,7 +181,7 @@ export function LiveTuningPanel({
 
       <div className="flex flex-wrap items-center gap-3 border-t border-border pt-3">
         <Button size="sm" onClick={done} data-live="done">
-          <ArrowDown className="mr-2 h-4 w-4" />
+          <ArrowDown className="h-4 w-4" />
           Done tuning, save the gains
         </Button>
         <span className="text-xs text-muted-foreground">Stops every mode and the tuning command.</span>

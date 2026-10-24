@@ -165,26 +165,26 @@ export default function Home() {
               <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end sm:min-w-0">
                 <Button variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
                   <a href="https://discord.gg/yass" target="_blank" rel="noopener noreferrer">
-                    <MessageCircle className="mr-2 h-4 w-4" />
+                    <MessageCircle className="h-4 w-4" />
                     Need Help?
                   </a>
                 </Button>
                 <Button variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
                   <Link href="/guide">
-                    <BookOpen className="mr-2 h-4 w-4" />
+                    <BookOpen className="h-4 w-4" />
                     Quick Start Guide
                   </Link>
                 </Button>
                 <Button variant="outline" className="w-full sm:w-auto bg-transparent" asChild>
                   <label className="cursor-pointer">
-                    <Upload className="mr-2 h-4 w-4" />
+                    <Upload className="h-4 w-4" />
                     Upload Config
                     <input type="file" accept=".zip" onChange={handleUpload} className="hidden" />
                   </label>
                 </Button>
                 <PrintButton className="w-full sm:w-auto bg-transparent" />
                 <Button onClick={handleDownload} className="w-full sm:w-auto">
-                  <Download className="mr-2 h-4 w-4" />
+                  <Download className="h-4 w-4" />
                   Download Config
                 </Button>
               </div>
@@ -302,13 +302,13 @@ export default function Home() {
                 disabled={isFirstTab}
                 className="flex-1 md:flex-none bg-transparent"
               >
-                <ChevronLeft className="mr-2 h-4 w-4" />
+                <ChevronLeft className="h-4 w-4" />
                 Back
               </Button>
 
               <Button onClick={handleNext} disabled={isLastTab} className="flex-1 md:flex-none">
                 Next
-                <ChevronRight className="ml-2 h-4 w-4" />
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </Tabs>

@@ -7,10 +7,10 @@ export interface JsonDiffLine {
 
 function CodeLines({ lines }: { lines: JsonDiffLine[] }) {
   return (
-    <pre className="overflow-x-auto rounded bg-muted p-2.5 text-xs leading-relaxed">
+    <pre className="overflow-x-auto rounded-sm bg-muted p-2.5 text-xs leading-relaxed">
       <code className="font-mono">
         {lines.map((line, i) => (
-          <div key={i} className={line.changed ? "-mx-1 rounded bg-green-600/15 px-1 font-medium text-foreground" : undefined}>
+          <div key={i} className={line.changed ? "-mx-1 rounded-sm bg-green-600/15 px-1 font-medium text-foreground" : undefined}>
             {line.text || " "}
           </div>
         ))}

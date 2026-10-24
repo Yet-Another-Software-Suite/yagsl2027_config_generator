@@ -122,7 +122,7 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
             <AlertTitle>Calibrate your gyro</AlertTitle>
             <AlertDescription>
               <p>
-                When using the <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{config.gyroAxis}</code>{" "}
+                When using the <code className="rounded-sm bg-muted px-1 py-0.5 font-mono text-xs">{config.gyroAxis}</code>{" "}
                 axis, we recommend calibrating your gyro with its vendor&apos;s tool.
               </p>
             </AlertDescription>
@@ -133,23 +133,23 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
           <div className="mt-4 space-y-2 rounded-lg border p-3 text-sm">
             <p>
               <strong>Custom gyro:</strong> use this when your gyro isn't one of the built-in options above. The{" "}
-              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">Gyro Axis</code> and{" "}
-              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">Invert Gyroscope</code> fields above
+              <code className="rounded-sm bg-muted px-1 py-0.5 font-mono text-xs">Gyro Axis</code> and{" "}
+              <code className="rounded-sm bg-muted px-1 py-0.5 font-mono text-xs">Invert Gyroscope</code> fields above
               are ignored for a custom gyro, YAGSL doesn't build a gyro device for you in this case.
             </p>
             <p>
               Instead, read your gyro yourself and pass its full attitude as a{" "}
-              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">Rotation3d</code> (and its inversion,
+              <code className="rounded-sm bg-muted px-1 py-0.5 font-mono text-xs">Rotation3d</code> (and its inversion,
               if any) to the{" "}
-              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">SwerveDriveConfig</code> you build in
+              <code className="rounded-sm bg-muted px-1 py-0.5 font-mono text-xs">SwerveDriveConfig</code> you build in
               code, before handing it to{" "}
-              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+              <code className="rounded-sm bg-muted px-1 py-0.5 font-mono text-xs">
                 SwerveParser.createSwerveDrive(...)
               </code>
               /
-              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">createSwerveDriveDevices(...)</code>:
+              <code className="rounded-sm bg-muted px-1 py-0.5 font-mono text-xs">createSwerveDriveDevices(...)</code>:
             </p>
-            <pre className="overflow-x-auto rounded bg-muted p-2.5 text-xs leading-relaxed">
+            <pre className="overflow-x-auto rounded-sm bg-muted p-2.5 text-xs leading-relaxed">
               <code className="font-mono">
                 {[
                   "// import swervelib.commands2.SwerveParser; (swervelib.commands3.SwerveParser for Commands v3)",

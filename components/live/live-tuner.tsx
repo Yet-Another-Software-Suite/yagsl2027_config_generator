@@ -259,7 +259,7 @@ export function LiveTrace({ mode }: { mode: TuneMode }) {
         {mode === "azimuth" ? "Module angle against the setpoint" : "Wheel speed against the setpoint"}, last{" "}
         {WINDOW_SECONDS} seconds
       </figcaption>
-      <div className="h-56 w-full rounded border border-border bg-background short:h-36">
+      <div className="h-56 w-full rounded-sm border border-border bg-background short:h-36">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 8, right: 12, bottom: 4, left: 0 }}>
             <CartesianGrid stroke="var(--border)" vertical={false} />

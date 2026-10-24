@@ -203,7 +203,7 @@ function LiveTuningSteps({
               live-tunable over NetworkTables: edit a value from your dashboard and watch{" "}
               {real ? "the real robot" : "the sim"} respond immediately, no JSON editing required.
             </p>
-            <pre className="mt-2 overflow-x-auto rounded bg-muted p-2.5 text-xs leading-relaxed">
+            <pre className="mt-2 overflow-x-auto rounded-sm bg-muted p-2.5 text-xs leading-relaxed">
               <code className="font-mono">
                 {[
                   "// import swervelib.commands2.SwerveParser; (swervelib.commands3.SwerveParser for Commands v3)",
@@ -515,7 +515,7 @@ function LiveTuningSteps({
 }
 
 function NTPath({ children }: { children: string }) {
-  return <code className="break-all rounded bg-muted px-1.5 py-0.5 text-xs font-mono">{children}</code>
+  return <code className="break-all rounded-sm bg-muted px-1.5 py-0.5 text-xs font-mono">{children}</code>
 }
 
 function SwerveWidgetFields() {
@@ -672,13 +672,13 @@ function TuningGuideContent() {
             <div className="flex flex-wrap items-center gap-2 no-print">
               <Button variant="outline" size="sm" className="bg-transparent" asChild>
                 <Link href="/">
-                  <Settings className="mr-2 h-4 w-4" />
+                  <Settings className="h-4 w-4" />
                   Back to Config
                 </Link>
               </Button>
               <Button variant="outline" size="sm" className="bg-transparent" asChild>
                 <a href="https://discord.gg/yass" target="_blank" rel="noopener noreferrer">
-                  <MessageCircle className="mr-2 h-4 w-4" />
+                  <MessageCircle className="h-4 w-4" />
                   Need Help?
                 </a>
               </Button>
@@ -1840,7 +1840,7 @@ function TuningGuideContent() {
                   disabled={isFirstTab}
                   className="flex-1 md:flex-none bg-transparent"
                 >
-                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  <ChevronLeft className="h-4 w-4" />
                   Back
                 </Button>
 
@@ -1851,7 +1851,7 @@ function TuningGuideContent() {
                       onClick={() => setSkipConfirmOpen(true)}
                       className="flex-1 md:flex-none bg-transparent"
                     >
-                      <SkipForward className="mr-2 h-4 w-4" />
+                      <SkipForward className="h-4 w-4" />
                       Skip
                     </Button>
                   )}
@@ -1863,7 +1863,7 @@ function TuningGuideContent() {
                   ) : (
                     <Button onClick={handleNext} disabled={!allStepsChecked} className="flex-1 md:flex-none">
                       Next
-                      <ChevronRight className="ml-2 h-4 w-4" />
+                      <ChevronRight className="h-4 w-4" />
                     </Button>
                   )}
                 </div>

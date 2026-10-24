@@ -68,7 +68,7 @@ export function LiveTelemetryCheck({ onFound }: { onFound?: () => void }) {
         </p>
       ) : (
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="h-4 w-4 motion-safe:animate-spin motion-reduce:animate-pulse" />
           Looking for the tuning command...
         </p>
       )}
@@ -176,11 +176,11 @@ export function LiveFinish({ real, onSaved }: { real: boolean; onSaved?: () => v
     <LiveBox>
       <div className="flex flex-wrap items-center gap-2">
         <Button size="sm" variant="outline" className="bg-transparent" disabled={!running} onClick={live.stopAll}>
-          <OctagonX className="mr-2 h-4 w-4" />
+          <OctagonX className="h-4 w-4" />
           Stop tuning
         </Button>
         <Button size="sm" disabled={!complete} onClick={download}>
-          <Download className="mr-2 h-4 w-4" />
+          <Download className="h-4 w-4" />
           Download {filename}
         </Button>
       </div>
@@ -189,7 +189,7 @@ export function LiveFinish({ real, onSaved }: { real: boolean; onSaved?: () => v
         <Path>{`src/main/deploy/swerve/modules/${filename}`}</Path> with it,{" "}
         {real ? "then redeploy." : "then restart the simulator."}
       </p>
-      <pre className="max-h-64 overflow-auto rounded bg-muted p-2.5 text-xs leading-relaxed">
+      <pre className="max-h-64 overflow-auto rounded-sm bg-muted p-2.5 text-xs leading-relaxed">
         <code className="font-mono">{json}</code>
       </pre>
     </LiveBox>
@@ -214,7 +214,7 @@ export function LiveStopBar() {
           <span className="text-muted-foreground"> on {live.host === "localhost" ? "the simulator" : live.host}.</span>
         </span>
         <Button size="sm" variant="destructive" onClick={live.stopAll}>
-          <OctagonX className="mr-2 h-4 w-4" />
+          <OctagonX className="h-4 w-4" />
           Stop
         </Button>
       </div>

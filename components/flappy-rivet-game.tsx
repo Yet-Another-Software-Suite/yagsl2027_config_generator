@@ -233,7 +233,7 @@ export function FlappyRivetGame() {
       >
         <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="block h-full w-full touch-none" />
 
-        <div className="pointer-events-none absolute left-2 top-2 rounded bg-black/40 px-2 py-1 text-xs font-semibold text-white">
+        <div className="pointer-events-none absolute left-2 top-2 rounded-sm bg-black/40 px-2 py-1 text-xs font-semibold text-white">
           Best: {highScore}
         </div>
 
@@ -274,7 +274,7 @@ export function FlappyRivetGame() {
                 togglePause()
               }}
             >
-              <Play className="mr-2 h-4 w-4" />
+              <Play className="h-4 w-4" />
               Resume
             </Button>
           </div>
@@ -292,7 +292,7 @@ export function FlappyRivetGame() {
                 flap()
               }}
             >
-              <RotateCcw className="mr-2 h-4 w-4" />
+              <RotateCcw className="h-4 w-4" />
               Try Again
             </Button>
           </div>

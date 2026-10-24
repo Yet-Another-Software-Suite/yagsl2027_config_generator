@@ -212,12 +212,12 @@ export function LiveAutoGains({ mode }: { mode: TuneMode }) {
       <div className="flex flex-wrap items-center gap-2">
         {busy ? (
           <Button size="sm" variant="outline" className="h-7 bg-transparent" onClick={() => (cancel.current = true)}>
-            <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+            <Loader2 className="h-3.5 w-3.5 motion-safe:animate-spin motion-reduce:animate-pulse" />
             {status ?? "Running"}: stop
           </Button>
         ) : (
           <Button size="sm" className="h-7" disabled={!ready} onClick={run} data-live={`${mode}-auto`}>
-            <Wand2 className="mr-2 h-3.5 w-3.5" />
+            <Wand2 className="h-3.5 w-3.5" />
             Auto
           </Button>
         )}

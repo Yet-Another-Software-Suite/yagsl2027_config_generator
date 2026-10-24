@@ -13,7 +13,7 @@ import { ON_SYSTEMCORE } from "@/lib/site"
 import { useLive, useRobotState, useSwerveDrives } from "@/components/live/live-context"
 
 export function Path({ children }: { children: string }) {
-  return <code className="break-all rounded bg-muted px-1.5 py-0.5 text-xs font-mono">{children}</code>
+  return <code className="break-all rounded-sm bg-muted px-1.5 py-0.5 text-xs font-mono">{children}</code>
 }
 
 /** A box that holds the live controls of one step. */
@@ -51,12 +51,12 @@ export function LiveModeToggle() {
       aria-pressed={enabled}
       title="Live mode connects this guide to your simulator or robot and does the tuning steps from this page"
     >
-      <Radio className="mr-2 h-4 w-4" />
+      <Radio className="h-4 w-4" />
       Live
       {enabled && (
         <span
           className={cn(
-            "ml-2 inline-block h-2 w-2 rounded-full",
+            "inline-block h-2 w-2 rounded-full",
             status === "connected" ? "bg-green-500" : status === "connecting" ? "bg-yellow-400" : "bg-muted-foreground",
           )}
           aria-label={status}
@@ -195,7 +195,7 @@ export function LiveConnectionCard({ real }: { real: boolean }) {
           )}
           <div className="flex flex-wrap items-end gap-3">
             <Button size="sm" disabled={!host || otherConnection} onClick={() => host && live.connect(target, host)}>
-              <Plug className="mr-2 h-4 w-4" />
+              <Plug className="h-4 w-4" />
               Connect{host ? ` to ${real ? host : "the simulator"}` : ""}
             </Button>
           </div>
@@ -227,12 +227,12 @@ export function LiveConnectionCard({ real }: { real: boolean }) {
               </span>
             ) : (
               <span className="flex items-center gap-2 text-sm font-medium">
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 motion-safe:animate-spin motion-reduce:animate-pulse" />
                 Connecting to {where}...
               </span>
             )}
             <Button size="sm" variant="outline" className="bg-transparent" onClick={live.disconnect}>
-              <Unplug className="mr-2 h-4 w-4" />
+              <Unplug className="h-4 w-4" />
               Disconnect
             </Button>
           </div>
@@ -279,7 +279,7 @@ function SwerveDrivePicker({ id }: { id: string }) {
       </p>
     ) : (
       <p className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <Loader2 className="h-4 w-4 motion-safe:animate-spin motion-reduce:animate-pulse" />
         Looking for swerve drives under <Path>/Mechanisms</Path>...
       </p>
     )
