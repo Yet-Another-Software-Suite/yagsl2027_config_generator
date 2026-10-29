@@ -278,7 +278,7 @@ function LiveTuningSteps({
                 </p>
                 <p className="mt-2">
                   Then in AdvantageScope, turn on tuning mode (the sliders button beside the sidebar search) and
-                  click <NTPath>running</NTPath> under <NTPath>Mechanisms/swerve/tuning</NTPath>. It has to be
+                  click <NTPath>running</NTPath> under <NTPath>Tuning/swerve/Live Tuning</NTPath>. It has to be
                   running, none of the fields below do anything while it's idle.
                 </p>
               </>
@@ -298,7 +298,7 @@ function LiveTuningSteps({
             )}
             <GuideFigure
               src="/guide/yagsl-ascope-enable-tuning.png"
-              alt="AdvantageScope with four numbered markers: 1 the tuning mode button beside the sidebar search, 2 the running switch under Mechanisms/swerve/tuning, 3 the angle field under Tuning/swerve/modules/azimuth, and 4 the enabled switch under the same folder."
+              alt="AdvantageScope with four numbered markers: 1 the tuning mode button beside the sidebar search, 2 the running switch under Tuning/swerve/Live Tuning, 3 the angle field under Tuning/swerve/modules/azimuth, and 4 the enabled switch under the same folder."
               width={1400}
               height={900}
               caption="Turn on tuning mode (1) and click running (2). The next steps type a setpoint (3) and turn one tuning mode on (4)."
