@@ -17,7 +17,7 @@ export function swerveTopics(name: string) {
   return {
     tuningPrefix: `${tuning}/`,
     mechanismsPrefix: `${mechanisms}/`,
-    command: `${mechanisms}/tuning/running`,
+    command: `${tuning}/Live Tuning/running`,
     modulesPrefix: `${mechanisms}/modules/`,
     azimuth: {
       enabled: `${tuning}/modules/azimuth/enabled`,
@@ -59,6 +59,8 @@ export const CONTROL_WORD = "/DriverStation/ControlWord"
 
 /** Every mechanism publishes its telemetry under here, a SwerveDrive's included. */
 const MECHANISMS_PREFIX = "/Mechanisms/"
+/** Every mechanism's tuning values and Live Tuning command are published under here. */
+const TUNING_PREFIX = "/Tuning/"
 
 /** The topics whose values Live mode needs for the swerve drive named `name`. */
 function valuePrefixes(name: string) {
@@ -166,7 +168,7 @@ export function LiveProvider({ children }: { children: ReactNode }) {
       setSafetyConfirmed(false)
       setConnectedTarget(target)
       // Only the names under /Mechanisms, to find the swerve drives, plus the values of the chosen one.
-      await nt.connect(targetHostName, valuePrefixes(driveName), [MECHANISMS_PREFIX])
+      await nt.connect(targetHostName, valuePrefixes(driveName), [MECHANISMS_PREFIX, TUNING_PREFIX])
     },
     [nt, driveName],
   )
@@ -335,12 +337,16 @@ export function useSwerveDrives(): string[] {
     const modules = new Set<string>()
     const tunable = new Set<string>()
     for (const topic of nt.announcedTopics()) {
+      if (topic.startsWith(TUNING_PREFIX)) {
+        const [name, ...rest] = topic.slice(TUNING_PREFIX.length).split("/")
+        if (rest.join("/") === "Live Tuning/running") tunable.add(name)
+        continue
+      }
       if (!topic.startsWith(MECHANISMS_PREFIX)) continue
       const [name, ...rest] = topic.slice(MECHANISMS_PREFIX.length).split("/")
       const path = rest.join("/")
       if (path === "states/current") states.add(name)
       else if (path.startsWith("modules/")) modules.add(name)
-      else if (path === "tuning/running") tunable.add(name)
     }
     return Array.from(states)
       .filter((name) => modules.has(name))

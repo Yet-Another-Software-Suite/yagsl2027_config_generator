@@ -62,7 +62,7 @@ export function LiveTelemetryCheck({ onFound }: { onFound?: () => void }) {
         <p className="flex items-start gap-2 text-sm text-amber-700 dark:text-amber-400">
           <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
-            Nothing is published at <Path>{`/Mechanisms/${live.driveName}/tuning`}</Path>. Check that the swerve drive
+            Nothing is published at <Path>{`/Tuning/${live.driveName}/Live Tuning`}</Path>. Check that the swerve drive
             picked above uses TelemetryVerbosity.HIGH, and that both a translation and a rotation controller are set.
           </span>
         </p>
