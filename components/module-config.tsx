@@ -13,6 +13,7 @@ import {
   canbusError,
   canbusPlaceholder,
 } from "@/lib/config-options"
+import { selectAllOnFocus } from "@/lib/select-on-focus"
 
 interface ModuleConfigProps {
   moduleName: string
@@ -65,6 +66,7 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
             <Label>CAN ID</Label>
             <Input
               type="number"
+              {...selectAllOnFocus}
               value={config.drive.id}
               onChange={(e) =>
                 onChange({
@@ -127,6 +129,7 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
             <Label>CAN ID</Label>
             <Input
               type="number"
+              {...selectAllOnFocus}
               value={config.angle.id}
               onChange={(e) =>
                 onChange({
@@ -191,6 +194,7 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
               <Label>CAN ID</Label>
               <Input
                 type="number"
+                {...selectAllOnFocus}
                 value={config.absoluteEncoder.id}
                 onChange={(e) =>
                   onChange({

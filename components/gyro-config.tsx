@@ -8,6 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { TriangleAlert } from "lucide-react"
 import type { SwervedriveConfig } from "@/lib/types"
 import { GYRO_TYPES, GYRO_AXES, canbusError, canbusPlaceholder } from "@/lib/config-options"
+import { selectAllOnFocus } from "@/lib/select-on-focus"
 
 interface GyroConfigProps {
   config: SwervedriveConfig
@@ -58,6 +59,7 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
                 <Input
                   id="gyro-id"
                   type="number"
+                  {...selectAllOnFocus}
                   value={config.gyro.id}
                   onChange={(e) =>
                     onChange({
