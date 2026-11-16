@@ -91,6 +91,63 @@ export const ENCODER_TYPES = [
   "dutycycle_attached",
 ]
 
+// An encoder type is "<encoder>_<connection>". The form picks the connection, then the encoder; both lists come from
+// ENCODER_TYPES. SmartIO takes digital (dio) and analog wiring, so an encoder that has both is listed twice there.
+export const ENCODER_CONNECTIONS = [
+  { id: "smartio", name: "SmartIO", suffixes: ["dio", "analog"] },
+  { id: "attached", name: "Azimuth Motor Controller", suffixes: ["attached"] },
+  { id: "can", name: "CAN", suffixes: ["can"] },
+]
+
+const ENCODER_NAMES: Record<string, string> = {
+  revthroughbore: "REV Through Bore Encoder",
+  splineencoder: "REV Spline Encoder",
+  cancoder: "CTRE CANcoder",
+  canandmag: "Redux Canandmag",
+  srxmag: "CTRE Mag Encoder (SRX Mag)",
+  andymarkhexbore: "AndyMark Hex Bore Encoder",
+  thrifty: "Thrifty Absolute Encoder",
+  analog5v: "Generic analog, 5 V",
+  analog: "Generic analog, 3.3 V",
+  dutycycle: "Generic duty cycle",
+}
+
+function splitEncoderType(encoderType: string) {
+  const i = encoderType.lastIndexOf("_")
+  return { encoder: encoderType.slice(0, i), suffix: encoderType.slice(i + 1) }
+}
+
+/** The connection id (from ENCODER_CONNECTIONS) of an encoder type. */
+export function encoderConnection(encoderType: string) {
+  const { suffix } = splitEncoderType(encoderType)
+  return ENCODER_CONNECTIONS.find((c) => c.suffixes.includes(suffix))?.id ?? ENCODER_CONNECTIONS[0].id
+}
+
+/** Encoder types on this connection, in ENCODER_TYPES order. */
+export function encodersFor(connection: string) {
+  return ENCODER_TYPES.filter((type) => encoderConnection(type) === connection)
+}
+
+/** The encoder's name, with its wiring when it can be wired to SmartIO both ways. */
+export function encoderName(encoderType: string) {
+  const { encoder, suffix } = splitEncoderType(encoderType)
+  const name = ENCODER_NAMES[encoder] ?? encoder
+  const bothWays = ENCODER_TYPES.includes(`${encoder}_dio`) && ENCODER_TYPES.includes(`${encoder}_analog`)
+  if (bothWays && suffix === "dio") return `${name} (digital)`
+  if (bothWays && suffix === "analog") return `${name} (analog)`
+  return name
+}
+
+/**
+ * The encoder type after switching to another connection: the same encoder if it can be wired that way (digital
+ * before analog on SmartIO), else the connection's first encoder.
+ */
+export function switchEncoderConnection(encoderType: string, connection: string) {
+  const { encoder } = splitEncoderType(encoderType)
+  const options = encodersFor(connection)
+  return options.find((type) => splitEncoderType(type).encoder === encoder) ?? options[0]
+}
+
 export const GYRO_TYPES = ["navx3_can", "pigeon2_can", "canandgyro_can", "systemcore_internal", "custom"]
 
 export const GYRO_AXES = ["yaw", "pitch", "roll"]
@@ -128,10 +185,10 @@ export function canbusError(deviceType: string, canbus: string): string | null {
 // plugs into a Nova, and the Nova has no 5V analog input.
 export function attachedEncoderWarning(encoderType: string, angleMotorType: string): string | null {
   if (encoderType === "thrifty_attached" && !isNova(angleMotorType)) {
-    return "thrifty_attached needs a Thrifty Nova angle motor."
+    return "The Thrifty Absolute Encoder only plugs into a Thrifty Nova angle motor controller."
   }
   if (encoderType === "analog5v_attached" && isNova(angleMotorType)) {
-    return "A Thrifty Nova can't read analog5v_attached encoders. Use analog_attached instead."
+    return "A Thrifty Nova can't read a 5 V analog encoder. Use Generic analog, 3.3 V instead."
   }
   return null
 }

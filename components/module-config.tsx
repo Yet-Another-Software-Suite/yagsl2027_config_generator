@@ -8,7 +8,11 @@ import { Separator } from "@/components/ui/separator"
 import type { ModuleConfigData } from "@/lib/types"
 import {
   MOTOR_CONTROLLERS,
-  ENCODER_TYPES,
+  ENCODER_CONNECTIONS,
+  encoderConnection,
+  encoderName,
+  encodersFor,
+  switchEncoderConnection,
   motorControllerName,
   motorName,
   motorsFor,
@@ -29,6 +33,8 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
   const isAttached = config.absoluteEncoder.type.endsWith("_attached")
   const usesChannel = config.absoluteEncoder.type.endsWith("_dio") || config.absoluteEncoder.type.endsWith("_analog")
   const showEncoderFields = !isAttached
+  const setEncoderType = (type: string) =>
+    onChange({ ...config, absoluteEncoder: { ...config.absoluteEncoder, type: type as any } })
   const encoderWarning = attachedEncoderWarning(config.absoluteEncoder.type, config.angle.type)
   const driveCanbusError = canbusError(config.drive.type, config.drive.canbus)
   const angleCanbusError = canbusError(config.angle.type, config.angle.canbus)
@@ -131,23 +137,34 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
         <h4 className="text-sm font-medium mb-3 text-muted-foreground">Absolute Encoder</h4>
         <div className="grid gap-4 md:grid-cols-4">
           <div className="space-y-2">
-            <Label>Encoder Type</Label>
+            <Label>Connection</Label>
             <Select
-              value={config.absoluteEncoder.type}
-              onValueChange={(value) =>
-                onChange({
-                  ...config,
-                  absoluteEncoder: { ...config.absoluteEncoder, type: value as any },
-                })
-              }
+              value={encoderConnection(config.absoluteEncoder.type)}
+              onValueChange={(connection) => setEncoderType(switchEncoderConnection(config.absoluteEncoder.type, connection))}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {ENCODER_TYPES.map((type) => (
+                {ENCODER_CONNECTIONS.map((connection) => (
+                  <SelectItem key={connection.id} value={connection.id}>
+                    {connection.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Encoder</Label>
+            <Select value={config.absoluteEncoder.type} onValueChange={setEncoderType}>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {encodersFor(encoderConnection(config.absoluteEncoder.type)).map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type}
+                    {encoderName(type)}
                   </SelectItem>
                 ))}
               </SelectContent>
