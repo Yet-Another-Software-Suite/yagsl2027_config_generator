@@ -138,7 +138,7 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
         <div id="module-type-description" className="mt-2 max-w-prose space-y-3">
           <p className="text-sm text-muted-foreground">
             The module type fills in the wheel diameter and angle gear ratio below, and its configuration the drive gear
-            ratio. Measure your wheels: worn tread is smaller than the nominal diameter.
+            ratio.
           </p>
           {moduleType && (
             <Alert role="status">
@@ -207,8 +207,10 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
           </div>
 
           <div className="space-y-2">
-            <Label>Wheel Diameter (inches)</Label>
+            <Label htmlFor="wheel-diameter">Wheel Diameter (inches)</Label>
             <Input
+              id="wheel-diameter"
+              aria-describedby="wheel-diameter-description"
               type="number"
               step="0.01"
               value={config.gearing.drive.diameter}
@@ -225,6 +227,9 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
                 })
               }
             />
+            <p id="wheel-diameter-description" className="text-sm text-muted-foreground">
+              Measure your wheels: worn tread is smaller than the nominal diameter.
+            </p>
           </div>
         </div>
       </div>
