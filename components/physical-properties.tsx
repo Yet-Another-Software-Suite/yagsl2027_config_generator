@@ -138,9 +138,9 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
         </p>
         {moduleType && (
           <p className="mt-1 text-sm text-muted-foreground">
-            {moduleType.angleMotorInverted === undefined
-              ? `Picking ${moduleType.vendor} ${moduleType.name} leaves each module's Invert Angle as it is: work it out with the Quick Start Guide.`
-              : `Picking ${moduleType.vendor} ${moduleType.name} turns Invert Angle ${moduleType.angleMotorInverted ? "on" : "off"} for every module. It's a starting point: check it with the Quick Start Guide.`}
+            {moduleType.inversion === undefined
+              ? `Picking ${moduleType.vendor} ${moduleType.name} leaves each module's inversions as they are: work them out with the Quick Start Guide.`
+              : `Picking ${moduleType.vendor} ${moduleType.name} turns Invert Angle ${moduleType.inversion.angleMotor ? "on" : "off"} and Invert Encoder ${moduleType.inversion.absoluteEncoder ? "on" : "off"} for every module, as ${moduleType.vendor}'s own code has them. Check them with the Quick Start Guide.`}
           </p>
         )}
       </div>
