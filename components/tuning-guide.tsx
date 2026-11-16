@@ -866,11 +866,15 @@ function TuningGuideContent() {
                       Open <NTPath>modules/pidfproperties_sim.json</NTPath> from your downloaded configuration and
                       edit the drive and angle PID gains. <PidTuningLinks />
                     </p>
+                    <p>
+                      The generator starts both files with PID gains that drive the motors you picked in
+                      simulation, so the modules should already turn and drive. Tune from there.
+                    </p>
                     <ModuleMotorAnimation />
                     <ul className="mt-1 list-disc space-y-1 pl-5">
                       <li>
-                        <strong>Feedforward is optional.</strong> <NTPath>s</NTPath>, <NTPath>v</NTPath>, and{" "}
-                        <NTPath>a</NTPath> (kS, kV, kA) can be tuned too, for an even better fit.
+                        <strong>Feedforward is yours to tune.</strong> <NTPath>s</NTPath>, <NTPath>v</NTPath>, and{" "}
+                        <NTPath>a</NTPath> (kS, kV, kA) start at 0; tune them for an even better fit.
                       </li>
                       <li>
                         <strong>The drive motor already has a default v.</strong> It's computed from the free speed
@@ -889,17 +893,17 @@ function TuningGuideContent() {
                     { text: "{" },
                     { text: '  "$schema": "https://config.yagsl.com/schemas/pidfproperties.json",' },
                     { text: '  "drive": {' },
-                    { text: '    "p": 0.1,' },
+                    { text: '    "p": 1,' },
                     { text: '    "i": 0,' },
                     { text: '    "d": 0,' },
                     { text: '    "s": 0,' },
-                    { text: '    "v": 0.7,' },
-                    { text: '    "a": 0.1' },
+                    { text: '    "v": 0,' },
+                    { text: '    "a": 0' },
                     { text: "  }," },
                     { text: '  "angle": {' },
-                    { text: '    "p": 0.01,' },
+                    { text: '    "p": 40,' },
                     { text: '    "i": 0,' },
-                    { text: '    "d": 0,' },
+                    { text: '    "d": 0.3,' },
                     { text: '    "s": 0,' },
                     { text: '    "v": 0,' },
                     { text: '    "a": 0' },
@@ -910,17 +914,17 @@ function TuningGuideContent() {
                     { text: "{" },
                     { text: '  "$schema": "https://config.yagsl.com/schemas/pidfproperties.json",' },
                     { text: '  "drive": {' },
-                    { text: '    "p": 0.35,', changed: true },
+                    { text: '    "p": 1.5,', changed: true },
                     { text: '    "i": 0,' },
                     { text: '    "d": 0,' },
                     { text: '    "s": 0,' },
-                    { text: '    "v": 0.7,' },
-                    { text: '    "a": 0.1' },
+                    { text: '    "v": 0.68,', changed: true },
+                    { text: '    "a": 0' },
                     { text: "  }," },
                     { text: '  "angle": {' },
-                    { text: '    "p": 0.06,', changed: true },
+                    { text: '    "p": 45,', changed: true },
                     { text: '    "i": 0,' },
-                    { text: '    "d": 0.0015,', changed: true },
+                    { text: '    "d": 0.4,', changed: true },
                     { text: '    "s": 0,' },
                     { text: '    "v": 0,' },
                     { text: '    "a": 0' },
@@ -1386,8 +1390,8 @@ function TuningGuideContent() {
                     <ModuleMotorAnimation className="print:hidden" />
                     <ul className="mt-1 list-disc space-y-1 pl-5">
                       <li>
-                        <strong>Feedforward is optional.</strong> <NTPath>s</NTPath>, <NTPath>v</NTPath>, and{" "}
-                        <NTPath>a</NTPath> (kS, kV, kA) can be tuned too, for an even better fit.
+                        <strong>Feedforward is yours to tune.</strong> <NTPath>s</NTPath>, <NTPath>v</NTPath>, and{" "}
+                        <NTPath>a</NTPath> (kS, kV, kA) start at 0; tune them for an even better fit.
                       </li>
                       <li>
                         <strong>The drive motor already has a default v.</strong> It's computed from the free speed
@@ -1410,17 +1414,17 @@ function TuningGuideContent() {
                     { text: "{" },
                     { text: '  "$schema": "https://config.yagsl.com/schemas/pidfproperties.json",' },
                     { text: '  "drive": {' },
-                    { text: '    "p": 0.1,' },
+                    { text: '    "p": 1,' },
                     { text: '    "i": 0,' },
                     { text: '    "d": 0,' },
                     { text: '    "s": 0,' },
-                    { text: '    "v": 0.7,' },
-                    { text: '    "a": 0.1' },
+                    { text: '    "v": 0,' },
+                    { text: '    "a": 0' },
                     { text: "  }," },
                     { text: '  "angle": {' },
-                    { text: '    "p": 0.01,' },
+                    { text: '    "p": 40,' },
                     { text: '    "i": 0,' },
-                    { text: '    "d": 0,' },
+                    { text: '    "d": 0.3,' },
                     { text: '    "s": 0,' },
                     { text: '    "v": 0,' },
                     { text: '    "a": 0' },
@@ -1431,17 +1435,17 @@ function TuningGuideContent() {
                     { text: "{" },
                     { text: '  "$schema": "https://config.yagsl.com/schemas/pidfproperties.json",' },
                     { text: '  "drive": {' },
-                    { text: '    "p": 0.28,', changed: true },
+                    { text: '    "p": 1.2,', changed: true },
                     { text: '    "i": 0,' },
                     { text: '    "d": 0,' },
-                    { text: '    "s": 0,' },
-                    { text: '    "v": 0.7,' },
-                    { text: '    "a": 0.1' },
+                    { text: '    "s": 0.12,', changed: true },
+                    { text: '    "v": 0.68,', changed: true },
+                    { text: '    "a": 0' },
                     { text: "  }," },
                     { text: '  "angle": {' },
-                    { text: '    "p": 0.05,', changed: true },
+                    { text: '    "p": 35,', changed: true },
                     { text: '    "i": 0,' },
-                    { text: '    "d": 0.001,', changed: true },
+                    { text: '    "d": 0.5,', changed: true },
                     { text: '    "s": 0,' },
                     { text: '    "v": 0,' },
                     { text: '    "a": 0' },

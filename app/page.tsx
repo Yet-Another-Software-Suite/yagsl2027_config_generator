@@ -21,7 +21,8 @@ import { PrintButton } from "@/components/print-button"
 import { ConfigPrintView } from "@/components/config-print-view"
 import { withBasePath } from "@/lib/base-path"
 import { SiteFooter } from "@/components/site-footer"
-import type { ConfigData } from "@/lib/types"
+import type { ConfigData, ModuleConfigData } from "@/lib/types"
+import { withMotorDefaults } from "@/lib/default-gains"
 
 export default function Home() {
   const { toast } = useToast()
@@ -83,11 +84,26 @@ export default function Home() {
         angle: { gearRatio: 12.8 },
       },
     },
+    // The default PID gains for the default sparkmax_neo modules (lib/default-gains.ts).
     pidfproperties: {
-      drive: { p: 0.1, i: 0, d: 0 },
-      angle: { p: 0.01, i: 0, d: 0 },
+      drive: { p: 1, i: 0, d: 0 },
+      angle: { p: 40, i: 0, d: 0.3 },
     },
   })
+
+  // Update one module. Picking a drive or angle motor fills in that motor's default PID gains, unless the user has
+  // already typed their own.
+  const updateModule = (name: keyof ConfigData["modules"], updated: ModuleConfigData) => {
+    const previous = config.modules[name]
+    let pidfproperties = config.pidfproperties
+    if (updated.drive.type !== previous.drive.type) {
+      pidfproperties = withMotorDefaults(pidfproperties, "drive", updated.drive.type)
+    }
+    if (updated.angle.type !== previous.angle.type) {
+      pidfproperties = withMotorDefaults(pidfproperties, "angle", updated.angle.type)
+    }
+    setConfig({ ...config, modules: { ...config.modules, [name]: updated }, pidfproperties })
+  }
 
   const tabs = ["gyro", "frontleft", "frontright", "backleft", "backright", "properties"]
   const currentTabIndex = tabs.indexOf(activeTab)
@@ -234,12 +250,7 @@ export default function Home() {
               <ModuleConfig
                 moduleName="Front Left"
                 config={config.modules.frontleft}
-                onChange={(updated) =>
-                  setConfig({
-                    ...config,
-                    modules: { ...config.modules, frontleft: updated },
-                  })
-                }
+                onChange={(updated) => updateModule("frontleft", updated)}
               />
             </TabsContent>
 
@@ -247,12 +258,7 @@ export default function Home() {
               <ModuleConfig
                 moduleName="Front Right"
                 config={config.modules.frontright}
-                onChange={(updated) =>
-                  setConfig({
-                    ...config,
-                    modules: { ...config.modules, frontright: updated },
-                  })
-                }
+                onChange={(updated) => updateModule("frontright", updated)}
               />
             </TabsContent>
 
@@ -260,12 +266,7 @@ export default function Home() {
               <ModuleConfig
                 moduleName="Back Left"
                 config={config.modules.backleft}
-                onChange={(updated) =>
-                  setConfig({
-                    ...config,
-                    modules: { ...config.modules, backleft: updated },
-                  })
-                }
+                onChange={(updated) => updateModule("backleft", updated)}
               />
             </TabsContent>
 
@@ -273,12 +274,7 @@ export default function Home() {
               <ModuleConfig
                 moduleName="Back Right"
                 config={config.modules.backright}
-                onChange={(updated) =>
-                  setConfig({
-                    ...config,
-                    modules: { ...config.modules, backright: updated },
-                  })
-                }
+                onChange={(updated) => updateModule("backright", updated)}
               />
             </TabsContent>
 

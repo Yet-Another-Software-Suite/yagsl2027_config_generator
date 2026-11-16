@@ -13,7 +13,14 @@ interface PIDFPropertiesProps {
 export function PIDFProperties({ config, onChange }: PIDFPropertiesProps) {
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold">PID Properties</h3>
+      <div className="space-y-1">
+        <h3 className="text-lg font-semibold">PID Properties</h3>
+        <p className="text-sm text-muted-foreground">
+          Picking a drive or angle motor fills in PID gains that drive it in simulation. Gains you type yourself are
+          kept. Feedforward is left for you to tune; with drive V at 0, YAGSL works it out from the motor's free speed
+          and your gearing.
+        </p>
+      </div>
 
       {/* Drive PID */}
       <div>
