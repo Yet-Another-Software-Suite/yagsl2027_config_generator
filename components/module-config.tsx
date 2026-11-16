@@ -7,8 +7,12 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import type { ModuleConfigData } from "@/lib/types"
 import {
-  MOTOR_TYPES,
+  MOTOR_CONTROLLERS,
   ENCODER_TYPES,
+  motorControllerName,
+  motorName,
+  motorsFor,
+  splitMotorType,
   attachedEncoderWarning,
   canbusError,
   canbusPlaceholder,
@@ -37,30 +41,11 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
       {/* Drive Motor */}
       <div>
         <h4 className="text-sm font-medium mb-3 text-muted-foreground">Drive Motor</h4>
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="space-y-2">
-            <Label>Motor Type</Label>
-            <Select
-              value={config.drive.type}
-              onValueChange={(value) =>
-                onChange({
-                  ...config,
-                  drive: { ...config.drive, type: value as any },
-                })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {MOTOR_TYPES.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="grid gap-4 md:grid-cols-4">
+          <MotorTypeFields
+            motorType={config.drive.type}
+            onChange={(type) => onChange({ ...config, drive: { ...config.drive, type: type as any } })}
+          />
 
           <div className="space-y-2">
             <Label>CAN ID</Label>
@@ -100,30 +85,11 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
       {/* Angle Motor */}
       <div>
         <h4 className="text-sm font-medium mb-3 text-muted-foreground">Angle Motor</h4>
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="space-y-2">
-            <Label>Motor Type</Label>
-            <Select
-              value={config.angle.type}
-              onValueChange={(value) =>
-                onChange({
-                  ...config,
-                  angle: { ...config.angle, type: value as any },
-                })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {MOTOR_TYPES.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="grid gap-4 md:grid-cols-4">
+          <MotorTypeFields
+            motorType={config.angle.type}
+            onChange={(type) => onChange({ ...config, angle: { ...config.angle, type: type as any } })}
+          />
 
           <div className="space-y-2">
             <Label>CAN ID</Label>
@@ -432,5 +398,55 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
         </div>
       </div>
     </div>
+  )
+}
+
+/**
+ * The motor controller and motor dropdowns, which together make a YAGSL motor type ("sparkmax_neo"). Changing the
+ * motor controller keeps the motor if the new one drives it, else picks its first motor.
+ */
+function MotorTypeFields({ motorType, onChange }: { motorType: string; onChange: (motorType: string) => void }) {
+  const { controller, motor } = splitMotorType(motorType)
+  const motors = motorsFor(controller)
+  return (
+    <>
+      <div className="space-y-2">
+        <Label>Motor Controller</Label>
+        <Select
+          value={controller}
+          onValueChange={(next) => {
+            const nextMotors = motorsFor(next)
+            onChange(`${next}_${nextMotors.includes(motor) ? motor : nextMotors[0]}`)
+          }}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {MOTOR_CONTROLLERS.map((c) => (
+              <SelectItem key={c} value={c}>
+                {motorControllerName(c)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Motor</Label>
+        <Select value={motor} onValueChange={(next) => onChange(`${controller}_${next}`)}>
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {motors.map((m) => (
+              <SelectItem key={m} value={m}>
+                {motorName(m)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </>
   )
 }

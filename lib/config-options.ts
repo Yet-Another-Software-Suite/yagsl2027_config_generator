@@ -31,6 +31,45 @@ export const MOTOR_TYPES = [
   "nova_pulsar",
 ]
 
+// A motor type is "<controller>_<motor>". The form picks the two separately; both lists come from MOTOR_TYPES.
+const MOTOR_CONTROLLER_NAMES: Record<string, string> = {
+  talonfx: "TalonFX",
+  talonfxs: "TalonFXS",
+  sparkmax: "SPARK MAX",
+  sparkflex: "SPARK Flex",
+  nova: "Thrifty Nova",
+}
+
+const MOTOR_NAMES: Record<string, string> = {
+  krakenx44: "Kraken X44",
+  krakenx60: "Kraken X60",
+  falcon: "Falcon 500",
+  neo: "NEO",
+  neo2: "NEO 2.0",
+  neo550: "NEO 550",
+  vortex: "NEO Vortex",
+  pulsar: "Thrifty Pulsar",
+  minion: "Minion",
+}
+
+export function splitMotorType(motorType: string) {
+  const i = motorType.indexOf("_")
+  return { controller: motorType.slice(0, i), motor: motorType.slice(i + 1) }
+}
+
+/** Motor controllers in MOTOR_TYPES, in the order they first appear. */
+export const MOTOR_CONTROLLERS = [...new Set(MOTOR_TYPES.map((type) => splitMotorType(type).controller))]
+
+/** Motors the motor controller drives, in MOTOR_TYPES order. */
+export function motorsFor(controller: string) {
+  return MOTOR_TYPES.map(splitMotorType)
+    .filter((t) => t.controller === controller)
+    .map((t) => t.motor)
+}
+
+export const motorControllerName = (controller: string) => MOTOR_CONTROLLER_NAMES[controller] ?? controller
+export const motorName = (motor: string) => MOTOR_NAMES[motor] ?? motor
+
 export const ENCODER_TYPES = [
   "revthroughbore_attached",
   "revthroughbore_dio",
