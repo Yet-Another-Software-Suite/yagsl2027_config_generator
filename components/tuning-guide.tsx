@@ -434,7 +434,7 @@ function LiveTuningSteps({
           <Step
             id={stepId("drive-tune")}
             title="Tune the drive PID."
-            detail="Set a target speed, zero the feedback, raise feedforward/v until the speed settles on the target, then add feedback/p until it gets there quickly and holds:"
+            detail="Set a target speed and raise feedback/p until it gets there quickly and holds. PID alone is commonly enough. For an even better fit, first zero the feedback and raise feedforward/v until the speed settles on the target, then add p back:"
             checked={checked("drive-tune")}
             onCheckedChange={onChange("drive-tune")}
           >
@@ -987,14 +987,15 @@ function TuningGuideContent() {
                       edit the drive and angle PID gains. <PidTuningLinks />
                     </p>
                     <p>
-                      The generator starts both files with rough PID gains that turn and drive the motors you
-                      picked in simulation. Tune from there.
+                      The generator starts both files with PID gains based on ones that worked in simulation for the
+                      motors you picked. Treat them as a starting point and tune from there.
                     </p>
                     <ModuleMotorAnimation />
                     <ul className="mt-1 list-disc space-y-1 pl-5">
                       <li>
-                        <strong>Feedforward is yours to tune.</strong> <NTPath>s</NTPath>, <NTPath>v</NTPath>, and{" "}
-                        <NTPath>a</NTPath> (kS, kV, kA) start at 0; tune them for an even better fit.
+                        <strong>Feedforward is optional.</strong> <NTPath>s</NTPath>, <NTPath>v</NTPath>, and{" "}
+                        <NTPath>a</NTPath> (kS, kV, kA) start at 0. We encourage tuning them for an even better fit,
+                        but swerve modules don't need it: PID alone is commonly more than enough.
                       </li>
                       <li>
                         <strong>The drive motor already has a default v.</strong> It's computed from the free speed
@@ -1531,19 +1532,20 @@ function TuningGuideContent() {
                       and angle PID gains, this time for the real robot. <PidTuningLinks />
                     </p>
                     <Alert className="my-2">
-                      <AlertTitle>The generated gains are rough estimates</AlertTitle>
+                      <AlertTitle>The generated gains are a starting point</AlertTitle>
                       <AlertDescription>
-                        They were only checked in simulation, not tuned for your robot. Real modules have friction,
-                        backlash and load the simulation doesn't. Watch for oscillation or buzzing, and tune before
-                        driving on the ground.
+                        They're based on gains that worked in simulation, not tuned for your robot. Real modules have
+                        friction, backlash and load the simulation doesn't. Watch for oscillation or buzzing, and tune
+                        before driving on the ground.
                       </AlertDescription>
                     </Alert>
                     {/* Printed once already, in the simulator's tuning step, so the repeat is left off paper. */}
                     <ModuleMotorAnimation className="print:hidden" />
                     <ul className="mt-1 list-disc space-y-1 pl-5">
                       <li>
-                        <strong>Feedforward is yours to tune.</strong> <NTPath>s</NTPath>, <NTPath>v</NTPath>, and{" "}
-                        <NTPath>a</NTPath> (kS, kV, kA) start at 0; tune them for an even better fit.
+                        <strong>Feedforward is optional.</strong> <NTPath>s</NTPath>, <NTPath>v</NTPath>, and{" "}
+                        <NTPath>a</NTPath> (kS, kV, kA) start at 0. We encourage tuning them for an even better fit,
+                        but swerve modules don't need it: PID alone is commonly more than enough.
                       </li>
                       <li>
                         <strong>The drive motor already has a default v.</strong> It's computed from the free speed
