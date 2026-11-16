@@ -3,7 +3,19 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type { PhysicalPropertiesConfig } from "@/lib/types"
+import { MODULE_PRESETS, findModulePreset, matchModulePreset } from "@/lib/module-presets"
+
+const CUSTOM = "custom"
 
 interface PhysicalPropertiesProps {
   config: PhysicalPropertiesConfig
@@ -11,9 +23,59 @@ interface PhysicalPropertiesProps {
 }
 
 export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps) {
+  const matched = matchModulePreset(
+    config.gearing.drive.gearRatio,
+    config.gearing.drive.diameter,
+    config.gearing.angle.gearRatio,
+  )
+
+  const applyPreset = (id: string) => {
+    const preset = findModulePreset(id)
+    if (!preset) return
+    onChange({
+      ...config,
+      gearing: {
+        ...config.gearing,
+        drive: { ...config.gearing.drive, gearRatio: preset.driveGearRatio, diameter: preset.wheelDiameter },
+        angle: { ...config.gearing.angle, gearRatio: preset.angleGearRatio },
+      },
+    })
+  }
+
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-semibold">Physical Properties</h3>
+
+      {/* Module preset */}
+      <div className="space-y-2">
+        <Label htmlFor="module-preset">Swerve Module</Label>
+        <Select value={matched?.id ?? CUSTOM} onValueChange={applyPreset}>
+          <SelectTrigger id="module-preset" className="md:w-1/2">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={CUSTOM} disabled>
+              Custom
+            </SelectItem>
+            {MODULE_PRESETS.map((group) => (
+              <SelectGroup key={group.vendor}>
+                <SelectLabel>{group.vendor}</SelectLabel>
+                {group.presets.map((preset) => (
+                  <SelectItem key={preset.id} value={preset.id}>
+                    {preset.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-sm text-muted-foreground">
+          Fills in the drive gear ratio, wheel diameter and angle gear ratio below. Measure your wheels: worn tread is
+          smaller than the nominal diameter.
+        </p>
+      </div>
+
+      <Separator />
 
       {/* Drive Gearing */}
       <div>
