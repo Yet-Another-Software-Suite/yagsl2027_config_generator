@@ -131,18 +131,29 @@ function GuideFigure({
   /** The caption for printSrc, when the animation's caption describes more than that one frame. */
   printCaption?: ReactNode
 }) {
+  const image = (
+    <Image
+      src={withBasePath(src)}
+      alt={alt}
+      width={width}
+      height={height}
+      unoptimized
+      // Loaded up front: a lazy image that hasn't been scrolled to prints as an empty box.
+      loading="eager"
+      className={printSrc ? "w-full rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10 print:hidden" : "w-full rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10"}
+    />
+  )
   return (
     <figure className={small ? "mt-2 max-w-sm" : "mt-2"}>
-      <Image
-        src={withBasePath(src)}
-        alt={alt}
-        width={width}
-        height={height}
-        unoptimized
-        // Loaded up front: a lazy image that hasn't been scrolled to prints as an empty box.
-        loading="eager"
-        className={printSrc ? "w-full rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10 print:hidden" : "w-full rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10"}
-      />
+      {printSrc ? (
+        // An animated GIF keeps playing under reduced motion, so those readers get the still instead.
+        <picture>
+          <source media="(prefers-reduced-motion: reduce)" srcSet={withBasePath(printSrc)} />
+          {image}
+        </picture>
+      ) : (
+        image
+      )}
       {printSrc && (
         <Image
           src={withBasePath(printSrc)}
@@ -155,11 +166,16 @@ function GuideFigure({
         />
       )}
       {caption && (
-        <figcaption className={printCaption ? "mt-1 text-xs text-muted-foreground print:hidden" : "mt-1 text-xs text-muted-foreground"}>
+        <figcaption className={printCaption ? "mt-1 text-xs text-muted-foreground print:hidden motion-reduce:hidden" : "mt-1 text-xs text-muted-foreground"}>
           {caption}
         </figcaption>
       )}
-      {printCaption && <figcaption className="mt-1 hidden text-xs text-muted-foreground print:block">{printCaption}</figcaption>}
+      {/* The still's caption goes with the still: on paper, and on screen under reduced motion. */}
+      {printCaption && (
+        <figcaption className="mt-1 hidden text-xs text-muted-foreground print:block motion-reduce:block">
+          {printCaption}
+        </figcaption>
+      )}
     </figure>
   )
 }
@@ -443,34 +459,20 @@ function LiveTuningSteps({
             checked={checked("inplace")}
             onCheckedChange={onChange("inplace")}
           >
-            <div className="mt-2 grid gap-2 sm:grid-cols-2 print:grid-cols-2">
-              <Image
-                src={withBasePath("/module-drive-inplace.gif")}
+            <div className="grid gap-2 sm:grid-cols-2 print:grid-cols-2">
+              {/* A GIF prints only its first frame, before anything moves, so paper gets a frame mid-spin. */}
+              <GuideFigure
+                src="/module-drive-inplace.gif"
+                printSrc="/module-drive-inplace-print.png"
                 alt="Raising modules/drive/velocity with modules/drive/inplace set to true: every module points tangent to the robot center and the chassis spins in place, faster as the value increases."
                 width={760}
                 height={563}
-                unoptimized
-                loading="eager"
-                className="w-full rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10 print:hidden"
               />
-              {/* A GIF prints only its first frame, before anything moves, so paper gets a frame mid-spin. */}
-              <Image
-                src={withBasePath("/module-drive-inplace-print.png")}
-                alt="With modules/drive/inplace true and velocity raised, every module points tangent to the robot center and the chassis spins in place."
-                width={760}
-                height={563}
-                unoptimized
-                loading="eager"
-                className="hidden w-full rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10 print:block"
-              />
-              <Image
-                src={withBasePath("/module-drive-inplace.png")}
+              <GuideFigure
+                src="/module-drive-inplace.png"
                 alt="modules/drive/enabled and modules/drive/inplace both true with velocity at -3: each module is pinwheeled 90 degrees off its radial angle and the swerve widget's rotation arrow confirms the robot is spinning cleanly about its center."
                 width={1005}
                 height={745}
-                unoptimized
-                loading="eager"
-                className="w-full rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10"
               />
             </div>
           </Step>
