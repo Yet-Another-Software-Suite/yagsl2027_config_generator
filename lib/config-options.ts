@@ -150,6 +150,34 @@ export function switchEncoderConnection(encoderType: string, connection: string)
 
 export const GYRO_TYPES = ["navx3_can", "pigeon2_can", "canandgyro_can", "systemcore_internal", "custom"]
 
+// A gyro type is "<gyro>_<connection>", or "custom" for a gyro the robot code supplies. The form picks the connection,
+// then the gyro; both lists come from GYRO_TYPES.
+export const GYRO_CONNECTIONS = [
+  { id: "can", name: "CAN" },
+  { id: "internal", name: "SystemCore" },
+  { id: "custom", name: "Custom" },
+]
+
+const GYRO_NAMES: Record<string, string> = {
+  navx3_can: "Studica NavX3",
+  pigeon2_can: "CTRE Pigeon 2.0",
+  canandgyro_can: "Redux Canandgyro",
+  systemcore_internal: "SystemCore built-in IMU",
+  custom: "Your own gyro, set in code",
+}
+
+/** The connection id (from GYRO_CONNECTIONS) of a gyro type. */
+export function gyroConnection(gyroType: string) {
+  return gyroType === "custom" ? "custom" : gyroType.slice(gyroType.lastIndexOf("_") + 1)
+}
+
+/** Gyro types on this connection, in GYRO_TYPES order. */
+export function gyrosFor(connection: string) {
+  return GYRO_TYPES.filter((type) => gyroConnection(type) === connection)
+}
+
+export const gyroName = (gyroType: string) => GYRO_NAMES[gyroType] ?? gyroType
+
 export const GYRO_AXES = ["yaw", "pitch", "roll"]
 
 export function isNova(motorType: string) {

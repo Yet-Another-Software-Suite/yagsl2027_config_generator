@@ -7,7 +7,15 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { TriangleAlert } from "lucide-react"
 import type { SwervedriveConfig } from "@/lib/types"
-import { GYRO_TYPES, GYRO_AXES, canbusError, canbusPlaceholder } from "@/lib/config-options"
+import {
+  GYRO_AXES,
+  GYRO_CONNECTIONS,
+  canbusError,
+  canbusPlaceholder,
+  gyroConnection,
+  gyroName,
+  gyrosFor,
+} from "@/lib/config-options"
 import { selectAllOnFocus } from "@/lib/select-on-focus"
 
 interface GyroConfigProps {
@@ -17,6 +25,7 @@ interface GyroConfigProps {
 
 export function GyroConfig({ config, onChange }: GyroConfigProps) {
   const isCustom = config.gyro.type === "custom"
+  const setGyroType = (type: string) => onChange({ ...config, gyro: { ...config.gyro, type: type as any } })
   // Internal gyros (e.g. the Systemcore's onboard IMU) aren't on CAN, so YAGSL ignores the ID and bus.
   const usesCan = !isCustom && !config.gyro.type.endsWith("_internal")
   const gyroCanbusError = canbusError(config.gyro.type, config.gyro.canbus)
@@ -29,23 +38,35 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
         <h3 className="text-lg font-semibold mb-4">Gyroscope Configuration</h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="gyro-type">Gyro Type</Label>
+            <Label htmlFor="gyro-connection">Connection</Label>
             <Select
-              value={config.gyro.type}
-              onValueChange={(value) =>
-                onChange({
-                  ...config,
-                  gyro: { ...config.gyro, type: value as any },
-                })
-              }
+              value={gyroConnection(config.gyro.type)}
+              // A connection's first gyro: the CAN, SystemCore and Custom lists don't share any.
+              onValueChange={(connection) => setGyroType(gyrosFor(connection)[0])}
             >
-              <SelectTrigger id="gyro-type">
+              <SelectTrigger id="gyro-connection" className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {GYRO_TYPES.map((type) => (
+                {GYRO_CONNECTIONS.map((connection) => (
+                  <SelectItem key={connection.id} value={connection.id}>
+                    {connection.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="gyro-type">Gyro</Label>
+            <Select value={config.gyro.type} onValueChange={setGyroType}>
+              <SelectTrigger id="gyro-type" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {gyrosFor(gyroConnection(config.gyro.type)).map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type}
+                    {gyroName(type)}
                   </SelectItem>
                 ))}
               </SelectContent>
