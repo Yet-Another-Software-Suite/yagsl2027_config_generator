@@ -520,6 +520,36 @@ function NTPath({ children }: { children: string }) {
   return <code className="break-all rounded-sm bg-muted px-1.5 py-0.5 text-xs font-mono">{children}</code>
 }
 
+/** Adding a Swerve tab and dragging the four swerve fields into it, the same in simulation and on the robot. */
+function SwerveTabFigures() {
+  return (
+    <>
+      <GuideFigure
+        src="/guide/yagsl-ascope-add-swerve-tab.png"
+        alt="AdvantageScope's toolbar with the plus button outlined (1) and its tab menu open, Swerve outlined (2)."
+        width={552}
+        height={367}
+        caption="Click + (1), then Swerve (2), or press Alt+D."
+        small
+      />
+      <GuideFigure
+        src="/guide/yagsl-ascope-drag-swerve-fields.png"
+        alt="AdvantageScope's sidebar with Mechanisms/swerve expanded. states/current (1), states/desired (2), chassis/current (3) and chassis/desired (4) are outlined, with arrows from each into the Swerve tab's Sources box (5)."
+        width={1400}
+        height={900}
+        caption="Drag states/current (1), states/desired (2), chassis/current (3) and chassis/desired (4) into Sources (5)."
+      />
+      <GuideFigure
+        src="/guide/yagsl-ascope-swerve-sources.png"
+        alt="The Swerve tab after the drag: the robot outline shows each module's state (1), and Sources lists all four fields (2)."
+        width={1070}
+        height={650}
+        caption="Done: each module's state is drawn (1) and all four fields are in Sources (2)."
+      />
+    </>
+  )
+}
+
 function SwerveWidgetFields() {
   return (
     <ul className="mt-1 list-disc space-y-1 pl-5">
@@ -809,7 +839,9 @@ function TuningGuideContent() {
                 title="Build and start the robot simulator."
                 detail={
                   <>
-                    New to the simulator?{" "}
+                    In VS Code, press <strong>Ctrl+Shift+P</strong>, run <strong>WPILib: Simulate Robot Code</strong>,
+                    keep <strong>Sim GUI</strong> checked and click <strong>OK</strong>. The Robot Simulation window
+                    opens once your code is running. New to the simulator?{" "}
                     <Link
                       href="https://docs.wpilib.org/en/stable/docs/software/wpilib-tools/robot-simulation/introduction.html"
                       target="_blank"
@@ -824,10 +856,30 @@ function TuningGuideContent() {
                 }
                 checked={checkedSteps.has("sim-connect-1")}
                 onCheckedChange={(c) => toggleStep("sim-connect-1", c)}
-              />
+              >
+                <GuideFigure
+                  src="/guide/yagsl-vscode-simulate.png"
+                  alt="The VS Code command palette with WPILib: Simulate typed in (1) and WPILib: Simulate Robot Code highlighted (2)."
+                  width={930}
+                  height={128}
+                />
+                <GuideFigure
+                  src="/guide/yagsl-vscode-sim-gui.png"
+                  alt="VS Code's Pick extensions to run list with Sim GUI checked (1) and the OK button outlined (2)."
+                  width={850}
+                  height={100}
+                />
+                <GuideFigure
+                  src="/guide/yagsl-sim-gui-running.png"
+                  alt="The Robot Simulation window, with its Robot State panel outlined (1): the robot code is running."
+                  width={1010}
+                  height={320}
+                />
+              </Step>
               <Step
                 id="sim-connect-2"
                 title="Open AdvantageScope."
+                detail="Use the AdvantageScope that came with your WPILib install, in the WPILib Tools folder the installer put on your desktop."
                 checked={checkedSteps.has("sim-connect-2")}
                 onCheckedChange={(c) => toggleStep("sim-connect-2", c)}
               />
@@ -836,20 +888,34 @@ function TuningGuideContent() {
                 title="Connect to the simulator."
                 detail={
                   <>
-                    <strong>File → Connect to Simulator</strong> (Ctrl+Shift+K).
+                    <strong>File → Connect to Simulator → Default: NetworkTables</strong> (Ctrl+Shift+K).
                   </>
                 }
                 checked={checkedSteps.has("sim-connect-3")}
                 onCheckedChange={(c) => toggleStep("sim-connect-3", c)}
-              />
+              >
+                <GuideFigure
+                  src="/guide/yagsl-ascope-connect-sim.png"
+                  alt="AdvantageScope's File menu (1) open on Connect to Simulator (2), with Default: NetworkTables outlined in its submenu (3)."
+                  width={1000}
+                  height={360}
+                />
+                <GuideFigure
+                  src="/guide/yagsl-ascope-connected.png"
+                  alt="AdvantageScope once connected: the window title reads 127.0.0.1 (1) and the sidebar counts the fields it found (2)."
+                  width={900}
+                  height={120}
+                />
+              </Step>
               <Step
                 id="sim-connect-4"
-                title="Add the swerve fields to the Swerve widget."
-                detail="Drag in each of these NetworkTables fields:"
+                title="Add a Swerve tab and drag in the swerve fields."
+                detail="Click + and pick Swerve, then drag each of these NetworkTables fields into its Sources:"
                 checked={checkedSteps.has("sim-connect-4")}
                 onCheckedChange={(c) => toggleStep("sim-connect-4", c)}
               >
                 <SwerveWidgetFields />
+                <SwerveTabFigures />
               </Step>
 
               <ExampleProjectNote />
@@ -989,32 +1055,56 @@ function TuningGuideContent() {
                 title="Point AdvantageScope at the robot's address."
                 detail={
                   <>
-                    <strong>App → Show Preferences</strong> (Ctrl+,), and set the robot address to the IP address of
-                    the system core.
+                    <strong>App → Show Preferences</strong> (Ctrl+,), set <strong>Robot Address</strong> to your
+                    SystemCore's IP address, and click the check mark to save.
                   </>
                 }
                 checked={checkedSteps.has("robot-connect-3")}
                 onCheckedChange={(c) => toggleStep("robot-connect-3", c)}
-              />
+              >
+                <GuideFigure
+                  src="/guide/yagsl-ascope-preferences-menu.png"
+                  alt="AdvantageScope's App menu (1) open, with Show Preferences outlined (2)."
+                  width={602}
+                  height={140}
+                />
+                <GuideFigure
+                  src="/guide/yagsl-ascope-robot-address.png"
+                  alt="AdvantageScope's Preferences window with the Robot Address field outlined (1), holding the placeholder 10.TE.AM.2."
+                  width={662}
+                  height={505}
+                  small
+                />
+              </Step>
               <Step
                 id="robot-connect-4"
                 title="Connect to the robot."
                 detail={
                   <>
-                    <strong>File → Connect to Robot</strong> (Ctrl+K).
+                    <strong>File → Connect to Robot → Default: NetworkTables</strong> (Ctrl+K).
                   </>
                 }
                 checked={checkedSteps.has("robot-connect-4")}
                 onCheckedChange={(c) => toggleStep("robot-connect-4", c)}
-              />
+              >
+                <GuideFigure
+                  src="/guide/yagsl-ascope-connect-robot.png"
+                  alt="AdvantageScope's File menu (1) open on Connect to Robot (2), with Default: NetworkTables outlined in its submenu (3)."
+                  width={1000}
+                  height={330}
+                />
+              </Step>
               <Step
                 id="robot-connect-5"
-                title="Add the swerve fields to the Swerve widget."
-                detail="Drag in each of these NetworkTables fields:"
+                title="Add a Swerve tab and drag in the swerve fields."
+                detail="AdvantageScope keeps the Swerve tab you set up in the simulator, so check its Sources still list these four fields. If not, add the tab and drag them in again:"
                 checked={checkedSteps.has("robot-connect-5")}
                 onCheckedChange={(c) => toggleStep("robot-connect-5", c)}
               >
                 <SwerveWidgetFields />
+                <div className="print:hidden">
+                  <SwerveTabFigures />
+                </div>
               </Step>
 
               <ExampleProjectNote />
