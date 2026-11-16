@@ -161,7 +161,9 @@ export const MODULE_TYPES: ModuleType[] = [
 /** Vendors in the order their module types are listed. */
 export const MODULE_VENDORS = [...new Set(MODULE_TYPES.map((t) => t.vendor))]
 
-const close = (a: number, b: number) => Math.abs(a - b) < 1e-9
+// Within the vendors' rounding, so a config with SDS's 6.75 still matches L2's 6.746. No two configurations of one
+// module type are closer than 0.014 apart, and no two angle gear ratios closer than 0.09.
+const close = (a: number, b: number) => Math.abs(a - b) <= 0.005
 
 export function findModuleType(id: string | undefined): ModuleType | undefined {
   return MODULE_TYPES.find((t) => t.id === id)
