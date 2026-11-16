@@ -23,6 +23,11 @@ import { withBasePath } from "@/lib/base-path"
 import { SiteFooter } from "@/components/site-footer"
 import type { ConfigData, ModuleConfigData } from "@/lib/types"
 import { withMotorDefaults } from "@/lib/default-gains"
+import { findModuleType } from "@/lib/module-presets"
+
+// The form starts with an SDS MK4i L2.
+const DEFAULT_MODULE_TYPE = findModuleType("sds-mk4i")!
+const DEFAULT_MODULE_CONFIGURATION = DEFAULT_MODULE_TYPE.configurations.find((c) => c.id === "l2")!
 
 export default function Home() {
   const { toast } = useToast()
@@ -80,8 +85,8 @@ export default function Home() {
     },
     physicalproperties: {
       gearing: {
-        drive: { gearRatio: 6.75, diameter: 4 },
-        angle: { gearRatio: 12.8 },
+        drive: { gearRatio: DEFAULT_MODULE_CONFIGURATION.driveGearRatio, diameter: DEFAULT_MODULE_TYPE.wheelDiameter },
+        angle: { gearRatio: DEFAULT_MODULE_TYPE.angleGearRatio },
       },
     },
     // The default PID gains for the default sparkmax_neo modules (lib/default-gains.ts).
