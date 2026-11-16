@@ -5,6 +5,8 @@
 // out from its tooth counts rather than rounded, and checked against the vendor's rounded value:
 // - SDS: SDS's published ratios. MK4 L1 is 50/14 x 19/25 x 45/15 = 8.14:1; MK5i and MK5n from SDS's published values.
 // - REV MAXSwerve: REV's speed ratio chart, spur / pinion x 45/15; steering 9424:203.
+// - REV EasySwerve: REV's EasySwerve docs, 6.3:1 drive and 20:1 steering; the 4in Traction Wheel, or the 3.66in Spiky
+//   Wheel.
 // - Thrifty Swerve: Thrifty's BOM gear train, 36/pinion x bevel shaft gear/24 x 45/15 (12T with 18T is 6.75:1);
 //   steering 25:1 from Thrifty's product page.
 // - WCP: WCP's ratio tables (docs.wcproducts.com), each from its tooth counts.
@@ -49,6 +51,9 @@ const MK4_L_PLUS = [
 ]
 const MK5_R = [config("r1", "R1", 7.03), config("r2", "R2", 6.03), config("r3", "R3", 5.27)]
 
+// REV EasySwerve: one drive gearing, from REV's EasySwerve docs; 18.79 ft/s with a NEO Vortex on the 4in wheel.
+const EASYSWERVE = [config("standard", "Standard (6.3:1)", 6.3)]
+
 /** WCP names a ratio by its ratio set and pinion: X2-11 is the X2 set with the 11T pinion. */
 function wcpRatios(sets: [string, number[], (pinion: number) => number][]): ModuleConfiguration[] {
   return sets.flatMap(([set, pinions, ratio]) =>
@@ -79,6 +84,22 @@ export const MODULE_TYPES: ModuleType[] = [
       config("extra-high-4", "Extra High 4", (20 / 16) * BEVEL),
       config("extra-high-5", "Extra High 5", (19 / 16) * BEVEL),
     ],
+  },
+  {
+    id: "rev-easyswerve",
+    vendor: "REV",
+    name: "EasySwerve",
+    wheelDiameter: 4,
+    angleGearRatio: 20,
+    configurations: EASYSWERVE,
+  },
+  {
+    id: "rev-easyswerve-spiky",
+    vendor: "REV",
+    name: "EasySwerve, Spiky Wheel",
+    wheelDiameter: 3.66,
+    angleGearRatio: 20,
+    configurations: EASYSWERVE,
   },
   {
     id: "thrifty-swerve",
