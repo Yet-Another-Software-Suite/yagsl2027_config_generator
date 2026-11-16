@@ -805,28 +805,43 @@ function TuningGuideContent() {
 
               <Step
                 id="setup-1"
-                title="Clone the YAGSL repository."
+                title="Download an example project."
                 detail={
                   <>
-                    Clone{" "}
-                    <ExternalDocLink href="https://github.com/Yet-Another-Software-Suite/YAGSL">
-                      Yet-Another-Software-Suite/YAGSL
+                    From the{" "}
+                    <ExternalDocLink href="https://github.com/Yet-Another-Software-Suite/YAGSL/releases/latest">
+                      latest YAGSL release
+                    </ExternalDocLink>
+                    , download{" "}
+                    <ExternalDocLink href="https://github.com/Yet-Another-Software-Suite/YAGSL/releases/latest/download/example-commands2.zip">
+                      example-commands2.zip
                     </ExternalDocLink>{" "}
-                    to your computer.
+                    if your team uses WPILib Commands v2, or{" "}
+                    <ExternalDocLink href="https://github.com/Yet-Another-Software-Suite/YAGSL/releases/latest/download/example-commands3.zip">
+                      example-commands3.zip
+                    </ExternalDocLink>{" "}
+                    for Commands v3. They're under <strong>Assets</strong> at the bottom of the release.
                   </>
                 }
                 checked={checkedSteps.has("setup-1")}
                 onCheckedChange={(c) => toggleStep("setup-1", c)}
-              />
+              >
+                <GuideFigure
+                  src="/guide/yagsl-release-examples.png"
+                  alt="The Assets list of a YAGSL release on GitHub, with example-commands2.zip outlined for Commands v2 (1) and example-commands3.zip for Commands v3 (2)."
+                  width={974}
+                  height={99}
+                  caption="Under Assets: example-commands2.zip for Commands v2 (1), example-commands3.zip for Commands v3 (2)."
+                />
+              </Step>
               <Step
                 id="setup-2"
-                title="Copy an example project out."
+                title="Unzip it where you keep your robot projects."
                 detail={
                   <>
-                    The repository's <ExternalDocLink href={EXAMPLE_PROJECT_URL}>examples</ExternalDocLink> folder
-                    has two: <NTPath>commands2</NTPath> for WPILib Commands v2, and <NTPath>commands3</NTPath> for
-                    Commands v3. Copy the contents of the one your team uses out of the cloned repository and into
-                    your own robot project directory. That's what you'll actually build and deploy.
+                    You get a <NTPath>commands2</NTPath> or <NTPath>commands3</NTPath> folder, which you can rename.
+                    That folder is your robot project: it's what you'll open in VS Code, build and deploy. It already
+                    has the YAGSL and YAMS vendordeps.
                   </>
                 }
                 checked={checkedSteps.has("setup-2")}
