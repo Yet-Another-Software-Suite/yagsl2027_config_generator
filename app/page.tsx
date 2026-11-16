@@ -25,6 +25,18 @@ import type { ConfigData, ModuleConfigData } from "@/lib/types"
 import { withMotorDefaults } from "@/lib/default-gains"
 import { findModuleType } from "@/lib/module-presets"
 
+/** Every module with its angle motor inverted or not, as the picked module type needs; unchanged when unknown. */
+function withAngleInversion(modules: ConfigData["modules"], angle: boolean | undefined): ConfigData["modules"] {
+  if (angle === undefined) return modules
+  const set = (module: ModuleConfigData) => ({ ...module, inverted: { ...module.inverted, angle } })
+  return {
+    frontleft: set(modules.frontleft),
+    frontright: set(modules.frontright),
+    backleft: set(modules.backleft),
+    backright: set(modules.backright),
+  }
+}
+
 // The form starts with an SDS MK4i L2.
 const DEFAULT_MODULE_TYPE = findModuleType("sds-mk4i")!
 const DEFAULT_MODULE_CONFIGURATION = DEFAULT_MODULE_TYPE.configurations.find((c) => c.id === "l2")!
@@ -49,7 +61,7 @@ export default function Home() {
       frontleft: {
         drive: { type: "sparkmax_neo", id: 1, canbus: "" },
         angle: { type: "sparkmax_neo", id: 2, canbus: "" },
-        inverted: { drive: false, angle: false },
+        inverted: { drive: false, angle: DEFAULT_MODULE_TYPE.angleMotorInverted ?? false },
         absoluteEncoder: { type: "cancoder_can", id: 3, channel: 0, canbus: "" },
         absoluteEncoderOffset: 0,
         absoluteEncoderInverted: false,
@@ -58,7 +70,7 @@ export default function Home() {
       frontright: {
         drive: { type: "sparkmax_neo", id: 4, canbus: "" },
         angle: { type: "sparkmax_neo", id: 5, canbus: "" },
-        inverted: { drive: false, angle: false },
+        inverted: { drive: false, angle: DEFAULT_MODULE_TYPE.angleMotorInverted ?? false },
         absoluteEncoder: { type: "cancoder_can", id: 6, channel: 0, canbus: "" },
         absoluteEncoderOffset: 0,
         absoluteEncoderInverted: false,
@@ -67,7 +79,7 @@ export default function Home() {
       backleft: {
         drive: { type: "sparkmax_neo", id: 7, canbus: "" },
         angle: { type: "sparkmax_neo", id: 8, canbus: "" },
-        inverted: { drive: false, angle: false },
+        inverted: { drive: false, angle: DEFAULT_MODULE_TYPE.angleMotorInverted ?? false },
         absoluteEncoder: { type: "cancoder_can", id: 9, channel: 0, canbus: "" },
         absoluteEncoderOffset: 0,
         absoluteEncoderInverted: false,
@@ -76,7 +88,7 @@ export default function Home() {
       backright: {
         drive: { type: "sparkmax_neo", id: 10, canbus: "" },
         angle: { type: "sparkmax_neo", id: 11, canbus: "" },
-        inverted: { drive: false, angle: false },
+        inverted: { drive: false, angle: DEFAULT_MODULE_TYPE.angleMotorInverted ?? false },
         absoluteEncoder: { type: "cancoder_can", id: 12, channel: 0, canbus: "" },
         absoluteEncoderOffset: 0,
         absoluteEncoderInverted: false,
@@ -287,7 +299,13 @@ export default function Home() {
               <div className="space-y-6">
                 <PhysicalProperties
                   config={config.physicalproperties}
-                  onChange={(updated) => setConfig({ ...config, physicalproperties: updated })}
+                  onChange={(updated, pickedModuleType) =>
+                    setConfig({
+                      ...config,
+                      physicalproperties: updated,
+                      modules: withAngleInversion(config.modules, pickedModuleType?.angleMotorInverted),
+                    })
+                  }
                 />
                 <PIDFProperties
                   config={config.pidfproperties}

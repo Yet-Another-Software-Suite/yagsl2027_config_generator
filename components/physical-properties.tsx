@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select"
 import type { PhysicalPropertiesConfig } from "@/lib/types"
 import {
+  type ModuleType,
   MODULE_TYPES,
   MODULE_VENDORS,
   findModuleType,
@@ -27,7 +28,8 @@ const CUSTOM = "custom"
 
 interface PhysicalPropertiesProps {
   config: PhysicalPropertiesConfig
-  onChange: (config: PhysicalPropertiesConfig) => void
+  /** The module type is passed along when the change is the user picking one. */
+  onChange: (config: PhysicalPropertiesConfig, pickedModuleType?: ModuleType) => void
 }
 
 export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps) {
@@ -42,15 +44,23 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
       : matchModuleType(drive.gearRatio, drive.diameter, angle.gearRatio)
   const moduleConfiguration = moduleType && matchModuleConfiguration(moduleType, drive.gearRatio)
 
-  const setGearing = (driveGearRatio: number, wheelDiameter: number, angleGearRatio: number) =>
-    onChange({
-      ...config,
-      gearing: {
-        ...config.gearing,
-        drive: { ...drive, gearRatio: driveGearRatio, diameter: wheelDiameter },
-        angle: { ...angle, gearRatio: angleGearRatio },
+  const setGearing = (
+    driveGearRatio: number,
+    wheelDiameter: number,
+    angleGearRatio: number,
+    pickedModuleType?: ModuleType,
+  ) =>
+    onChange(
+      {
+        ...config,
+        gearing: {
+          ...config.gearing,
+          drive: { ...drive, gearRatio: driveGearRatio, diameter: wheelDiameter },
+          angle: { ...angle, gearRatio: angleGearRatio },
+        },
       },
-    })
+      pickedModuleType,
+    )
 
   const pickModuleType = (id: string) => {
     const type = findModuleType(id)
@@ -59,7 +69,7 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
     // Keep the drive gear ratio if it's one of this module's configurations, else start from its first one.
     const driveGearRatio = matchModuleConfiguration(type, drive.gearRatio)?.driveGearRatio
       ?? type.configurations[0].driveGearRatio
-    setGearing(driveGearRatio, type.wheelDiameter, type.angleGearRatio)
+    setGearing(driveGearRatio, type.wheelDiameter, type.angleGearRatio, type)
   }
 
   const pickModuleConfiguration = (id: string) => {
@@ -126,6 +136,13 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
           The module type fills in the wheel diameter and angle gear ratio below, and its configuration the drive gear
           ratio. Measure your wheels: worn tread is smaller than the nominal diameter.
         </p>
+        {moduleType && (
+          <p className="mt-1 text-sm text-muted-foreground">
+            {moduleType.angleMotorInverted === undefined
+              ? `Picking ${moduleType.vendor} ${moduleType.name} leaves each module's Invert Angle as it is: work it out with the Quick Start Guide.`
+              : `Picking ${moduleType.vendor} ${moduleType.name} turns Invert Angle ${moduleType.angleMotorInverted ? "on" : "off"} for every module. It's a starting point: check it with the Quick Start Guide.`}
+          </p>
+        )}
       </div>
 
       <Separator />
