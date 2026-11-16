@@ -867,8 +867,8 @@ function TuningGuideContent() {
                       edit the drive and angle PID gains. <PidTuningLinks />
                     </p>
                     <p>
-                      The generator starts both files with PID gains that drive the motors you picked in
-                      simulation, so the modules should already turn and drive. Tune from there.
+                      The generator starts both files with rough PID gains that turn and drive the motors you
+                      picked in simulation. Tune from there.
                     </p>
                     <ModuleMotorAnimation />
                     <ul className="mt-1 list-disc space-y-1 pl-5">
@@ -1386,6 +1386,14 @@ function TuningGuideContent() {
                       Just like in simulation, edit <NTPath>modules/pidfproperties.json</NTPath> to tune the drive
                       and angle PID gains, this time for the real robot. <PidTuningLinks />
                     </p>
+                    <Alert className="my-2">
+                      <AlertTitle>The generated gains are rough estimates</AlertTitle>
+                      <AlertDescription>
+                        They were only checked in simulation, not tuned for your robot. Real modules have friction,
+                        backlash and load the simulation doesn't. Watch for oscillation or buzzing, and tune before
+                        driving on the ground.
+                      </AlertDescription>
+                    </Alert>
                     {/* Printed once already, in the simulator's tuning step, so the repeat is left off paper. */}
                     <ModuleMotorAnimation className="print:hidden" />
                     <ul className="mt-1 list-disc space-y-1 pl-5">
