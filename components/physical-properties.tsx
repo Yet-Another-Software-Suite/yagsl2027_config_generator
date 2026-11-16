@@ -1,6 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
+import { Info, TriangleAlert } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
@@ -88,7 +91,7 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
           <div className="space-y-2">
             <Label htmlFor="module-type">Module Type</Label>
             <Select value={moduleType?.id ?? CUSTOM} onValueChange={pickModuleType}>
-              <SelectTrigger id="module-type" className="w-full">
+              <SelectTrigger id="module-type" className="w-full" aria-describedby="module-type-description">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -116,7 +119,7 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
               onValueChange={pickModuleConfiguration}
               disabled={!moduleType}
             >
-              <SelectTrigger id="module-configuration" className="w-full">
+              <SelectTrigger id="module-configuration" className="w-full" aria-describedby="module-type-description">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -132,17 +135,48 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
             </Select>
           </div>
         </div>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The module type fills in the wheel diameter and angle gear ratio below, and its configuration the drive gear
-          ratio. Measure your wheels: worn tread is smaller than the nominal diameter.
-        </p>
-        {moduleType && (
-          <p className="mt-1 text-sm text-muted-foreground">
-            {moduleType.inversion === undefined
-              ? `Picking ${moduleType.vendor} ${moduleType.name} leaves each module's inversions as they are: work them out with the Quick Start Guide.`
-              : `Picking ${moduleType.vendor} ${moduleType.name} turns Invert Angle ${moduleType.inversion.angleMotor ? "on" : "off"} and Invert Encoder ${moduleType.inversion.absoluteEncoder ? "on" : "off"} for every module, as ${moduleType.inversion.source} has them. Check them with the Quick Start Guide.`}
+        <div id="module-type-description" className="mt-2 max-w-prose space-y-3">
+          <p className="text-sm text-muted-foreground">
+            The module type fills in the wheel diameter and angle gear ratio below, and its configuration the drive gear
+            ratio. Measure your wheels: worn tread is smaller than the nominal diameter.
           </p>
-        )}
+          {moduleType && (
+            <Alert role="status">
+              {moduleType.inversion === undefined ? <TriangleAlert /> : <Info />}
+              <AlertTitle>
+                {moduleType.inversion === undefined ? "Inversions not set automatically" : "Inversions set automatically"}
+              </AlertTitle>
+              <AlertDescription>
+                {moduleType.inversion !== undefined && (
+                  <dl className="my-1 grid w-fit grid-cols-[auto_auto] gap-x-6 gap-y-0.5">
+                    <dt>Invert Angle</dt>
+                    <dd className="font-medium text-foreground">{moduleType.inversion.angleMotor ? "On" : "Off"}</dd>
+                    <dt>Invert Encoder</dt>
+                    <dd className="font-medium text-foreground">
+                      {moduleType.inversion.absoluteEncoder ? "On" : "Off"}
+                    </dd>
+                  </dl>
+                )}
+                <p>
+                  {moduleType.inversion === undefined
+                    ? "Set Invert Angle and Invert Encoder on each module yourself, using the"
+                    : "Applied to every module. Check them in the"}{" "}
+                  {/* A new tab, since the form isn't saved anywhere and leaving the page would lose it. */}
+                  <Link
+                    href="/guide#align"
+                    target="_blank"
+                    rel="noopener"
+                    className="text-foreground underline underline-offset-4"
+                  >
+                    Quick Start Guide&apos;s Align step
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </Link>
+                  .
+                </p>
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
       </div>
 
       <Separator />
