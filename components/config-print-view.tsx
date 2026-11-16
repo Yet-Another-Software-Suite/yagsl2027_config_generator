@@ -209,7 +209,10 @@ export function ConfigPrintView({ config }: { config: ConfigData }) {
           </p>
         ) : (
           <>
-            {!config.swervedrive.gyro.type.endsWith("_internal") && (
+            {config.swervedrive.gyro.type.endsWith("_usb") && (
+              <InlineFields fields={[{ label: "USB port", value: `USB${config.swervedrive.gyro.channel ?? 0}` }]} />
+            )}
+            {!config.swervedrive.gyro.type.endsWith("_internal") && !config.swervedrive.gyro.type.endsWith("_usb") && (
               <>
                 <InlineFields fields={[{ label: "CAN ID", value: config.swervedrive.gyro.id }]} />
                 <LongField label="CAN bus" {...canbusField(config.swervedrive.gyro.canbus)} />

@@ -148,12 +148,13 @@ export function switchEncoderConnection(encoderType: string, connection: string)
   return options.find((type) => splitEncoderType(type).encoder === encoder) ?? options[0]
 }
 
-export const GYRO_TYPES = ["navx3_can", "pigeon2_can", "canandgyro_can", "systemcore_internal", "custom"]
+export const GYRO_TYPES = ["navx3_can", "pigeon2_can", "canandgyro_can", "navx3_usb", "systemcore_internal", "custom"]
 
 // A gyro type is "<gyro>_<connection>", or "custom" for a gyro the robot code supplies. The form picks the connection,
 // then the gyro; both lists come from GYRO_TYPES.
 export const GYRO_CONNECTIONS = [
   { id: "can", name: "CAN" },
+  { id: "usb", name: "USB" },
   { id: "internal", name: "SystemCore" },
   { id: "custom", name: "Custom" },
 ]
@@ -162,6 +163,7 @@ const GYRO_NAMES: Record<string, string> = {
   navx3_can: "Studica NavX3",
   pigeon2_can: "CTRE Pigeon 2.0",
   canandgyro_can: "Redux Canandgyro",
+  navx3_usb: "Studica NavX3",
   systemcore_internal: "SystemCore built-in IMU",
   custom: "Your own gyro, set in code",
 }
@@ -175,6 +177,9 @@ export function gyroConnection(gyroType: string) {
 export function gyrosFor(connection: string) {
   return GYRO_TYPES.filter((type) => gyroConnection(type) === connection)
 }
+
+/** Systemcore USB ports a USB gyro can plug into: its channel, 0 for USB0. */
+export const USB_PORTS = [0, 1, 2, 3]
 
 export const gyroName = (gyroType: string) => GYRO_NAMES[gyroType] ?? gyroType
 

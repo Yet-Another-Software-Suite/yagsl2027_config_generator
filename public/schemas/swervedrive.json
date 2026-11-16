@@ -9,6 +9,7 @@
         "type": {
           "enum": [
             "navx3_can",
+            "navx3_usb",
             "pigeon2_can",
             "canandgyro_can",
             "systemcore_internal",
@@ -24,6 +25,12 @@
         "canbus": {
           "type": "string",
           "description": "Name of the CAN bus that the Gyroscope is connected to. \"\" for the default CAN bus. Ignored when type is \"custom\"."
+        },
+        "channel": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3,
+          "description": "Systemcore USB port of a USB gyroscope (navx3_usb): 0 for USB0 to 3 for USB3. Defaults to 0. Ignored by other gyroscopes."
         }
       },
       "required": [

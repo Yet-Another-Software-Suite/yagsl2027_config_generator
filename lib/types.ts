@@ -2,6 +2,8 @@ export interface GyroConfig {
   type: string
   id: number
   canbus: string
+  /** Systemcore USB port of a USB gyro (navx3_usb), 0 for USB0. Only written for a USB gyro. */
+  channel?: number
 }
 
 export interface SwervedriveConfig {

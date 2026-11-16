@@ -12,6 +12,7 @@ import {
   GYRO_CONNECTIONS,
   canbusError,
   canbusPlaceholder,
+  USB_PORTS,
   gyroConnection,
   gyroName,
   gyrosFor,
@@ -25,9 +26,17 @@ interface GyroConfigProps {
 
 export function GyroConfig({ config, onChange }: GyroConfigProps) {
   const isCustom = config.gyro.type === "custom"
-  const setGyroType = (type: string) => onChange({ ...config, gyro: { ...config.gyro, type: type as any } })
+  // A USB gyro's channel is its USB port; other gyros don't have one.
+  const setGyroType = (type: string) => {
+    const { channel, ...gyro } = config.gyro
+    onChange({
+      ...config,
+      gyro: gyroConnection(type) === "usb" ? { ...gyro, type, channel: channel ?? 0 } : { ...gyro, type },
+    })
+  }
   // Internal gyros (e.g. the Systemcore's onboard IMU) aren't on CAN, so YAGSL ignores the ID and bus.
-  const usesCan = !isCustom && !config.gyro.type.endsWith("_internal")
+  const usesUsb = gyroConnection(config.gyro.type) === "usb"
+  const usesCan = !isCustom && !usesUsb && !config.gyro.type.endsWith("_internal")
   const gyroCanbusError = canbusError(config.gyro.type, config.gyro.canbus)
   // Recommend calibrating the gyro when its heading is read from another axis.
   const offYaw = !isCustom && config.gyroAxis !== "yaw"
@@ -72,6 +81,27 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
               </SelectContent>
             </Select>
           </div>
+
+          {usesUsb && (
+            <div className="space-y-2">
+              <Label htmlFor="gyro-usb-port">USB Port</Label>
+              <Select
+                value={String(config.gyro.channel ?? 0)}
+                onValueChange={(port) => onChange({ ...config, gyro: { ...config.gyro, channel: Number(port) } })}
+              >
+                <SelectTrigger id="gyro-usb-port" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {USB_PORTS.map((port) => (
+                    <SelectItem key={port} value={String(port)}>
+                      USB{port}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {usesCan && (
             <>
