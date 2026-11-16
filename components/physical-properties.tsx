@@ -140,7 +140,7 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
           <p className="mt-1 text-sm text-muted-foreground">
             {moduleType.inversion === undefined
               ? `Picking ${moduleType.vendor} ${moduleType.name} leaves each module's inversions as they are: work them out with the Quick Start Guide.`
-              : `Picking ${moduleType.vendor} ${moduleType.name} turns Invert Angle ${moduleType.inversion.angleMotor ? "on" : "off"} and Invert Encoder ${moduleType.inversion.absoluteEncoder ? "on" : "off"} for every module, as ${moduleType.vendor}'s own code has them. Check them with the Quick Start Guide.`}
+              : `Picking ${moduleType.vendor} ${moduleType.name} turns Invert Angle ${moduleType.inversion.angleMotor ? "on" : "off"} and Invert Encoder ${moduleType.inversion.absoluteEncoder ? "on" : "off"} for every module, as ${moduleType.inversion.source} has them. Check them with the Quick Start Guide.`}
           </p>
         )}
       </div>

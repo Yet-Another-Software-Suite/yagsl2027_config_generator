@@ -37,8 +37,12 @@ export interface ModuleType {
    *   opposite direction of the steering motor", and not the motor.
    * - REV EasySwerve: REV's EasySwerve template inverts neither, since "the output shaft rotates in the same direction
    *   as the steering motor".
+   * - SDS MK4n, MK4c, MK5i and MK5n, WCP Swerve X, Swerve X Flipped and Swerve X2S/X2St: what CTRE's Tuner X swerve
+   *   generator writes, read from teams' public generated TunerConstants (9 to 12 files each, 1 for the MK4c). The
+   *   same sampling gives the MK4 and MK4i the values SDS's library has. The Swerve X2/X2i/X2t is left out: its files
+   *   are split, as the standard and inverted modules share a steering ratio.
    */
-  inversion?: { angleMotor: boolean; absoluteEncoder: boolean }
+  inversion?: { angleMotor: boolean; absoluteEncoder: boolean; source: string }
   configurations: ModuleConfiguration[]
 }
 
@@ -74,15 +78,15 @@ function wcpRatios(sets: [string, number[], (pinion: number) => number][]): Modu
 }
 
 export const MODULE_TYPES: ModuleType[] = [
-  { id: "sds-mk4", inversion: { angleMotor: false, absoluteEncoder: false }, vendor: "SDS", name: "MK4", wheelDiameter: 4, angleGearRatio: 12.8, configurations: [...MK4_L, MK4_L4] },
-  { id: "sds-mk4i", inversion: { angleMotor: true, absoluteEncoder: false }, vendor: "SDS", name: "MK4i", wheelDiameter: 4, angleGearRatio: 150 / 7, configurations: MK4_L },
-  { id: "sds-mk4n", vendor: "SDS", name: "MK4n", wheelDiameter: 4, angleGearRatio: 18.75, configurations: MK4_L_PLUS },
-  { id: "sds-mk4c", vendor: "SDS", name: "MK4c", wheelDiameter: 4, angleGearRatio: 12.8, configurations: MK4_L_PLUS },
-  { id: "sds-mk5i", vendor: "SDS", name: "MK5i", wheelDiameter: 4, angleGearRatio: 26, configurations: MK5_R },
-  { id: "sds-mk5n", vendor: "SDS", name: "MK5n", wheelDiameter: 4, angleGearRatio: 287 / 11, configurations: MK5_R },
+  { id: "sds-mk4", inversion: { angleMotor: false, absoluteEncoder: false, source: "the vendor's own code" }, vendor: "SDS", name: "MK4", wheelDiameter: 4, angleGearRatio: 12.8, configurations: [...MK4_L, MK4_L4] },
+  { id: "sds-mk4i", inversion: { angleMotor: true, absoluteEncoder: false, source: "the vendor's own code" }, vendor: "SDS", name: "MK4i", wheelDiameter: 4, angleGearRatio: 150 / 7, configurations: MK4_L },
+  { id: "sds-mk4n", inversion: { angleMotor: true, absoluteEncoder: false, source: "CTRE's swerve generator" }, vendor: "SDS", name: "MK4n", wheelDiameter: 4, angleGearRatio: 18.75, configurations: MK4_L_PLUS },
+  { id: "sds-mk4c", inversion: { angleMotor: false, absoluteEncoder: false, source: "CTRE's swerve generator" }, vendor: "SDS", name: "MK4c", wheelDiameter: 4, angleGearRatio: 12.8, configurations: MK4_L_PLUS },
+  { id: "sds-mk5i", inversion: { angleMotor: false, absoluteEncoder: false, source: "CTRE's swerve generator" }, vendor: "SDS", name: "MK5i", wheelDiameter: 4, angleGearRatio: 26, configurations: MK5_R },
+  { id: "sds-mk5n", inversion: { angleMotor: false, absoluteEncoder: false, source: "CTRE's swerve generator" }, vendor: "SDS", name: "MK5n", wheelDiameter: 4, angleGearRatio: 287 / 11, configurations: MK5_R },
   {
     id: "rev-maxswerve",
-    inversion: { angleMotor: false, absoluteEncoder: true },
+    inversion: { angleMotor: false, absoluteEncoder: true, source: "the vendor's own code" },
     vendor: "REV",
     name: "MAXSwerve",
     wheelDiameter: 3,
@@ -100,7 +104,7 @@ export const MODULE_TYPES: ModuleType[] = [
   },
   {
     id: "rev-easyswerve",
-    inversion: { angleMotor: false, absoluteEncoder: false },
+    inversion: { angleMotor: false, absoluteEncoder: false, source: "the vendor's own code" },
     vendor: "REV",
     name: "EasySwerve",
     wheelDiameter: 4,
@@ -109,7 +113,7 @@ export const MODULE_TYPES: ModuleType[] = [
   },
   {
     id: "rev-easyswerve-spiky",
-    inversion: { angleMotor: false, absoluteEncoder: false },
+    inversion: { angleMotor: false, absoluteEncoder: false, source: "the vendor's own code" },
     vendor: "REV",
     name: "EasySwerve, Spiky Wheel",
     wheelDiameter: 3.66,
@@ -147,6 +151,7 @@ export const MODULE_TYPES: ModuleType[] = [
   },
   {
     id: "wcp-swerve-x2s",
+    inversion: { angleMotor: false, absoluteEncoder: true, source: "CTRE's swerve generator" },
     vendor: "WCP",
     name: "Swerve X2S / X2St",
     wheelDiameter: 3.5,
@@ -159,6 +164,7 @@ export const MODULE_TYPES: ModuleType[] = [
   },
   {
     id: "wcp-swerve-x",
+    inversion: { angleMotor: true, absoluteEncoder: false, source: "CTRE's swerve generator" },
     vendor: "WCP",
     name: "Swerve X",
     wheelDiameter: 4,
@@ -171,6 +177,7 @@ export const MODULE_TYPES: ModuleType[] = [
   },
   {
     id: "wcp-swerve-x-flipped",
+    inversion: { angleMotor: true, absoluteEncoder: false, source: "CTRE's swerve generator" },
     vendor: "WCP",
     name: "Swerve X Flipped",
     wheelDiameter: 4,
