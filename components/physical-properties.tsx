@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
@@ -13,7 +14,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import type { PhysicalPropertiesConfig } from "@/lib/types"
-import { MODULE_PRESETS, findModulePreset, matchModulePreset } from "@/lib/module-presets"
+import {
+  MODULE_TYPES,
+  MODULE_VENDORS,
+  findModuleType,
+  fitsModuleType,
+  matchModuleConfiguration,
+  matchModuleType,
+} from "@/lib/module-presets"
 
 const CUSTOM = "custom"
 
@@ -23,23 +31,41 @@ interface PhysicalPropertiesProps {
 }
 
 export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps) {
-  const matched = matchModulePreset(
-    config.gearing.drive.gearRatio,
-    config.gearing.drive.diameter,
-    config.gearing.angle.gearRatio,
-  )
+  const { drive, angle } = config.gearing
+  // The module type picked last, while the values still fit it: MK4 and MK4c, for example, share their wheel and
+  // angle gear ratio, so the values alone can't always tell them apart.
+  const [pickedTypeId, setPickedTypeId] = useState<string>()
+  const picked = findModuleType(pickedTypeId)
+  const moduleType =
+    picked && fitsModuleType(picked, drive.diameter, angle.gearRatio)
+      ? picked
+      : matchModuleType(drive.gearRatio, drive.diameter, angle.gearRatio)
+  const moduleConfiguration = moduleType && matchModuleConfiguration(moduleType, drive.gearRatio)
 
-  const applyPreset = (id: string) => {
-    const preset = findModulePreset(id)
-    if (!preset) return
+  const setGearing = (driveGearRatio: number, wheelDiameter: number, angleGearRatio: number) =>
     onChange({
       ...config,
       gearing: {
         ...config.gearing,
-        drive: { ...config.gearing.drive, gearRatio: preset.driveGearRatio, diameter: preset.wheelDiameter },
-        angle: { ...config.gearing.angle, gearRatio: preset.angleGearRatio },
+        drive: { ...drive, gearRatio: driveGearRatio, diameter: wheelDiameter },
+        angle: { ...angle, gearRatio: angleGearRatio },
       },
     })
+
+  const pickModuleType = (id: string) => {
+    const type = findModuleType(id)
+    if (!type) return
+    setPickedTypeId(id)
+    // Keep the drive gear ratio if it's one of this module's configurations, else start from its first one.
+    const driveGearRatio = matchModuleConfiguration(type, drive.gearRatio)?.driveGearRatio
+      ?? type.configurations[0].driveGearRatio
+    setGearing(driveGearRatio, type.wheelDiameter, type.angleGearRatio)
+  }
+
+  const pickModuleConfiguration = (id: string) => {
+    const configuration = moduleType?.configurations.find((c) => c.id === id)
+    if (!moduleType || !configuration) return
+    setGearing(configuration.driveGearRatio, moduleType.wheelDiameter, moduleType.angleGearRatio)
   }
 
   return (
@@ -47,31 +73,58 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
       <h3 className="text-lg font-semibold">Physical Properties</h3>
 
       {/* Module preset */}
-      <div className="space-y-2">
-        <Label htmlFor="module-preset">Swerve Module</Label>
-        <Select value={matched?.id ?? CUSTOM} onValueChange={applyPreset}>
-          <SelectTrigger id="module-preset" className="md:w-1/2">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={CUSTOM} disabled>
-              Custom
-            </SelectItem>
-            {MODULE_PRESETS.map((group) => (
-              <SelectGroup key={group.vendor}>
-                <SelectLabel>{group.vendor}</SelectLabel>
-                {group.presets.map((preset) => (
-                  <SelectItem key={preset.id} value={preset.id}>
-                    {preset.name}
+      <div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="module-type">Module Type</Label>
+            <Select value={moduleType?.id ?? CUSTOM} onValueChange={pickModuleType}>
+              <SelectTrigger id="module-type" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={CUSTOM} disabled>
+                  Custom
+                </SelectItem>
+                {MODULE_VENDORS.map((vendor) => (
+                  <SelectGroup key={vendor}>
+                    <SelectLabel>{vendor}</SelectLabel>
+                    {MODULE_TYPES.filter((type) => type.vendor === vendor).map((type) => (
+                      <SelectItem key={type.id} value={type.id}>
+                        {type.vendor} {type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="module-configuration">Module Configuration</Label>
+            <Select
+              value={moduleConfiguration?.id ?? CUSTOM}
+              onValueChange={pickModuleConfiguration}
+              disabled={!moduleType}
+            >
+              <SelectTrigger id="module-configuration" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={CUSTOM} disabled>
+                  Custom
+                </SelectItem>
+                {moduleType?.configurations.map((configuration) => (
+                  <SelectItem key={configuration.id} value={configuration.id}>
+                    {configuration.name}
                   </SelectItem>
                 ))}
-              </SelectGroup>
-            ))}
-          </SelectContent>
-        </Select>
-        <p className="text-sm text-muted-foreground">
-          Fills in the drive gear ratio, wheel diameter and angle gear ratio below. Measure your wheels: worn tread is
-          smaller than the nominal diameter.
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">
+          The module type fills in the wheel diameter and angle gear ratio below, and its configuration the drive gear
+          ratio. Measure your wheels: worn tread is smaller than the nominal diameter.
         </p>
       </div>
 
