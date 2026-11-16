@@ -17,7 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import {
   ChevronLeft,
   ChevronRight,
@@ -28,6 +28,7 @@ import {
   SkipForward,
   MessageCircle,
   Settings,
+  ZoomIn,
 } from "lucide-react"
 import { SwerveAlignAnimation } from "@/components/swerve-align-animation"
 import { ModuleLocationDiagram } from "@/components/module-location-diagram"
@@ -131,29 +132,65 @@ function GuideFigure({
   /** The caption for printSrc, when the animation's caption describes more than that one frame. */
   printCaption?: ReactNode
 }) {
-  const image = (
-    <Image
-      src={withBasePath(src)}
-      alt={alt}
-      width={width}
-      height={height}
-      unoptimized
-      // Loaded up front: a lazy image that hasn't been scrolled to prints as an empty box.
-      loading="eager"
-      className={printSrc ? "w-full rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10 print:hidden" : "w-full rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10"}
-    />
-  )
+  const outline = "rounded-lg outline -outline-offset-1 outline-black/10 dark:outline-white/10"
+  const picture = (className: string) => {
+    const image = (
+      <Image
+        src={withBasePath(src)}
+        alt={alt}
+        width={width}
+        height={height}
+        unoptimized
+        // Loaded up front: a lazy image that hasn't been scrolled to prints as an empty box.
+        loading="eager"
+        className={className}
+      />
+    )
+    // An animated GIF keeps playing under reduced motion, so those readers get the still instead.
+    return printSrc ? (
+      <picture>
+        <source media="(prefers-reduced-motion: reduce)" srcSet={withBasePath(printSrc)} />
+        {image}
+      </picture>
+    ) : (
+      image
+    )
+  }
   return (
-    <figure className={small ? "mt-2 max-w-sm" : "mt-2"}>
-      {printSrc ? (
-        // An animated GIF keeps playing under reduced motion, so those readers get the still instead.
-        <picture>
-          <source media="(prefers-reduced-motion: reduce)" srcSet={withBasePath(printSrc)} />
-          {image}
-        </picture>
-      ) : (
-        image
-      )}
+    // Kept small on screen and opened full size on click; paper gets the full width.
+    <figure className={cn("mt-2 print:max-w-none", small ? "max-w-xs" : "max-w-md")}>
+      <Dialog>
+        <DialogTrigger asChild>
+          <button
+            type="button"
+            className={cn(
+              "group relative block w-full cursor-zoom-in rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+              printSrc && "print:hidden",
+            )}
+          >
+            <span className="sr-only">Enlarge image: </span>
+            {picture(`w-full ${outline}`)}
+            <span
+              aria-hidden
+              className="absolute right-1.5 bottom-1.5 rounded-sm bg-black/60 p-1 text-white print:hidden"
+            >
+              <ZoomIn className="size-3.5" strokeWidth={1.5} absoluteStrokeWidth />
+            </span>
+          </button>
+        </DialogTrigger>
+        <DialogContent
+          className="max-w-[calc(100vw-2rem)] gap-2 p-3 pt-10 sm:max-w-[calc(100vw-4rem)] no-print"
+          // A box centered with left: 50% only shrinks to fit half the screen, so it's given the image's own width
+          // (plus its 12px padding and border).
+          style={{ width: `min(${width + 26}px, calc(100vw - 2rem))` }}
+        >
+          <DialogTitle className="sr-only">{alt}</DialogTitle>
+          <div className="max-h-[calc(100vh-7rem)] overflow-auto overscroll-contain">
+            {picture(`h-auto w-full ${outline}`)}
+          </div>
+          {caption && <p className="text-xs text-muted-foreground">{caption}</p>}
+        </DialogContent>
+      </Dialog>
       {printSrc && (
         <Image
           src={withBasePath(printSrc)}
