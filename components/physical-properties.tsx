@@ -18,13 +18,17 @@ import {
 } from "@/components/ui/select"
 import type { PhysicalPropertiesConfig } from "@/lib/types"
 import {
+  type ModuleConfiguration,
+  type ModuleInversion,
   type ModuleType,
   MODULE_TYPES,
   MODULE_VENDORS,
   findModuleType,
+  fitsModuleConfiguration,
   fitsModuleType,
   matchModuleConfiguration,
   matchModuleType,
+  moduleInversion,
 } from "@/lib/module-presets"
 
 const CUSTOM = "custom"
@@ -34,8 +38,8 @@ const onOff = (inverted: boolean | undefined) => (inverted ? "On" : "Off")
 
 interface PhysicalPropertiesProps {
   config: PhysicalPropertiesConfig
-  /** The module type is passed along when the change is the user picking one. */
-  onChange: (config: PhysicalPropertiesConfig, pickedModuleType?: ModuleType) => void
+  /** The picked inversions are passed along when the change is the user picking a module type or configuration. */
+  onChange: (config: PhysicalPropertiesConfig, pickedInversion?: ModuleInversion) => void
 }
 
 export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps) {
@@ -48,13 +52,23 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
     picked && fitsModuleType(picked, drive.diameter, angle.gearRatio)
       ? picked
       : matchModuleType(drive.gearRatio, drive.diameter, angle.gearRatio)
-  const moduleConfiguration = moduleType && matchModuleConfiguration(moduleType, drive.gearRatio)
+  // Likewise the configuration picked last: the EasySwerve's motor mountings share a drive gear ratio.
+  const [pickedConfigurationId, setPickedConfigurationId] = useState<string>()
+  // The configuration of this module type picked last, if it still fits the drive gear ratio, else the one that does.
+  const configurationFor = (type: ModuleType): ModuleConfiguration | undefined => {
+    const picked = type.configurations.find((c) => c.id === pickedConfigurationId)
+    return picked && fitsModuleConfiguration(picked, drive.gearRatio)
+      ? picked
+      : matchModuleConfiguration(type, drive.gearRatio)
+  }
+  const moduleConfiguration = moduleType && configurationFor(moduleType)
+  const inversion = moduleType && moduleInversion(moduleType, moduleConfiguration)
 
   const setGearing = (
     driveGearRatio: number,
     wheelDiameter: number,
     angleGearRatio: number,
-    pickedModuleType?: ModuleType,
+    pickedInversion?: ModuleInversion,
   ) =>
     onChange(
       {
@@ -65,23 +79,29 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
           angle: { ...angle, gearRatio: angleGearRatio },
         },
       },
-      pickedModuleType,
+      pickedInversion,
     )
 
   const pickModuleType = (id: string) => {
     const type = findModuleType(id)
     if (!type) return
     setPickedTypeId(id)
-    // Keep the drive gear ratio if it's one of this module's configurations, else start from its first one.
-    const driveGearRatio = matchModuleConfiguration(type, drive.gearRatio)?.driveGearRatio
-      ?? type.configurations[0].driveGearRatio
-    setGearing(driveGearRatio, type.wheelDiameter, type.angleGearRatio, type)
+    // Keep the configuration if this module type has it, else start from its first one.
+    const configuration = configurationFor(type) ?? type.configurations[0]
+    setPickedConfigurationId(configuration.id)
+    setGearing(configuration.driveGearRatio, type.wheelDiameter, type.angleGearRatio, moduleInversion(type, configuration))
   }
 
   const pickModuleConfiguration = (id: string) => {
     const configuration = moduleType?.configurations.find((c) => c.id === id)
     if (!moduleType || !configuration) return
-    setGearing(configuration.driveGearRatio, moduleType.wheelDiameter, moduleType.angleGearRatio)
+    setPickedConfigurationId(id)
+    setGearing(
+      configuration.driveGearRatio,
+      moduleType.wheelDiameter,
+      moduleType.angleGearRatio,
+      moduleInversion(moduleType, configuration),
+    )
   }
 
   return (
@@ -145,23 +165,25 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
           </p>
           {moduleType && (
             <Alert role="status">
-              {moduleType.inversion === undefined ? <TriangleAlert /> : <Info />}
+              {moduleType.inversion === undefined && !moduleConfiguration?.inversion ? <TriangleAlert /> : <Info />}
               <AlertTitle>
-                {moduleType.inversion === undefined ? "Inversions not set automatically" : "Inversions set automatically"}
+                {moduleType.inversion === undefined && !moduleConfiguration?.inversion
+                  ? "Inversions not set automatically"
+                  : "Inversions set automatically"}
               </AlertTitle>
               <AlertDescription>
-                {moduleType.inversion !== undefined && (
+                {inversion && (moduleType.inversion !== undefined || moduleConfiguration?.inversion) && (
                   <dl className="my-1 grid w-fit grid-cols-[auto_auto] gap-x-6 gap-y-0.5">
                     <dt>Invert Drive</dt>
-                    <dd className="font-medium text-foreground">{onOff(moduleType.inversion.driveMotor)}</dd>
+                    <dd className="font-medium text-foreground">{onOff(inversion.driveMotor)}</dd>
                     <dt>Invert Angle</dt>
-                    <dd className="font-medium text-foreground">{onOff(moduleType.inversion.angleMotor)}</dd>
+                    <dd className="font-medium text-foreground">{onOff(inversion.angleMotor)}</dd>
                     <dt>Invert Encoder</dt>
-                    <dd className="font-medium text-foreground">{onOff(moduleType.inversion.absoluteEncoder)}</dd>
+                    <dd className="font-medium text-foreground">{onOff(inversion.absoluteEncoder)}</dd>
                   </dl>
                 )}
                 <p>
-                  {moduleType.inversion === undefined
+                  {moduleType.inversion === undefined && !moduleConfiguration?.inversion
                     ? "None are known for this module type, so Invert Drive, Invert Angle and Invert Encoder are turned off. Set them yourself, using the"
                     : "Applied to every module. Check them in the"}{" "}
                   {/* A new tab, since the form isn't saved anywhere and leaving the page would lose it. */}

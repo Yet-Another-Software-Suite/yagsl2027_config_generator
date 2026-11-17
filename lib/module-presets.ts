@@ -12,11 +12,20 @@
 // - WCP: WCP's ratio tables (docs.wcproducts.com), each from its tooth counts.
 // YAGSL's docs list the same values on the Standard Conversion Factors page; keep the two the same.
 
+/** The inversions a module type or configuration sets on every module when picked; any left out are turned off. */
+export interface ModuleInversion {
+  angleMotor?: boolean
+  absoluteEncoder?: boolean
+  driveMotor?: boolean
+}
+
 export interface ModuleConfiguration {
   /** Unique within its module type, also the select value. */
   id: string
   name: string
   driveGearRatio: number
+  /** Inversions this configuration changes from its module type's, such as where the motors are mounted. */
+  inversion?: ModuleInversion
 }
 
 export interface ModuleType {
@@ -47,8 +56,10 @@ export interface ModuleType {
    *   generator doesn't cover.
    * - REV MAXSwerve: REV's MAXSwerve template inverts the turning encoder, "since the output shaft rotates in the
    *   opposite direction of the steering motor", and not the motor.
-   * - REV EasySwerve: REV's EasySwerve template inverts neither, since "the output shaft rotates in the same direction
-   *   as the steering motor".
+   * - REV EasySwerve: REV's EasySwerve template doesn't invert the turning encoder, since "the output shaft rotates in
+   *   the same direction as the steering motor". The motors can go on the top or bottom of the module, and the template
+   *   inverts the drive motor when it's on the bottom and the turning motor when it's on top. So its configurations
+   *   are Motors on bottom (drive inverted) and Motors on top (angle motor inverted).
    * - SDS MK4n, MK4c, MK5i and MK5n, WCP Swerve X, Swerve X Flipped and Swerve X2S/X2St: what CTRE's Tuner X swerve
    *   generator writes, read from teams' public generated TunerConstants (9 to 12 files each, 1 for the MK4c). The
    *   same sampling gives the MK4 and MK4i the values SDS's library has.
@@ -56,7 +67,7 @@ export interface ModuleType {
    *   CTRE's swerve generator, invert the steer motor. The standard X2 and the X2t share their steering ratio and
    *   aren't named in any generated code found, so they set no angle or encoder inversion.
    */
-  inversion?: { angleMotor?: boolean; absoluteEncoder?: boolean; driveMotor?: boolean; source: string }
+  inversion?: ModuleInversion & { source: string }
   configurations: ModuleConfiguration[]
 }
 
@@ -81,8 +92,13 @@ const MK4_L_PLUS = [
 ]
 const MK5_R = [config("r1", "R1", 7.03), config("r2", "R2", 6.03), config("r3", "R3", 5.27)]
 
-// REV EasySwerve: one drive gearing, from REV's EasySwerve docs; 18.79 ft/s with a NEO Vortex on the 4in wheel.
-const EASYSWERVE = [config("standard", "Standard (6.3:1)", 6.3)]
+// REV EasySwerve: one drive gearing, from REV's EasySwerve docs; 18.79 ft/s with a NEO Vortex on the 4in wheel. The
+// motors can be mounted on the bottom or the top of the module, which changes which of them is inverted, so those are
+// its configurations. Both have the same drive gear ratio.
+const EASYSWERVE: ModuleConfiguration[] = [
+  { ...config("motors-bottom", "Motors on bottom (6.3:1)", 6.3), inversion: { driveMotor: true, angleMotor: false } },
+  { ...config("motors-top", "Motors on top (6.3:1)", 6.3), inversion: { driveMotor: false, angleMotor: true } },
+]
 
 /** WCP names a ratio by its ratio set and pinion: X2-11 is the X2 set with the 11T pinion. */
 function wcpRatios(sets: [string, number[], (pinion: number) => number][]): ModuleConfiguration[] {
@@ -126,7 +142,7 @@ export const MODULE_TYPES: ModuleType[] = [
   },
   {
     id: "rev-easyswerve",
-    inversion: { angleMotor: false, absoluteEncoder: false, source: "the vendor's own code" },
+    inversion: { absoluteEncoder: false, source: "the vendor's own code" },
     vendor: "REV",
     name: "EasySwerve",
     wheelDiameter: 4,
@@ -135,7 +151,7 @@ export const MODULE_TYPES: ModuleType[] = [
   },
   {
     id: "rev-easyswerve-spiky",
-    inversion: { angleMotor: false, absoluteEncoder: false, source: "the vendor's own code" },
+    inversion: { absoluteEncoder: false, source: "the vendor's own code" },
     vendor: "REV",
     name: "EasySwerve, Spiky Wheel",
     wheelDiameter: 3.66,
@@ -243,7 +259,8 @@ export const MODULE_TYPES: ModuleType[] = [
 export const MODULE_VENDORS = [...new Set(MODULE_TYPES.map((t) => t.vendor))]
 
 // Within the vendors' rounding, so a config with SDS's 6.75 still matches L2's 6.746. No two configurations of one
-// module type are closer than 0.014 apart, and no two angle gear ratios closer than 0.09.
+// module type are closer than 0.014 apart, except the EasySwerve's two motor mountings, which share a ratio (the first
+// matches), and no two angle gear ratios closer than 0.09.
 const close = (a: number, b: number) => Math.abs(a - b) <= 0.005
 
 export function findModuleType(id: string | undefined): ModuleType | undefined {
@@ -258,6 +275,16 @@ export function fitsModuleType(type: ModuleType, wheelDiameter: number, angleGea
 /** The module type's configuration with this drive gear ratio, if any. */
 export function matchModuleConfiguration(type: ModuleType, driveGearRatio: number) {
   return type.configurations.find((c) => close(c.driveGearRatio, driveGearRatio))
+}
+
+/** Whether this drive gear ratio is the configuration's. */
+export function fitsModuleConfiguration(configuration: ModuleConfiguration, driveGearRatio: number) {
+  return close(configuration.driveGearRatio, driveGearRatio)
+}
+
+/** The inversions picking this module type and configuration sets: the type's, with the configuration's on top. */
+export function moduleInversion(type: ModuleType, configuration?: ModuleConfiguration): ModuleInversion {
+  return { ...type.inversion, ...configuration?.inversion }
 }
 
 /**

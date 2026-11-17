@@ -23,14 +23,14 @@ import { withBasePath } from "@/lib/base-path"
 import { SiteFooter } from "@/components/site-footer"
 import type { ConfigData, ModuleConfigData } from "@/lib/types"
 import { withMotorDefaults } from "@/lib/default-gains"
-import { type ModuleType, findModuleType } from "@/lib/module-presets"
+import { type ModuleInversion, findModuleType, moduleInversion } from "@/lib/module-presets"
 
-/** Every module with the picked module type's angle motor and absolute encoder inversions; unchanged when unknown. */
-function withInversion(modules: ConfigData["modules"], picked: ModuleType | undefined): ConfigData["modules"] {
+/** Every module with the picked module type and configuration's inversions; unchanged when nothing was picked. */
+function withInversion(modules: ConfigData["modules"], picked: ModuleInversion | undefined): ConfigData["modules"] {
   // Only picking a module type sets the inversions; other changes to the properties leave them alone.
   if (!picked) return modules
   // An inversion the module type doesn't give is turned off.
-  const inversion: Partial<NonNullable<ModuleType["inversion"]>> = picked.inversion ?? {}
+  const inversion = picked
   const set = (module: ModuleConfigData) => ({
     ...module,
     inverted: {
@@ -51,6 +51,7 @@ function withInversion(modules: ConfigData["modules"], picked: ModuleType | unde
 // The form starts with an SDS MK4i L2.
 const DEFAULT_MODULE_TYPE = findModuleType("sds-mk4i")!
 const DEFAULT_MODULE_CONFIGURATION = DEFAULT_MODULE_TYPE.configurations.find((c) => c.id === "l2")!
+const DEFAULT_INVERSION = moduleInversion(DEFAULT_MODULE_TYPE, DEFAULT_MODULE_CONFIGURATION)
 
 export default function Home() {
   const { toast } = useToast()
@@ -72,37 +73,37 @@ export default function Home() {
       frontleft: {
         drive: { type: "sparkmax_neo", id: 1, canbus: "" },
         angle: { type: "sparkmax_neo", id: 2, canbus: "" },
-        inverted: { drive: DEFAULT_MODULE_TYPE.inversion?.driveMotor ?? false, angle: DEFAULT_MODULE_TYPE.inversion?.angleMotor ?? false },
+        inverted: { drive: DEFAULT_INVERSION.driveMotor ?? false, angle: DEFAULT_INVERSION.angleMotor ?? false },
         absoluteEncoder: { type: "cancoder_can", id: 3, channel: 0, canbus: "" },
         absoluteEncoderOffset: 0,
-        absoluteEncoderInverted: false,
+        absoluteEncoderInverted: DEFAULT_INVERSION.absoluteEncoder ?? false,
         location: { front: 10, left: 10 },
       },
       frontright: {
         drive: { type: "sparkmax_neo", id: 4, canbus: "" },
         angle: { type: "sparkmax_neo", id: 5, canbus: "" },
-        inverted: { drive: DEFAULT_MODULE_TYPE.inversion?.driveMotor ?? false, angle: DEFAULT_MODULE_TYPE.inversion?.angleMotor ?? false },
+        inverted: { drive: DEFAULT_INVERSION.driveMotor ?? false, angle: DEFAULT_INVERSION.angleMotor ?? false },
         absoluteEncoder: { type: "cancoder_can", id: 6, channel: 0, canbus: "" },
         absoluteEncoderOffset: 0,
-        absoluteEncoderInverted: false,
+        absoluteEncoderInverted: DEFAULT_INVERSION.absoluteEncoder ?? false,
         location: { front: 10, left: -10 },
       },
       backleft: {
         drive: { type: "sparkmax_neo", id: 7, canbus: "" },
         angle: { type: "sparkmax_neo", id: 8, canbus: "" },
-        inverted: { drive: DEFAULT_MODULE_TYPE.inversion?.driveMotor ?? false, angle: DEFAULT_MODULE_TYPE.inversion?.angleMotor ?? false },
+        inverted: { drive: DEFAULT_INVERSION.driveMotor ?? false, angle: DEFAULT_INVERSION.angleMotor ?? false },
         absoluteEncoder: { type: "cancoder_can", id: 9, channel: 0, canbus: "" },
         absoluteEncoderOffset: 0,
-        absoluteEncoderInverted: false,
+        absoluteEncoderInverted: DEFAULT_INVERSION.absoluteEncoder ?? false,
         location: { front: -10, left: 10 },
       },
       backright: {
         drive: { type: "sparkmax_neo", id: 10, canbus: "" },
         angle: { type: "sparkmax_neo", id: 11, canbus: "" },
-        inverted: { drive: DEFAULT_MODULE_TYPE.inversion?.driveMotor ?? false, angle: DEFAULT_MODULE_TYPE.inversion?.angleMotor ?? false },
+        inverted: { drive: DEFAULT_INVERSION.driveMotor ?? false, angle: DEFAULT_INVERSION.angleMotor ?? false },
         absoluteEncoder: { type: "cancoder_can", id: 12, channel: 0, canbus: "" },
         absoluteEncoderOffset: 0,
-        absoluteEncoderInverted: false,
+        absoluteEncoderInverted: DEFAULT_INVERSION.absoluteEncoder ?? false,
         location: { front: -10, left: -10 },
       },
     },
@@ -271,14 +272,15 @@ export default function Home() {
               </TabsList>
             </div>
 
-            <TabsContent value="properties">
+            {/* Kept mounted, so it remembers which module type and configuration were picked when values match more than one. */}
+            <TabsContent value="properties" forceMount className="data-[state=inactive]:hidden">
               <PhysicalProperties
                 config={config.physicalproperties}
-                onChange={(updated, pickedModuleType) =>
+                onChange={(updated, pickedInversion) =>
                   setConfig({
                     ...config,
                     physicalproperties: updated,
-                    modules: withInversion(config.modules, pickedModuleType),
+                    modules: withInversion(config.modules, pickedInversion),
                   })
                 }
               />
