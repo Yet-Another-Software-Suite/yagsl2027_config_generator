@@ -31,8 +31,14 @@ export interface ModuleType {
    * The angle motor and absolute encoder inversions the vendor's own code uses for this module, where it publishes
    * any. Picking the module type sets them on every module. Left out where the vendor publishes none: the user works
    * them out with the guide's inversion steps.
+   *
+   * The drive motor inversion is only given where the vendor's code lines its wheels up the way YAGSL's guide does
+   * (facing forward, bevel gears to the robot's left), since lining them up the other way flips it. It's the same on
+   * every module, as they're all lined up the same way. Left out, the drive inversion is left as it is.
    * - SDS MK4 and MK4i: SDS's swerve library (SdsModuleConfigurations), which inverts the MK4i's steer motor and not
-   *   the MK4's, and leaves the CANcoder counterclockwise positive.
+   *   the MK4's, leaves the CANcoder counterclockwise positive, and inverts the drive motor on both (clockwise
+   *   positive). Its template lines the wheels up with "the bevel gear on the sides of each wheel ... pointing to the
+   *   robot's left".
    * - REV MAXSwerve: REV's MAXSwerve template inverts the turning encoder, "since the output shaft rotates in the
    *   opposite direction of the steering motor", and not the motor.
    * - REV EasySwerve: REV's EasySwerve template inverts neither, since "the output shaft rotates in the same direction
@@ -44,7 +50,7 @@ export interface ModuleType {
    *   CTRE's swerve generator, invert the steer motor. The standard X2 and the X2t share their steering ratio and
    *   aren't named in any generated code found, so they set nothing.
    */
-  inversion?: { angleMotor: boolean; absoluteEncoder: boolean; source: string }
+  inversion?: { angleMotor: boolean; absoluteEncoder: boolean; driveMotor?: boolean; source: string }
   configurations: ModuleConfiguration[]
 }
 
@@ -88,8 +94,8 @@ const WCP_X2_RATIOS = wcpRatios([
 ])
 
 export const MODULE_TYPES: ModuleType[] = [
-  { id: "sds-mk4", inversion: { angleMotor: false, absoluteEncoder: false, source: "the vendor's own code" }, vendor: "SDS", name: "MK4", wheelDiameter: 4, angleGearRatio: 12.8, configurations: [...MK4_L, MK4_L4] },
-  { id: "sds-mk4i", inversion: { angleMotor: true, absoluteEncoder: false, source: "the vendor's own code" }, vendor: "SDS", name: "MK4i", wheelDiameter: 4, angleGearRatio: 150 / 7, configurations: MK4_L },
+  { id: "sds-mk4", inversion: { angleMotor: false, absoluteEncoder: false, driveMotor: true, source: "the vendor's own code" }, vendor: "SDS", name: "MK4", wheelDiameter: 4, angleGearRatio: 12.8, configurations: [...MK4_L, MK4_L4] },
+  { id: "sds-mk4i", inversion: { angleMotor: true, absoluteEncoder: false, driveMotor: true, source: "the vendor's own code" }, vendor: "SDS", name: "MK4i", wheelDiameter: 4, angleGearRatio: 150 / 7, configurations: MK4_L },
   { id: "sds-mk4n", inversion: { angleMotor: true, absoluteEncoder: false, source: "CTRE's swerve generator" }, vendor: "SDS", name: "MK4n", wheelDiameter: 4, angleGearRatio: 18.75, configurations: MK4_L_PLUS },
   { id: "sds-mk4c", inversion: { angleMotor: false, absoluteEncoder: false, source: "CTRE's swerve generator" }, vendor: "SDS", name: "MK4c", wheelDiameter: 4, angleGearRatio: 12.8, configurations: MK4_L_PLUS },
   { id: "sds-mk5i", inversion: { angleMotor: false, absoluteEncoder: false, source: "CTRE's swerve generator" }, vendor: "SDS", name: "MK5i", wheelDiameter: 4, angleGearRatio: 26, configurations: MK5_R },

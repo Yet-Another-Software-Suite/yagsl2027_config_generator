@@ -155,12 +155,22 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
                     <dd className="font-medium text-foreground">
                       {moduleType.inversion.absoluteEncoder ? "On" : "Off"}
                     </dd>
+                    <dt>Invert Drive</dt>
+                    <dd className="font-medium text-foreground">
+                      {moduleType.inversion.driveMotor === undefined
+                        ? "Not set"
+                        : moduleType.inversion.driveMotor
+                          ? "On"
+                          : "Off"}
+                    </dd>
                   </dl>
                 )}
                 <p>
                   {moduleType.inversion === undefined
-                    ? "Set Invert Angle and Invert Encoder on each module yourself, using the"
-                    : "Applied to every module. Check them in the"}{" "}
+                    ? "Set Invert Angle, Invert Encoder and Invert Drive on each module yourself, using the"
+                    : moduleType.inversion.driveMotor === undefined
+                      ? "Applied to every module. Invert Drive is left as it is, so set it yourself. Check them in the"
+                      : "Applied to every module. Check them in the"}{" "}
                   {/* A new tab, since the form isn't saved anywhere and leaving the page would lose it. */}
                   <Link
                     href="/guide#align"

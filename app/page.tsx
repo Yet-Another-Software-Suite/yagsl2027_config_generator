@@ -30,7 +30,8 @@ function withInversion(modules: ConfigData["modules"], inversion: ModuleType["in
   if (!inversion) return modules
   const set = (module: ModuleConfigData) => ({
     ...module,
-    inverted: { ...module.inverted, angle: inversion.angleMotor },
+    // The drive inversion is only set where the module type gives one; otherwise it's left as it is.
+    inverted: { ...module.inverted, angle: inversion.angleMotor, drive: inversion.driveMotor ?? module.inverted.drive },
     absoluteEncoderInverted: inversion.absoluteEncoder,
   })
   return {
@@ -65,7 +66,7 @@ export default function Home() {
       frontleft: {
         drive: { type: "sparkmax_neo", id: 1, canbus: "" },
         angle: { type: "sparkmax_neo", id: 2, canbus: "" },
-        inverted: { drive: false, angle: DEFAULT_MODULE_TYPE.inversion?.angleMotor ?? false },
+        inverted: { drive: DEFAULT_MODULE_TYPE.inversion?.driveMotor ?? false, angle: DEFAULT_MODULE_TYPE.inversion?.angleMotor ?? false },
         absoluteEncoder: { type: "cancoder_can", id: 3, channel: 0, canbus: "" },
         absoluteEncoderOffset: 0,
         absoluteEncoderInverted: false,
@@ -74,7 +75,7 @@ export default function Home() {
       frontright: {
         drive: { type: "sparkmax_neo", id: 4, canbus: "" },
         angle: { type: "sparkmax_neo", id: 5, canbus: "" },
-        inverted: { drive: false, angle: DEFAULT_MODULE_TYPE.inversion?.angleMotor ?? false },
+        inverted: { drive: DEFAULT_MODULE_TYPE.inversion?.driveMotor ?? false, angle: DEFAULT_MODULE_TYPE.inversion?.angleMotor ?? false },
         absoluteEncoder: { type: "cancoder_can", id: 6, channel: 0, canbus: "" },
         absoluteEncoderOffset: 0,
         absoluteEncoderInverted: false,
@@ -83,7 +84,7 @@ export default function Home() {
       backleft: {
         drive: { type: "sparkmax_neo", id: 7, canbus: "" },
         angle: { type: "sparkmax_neo", id: 8, canbus: "" },
-        inverted: { drive: false, angle: DEFAULT_MODULE_TYPE.inversion?.angleMotor ?? false },
+        inverted: { drive: DEFAULT_MODULE_TYPE.inversion?.driveMotor ?? false, angle: DEFAULT_MODULE_TYPE.inversion?.angleMotor ?? false },
         absoluteEncoder: { type: "cancoder_can", id: 9, channel: 0, canbus: "" },
         absoluteEncoderOffset: 0,
         absoluteEncoderInverted: false,
@@ -92,7 +93,7 @@ export default function Home() {
       backright: {
         drive: { type: "sparkmax_neo", id: 10, canbus: "" },
         angle: { type: "sparkmax_neo", id: 11, canbus: "" },
-        inverted: { drive: false, angle: DEFAULT_MODULE_TYPE.inversion?.angleMotor ?? false },
+        inverted: { drive: DEFAULT_MODULE_TYPE.inversion?.driveMotor ?? false, angle: DEFAULT_MODULE_TYPE.inversion?.angleMotor ?? false },
         absoluteEncoder: { type: "cancoder_can", id: 12, channel: 0, canbus: "" },
         absoluteEncoderOffset: 0,
         absoluteEncoderInverted: false,
