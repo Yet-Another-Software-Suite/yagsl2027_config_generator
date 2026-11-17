@@ -196,18 +196,32 @@ export function isCTRE(deviceType: string) {
 
 // YAGSL reads every device's canbus the same way: empty for the Systemcore CAN bus can_s0, or the bus number, such as
 // "1" for can_s1 ("5" to "24" are the Motioncore CAN buses can_d0 to can_d19). Only CTRE devices take anything else.
+/**
+ * The bus number a canbus names with WPILib's CANPort name, as YAGSL reads it: "CAN_S0" to "CAN_S4" are 0 to 4 and
+ * "CAN_D0" to "CAN_D19" are 5 to 24. Only the exact enum names count, so "can_s1" isn't one.
+ */
+export function canPortNameNumber(canbus: string): string | undefined {
+  const match = /^CAN_(S|D)(\d{1,2})$/.exec(canbus.trim())
+  if (!match) return undefined
+  const n = Number(match[2])
+  if (String(n) !== match[2]) return undefined
+  if (match[1] === "S") return n <= 4 ? String(n) : undefined
+  return n <= 19 ? String(n + 5) : undefined
+}
+
 export function canbusError(deviceType: string, canbus: string): string | null {
   const value = canbus.trim()
   if (value === "") return null
+  if (canPortNameNumber(value) !== undefined) return null
   if (/^\d+$/.test(value)) {
     if (/^0\d/.test(value)) return `Write the bus number without leading zeros, such as "${value.replace(/^0+/, "") || "0"}".`
     if (value.length > 2 || Number(value) > 24) {
-      return `CAN bus ${value} does not exist. The Systemcore CAN buses are 0 to 4 (can_s0 to can_s4).`
+      return `CAN bus ${value} does not exist. The Systemcore CAN buses are 0 to 4 (CAN_S0 to CAN_S4), and the Motioncore ones 5 to 24 (CAN_D0 to CAN_D19).`
     }
     return null
   }
   if (isCTRE(deviceType)) return null
-  return `Use the CAN bus number, such as "1" for can_s1, or leave it empty for can_s0.`
+  return `Use the CAN bus number or its CANPort name, such as "1" or "CAN_S1" for CAN_S1, or leave it empty for CAN_S0.`
 }
 
 // Warns about attached absolute encoders the angle motor controller can't read: the Thrifty 10 pin encoder only

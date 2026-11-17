@@ -12,18 +12,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { canbusError, isCTRE } from "@/lib/config-options"
+import { canPortNameNumber, canbusError, isCTRE } from "@/lib/config-options"
 
 // The select's value for the CANivore option. Bus numbers are digits, so it can't clash with one.
 const CANIVORE = "canivore"
 const DEFAULT = "default"
 
 // YAGSL's canbus values: empty for can_s0, "1" to "4" for can_s1 to can_s4, and "5" to "24" for the Motioncore buses
-// can_d0 to can_d19. Anything else names a CANivore, which only CTRE devices take.
+// can_d0 to can_d19, or those buses' CANPort names, such as "CAN_S1". Anything else names a CANivore, which only CTRE
+// devices take. Picking a bus here saves its number; a name already in an uploaded config is kept until another is picked.
 const SYSTEMCORE = [1, 2, 3, 4].map((n) => ({ value: String(n), label: `CAN_S${n}` }))
 const MOTIONCORE = Array.from({ length: 20 }, (_, n) => ({ value: String(n + 5), label: `CAN_D${n}` }))
 
-const isBusNumber = (canbus: string) => /^\d+$/.test(canbus.trim())
+const isBusNumber = (canbus: string) => /^\d+$/.test(canbus.trim()) || canPortNameNumber(canbus) !== undefined
 
 /** A device's CAN bus: a dropdown of the Systemcore and Motioncore buses, and a CANivore name for CTRE devices. */
 export function CanbusField({
@@ -43,7 +44,8 @@ export function CanbusField({
   const [canivorePicked, setCanivorePicked] = useState(false)
   const value = canbus.trim()
   const canivore = (value !== "" && !isBusNumber(value)) || (canivorePicked && value === "")
-  const selected = canivore ? CANIVORE : value === "" || value === "0" ? DEFAULT : value
+  const bus = canPortNameNumber(value) ?? value
+  const selected = canivore ? CANIVORE : bus === "" || bus === "0" ? DEFAULT : bus
   const error = canbusError(deviceType, canbus)
   const ctre = isCTRE(deviceType)
 
