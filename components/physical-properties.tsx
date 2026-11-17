@@ -186,6 +186,30 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
               </AlertDescription>
             </Alert>
           )}
+          {/* REV zeroes MAXSwerve and EasySwerve modules its own way, which isn't how YAGSL lines the wheels up. */}
+          {moduleType?.vendor === "REV" && (
+            <Alert variant="destructive">
+              <TriangleAlert />
+              <AlertTitle>Don&apos;t use REV&apos;s alignment tool or method</AlertTitle>
+              <AlertDescription>
+                <p>
+                  Don&apos;t zero your {moduleType.name.split(",")[0]}{" "}modules with the alignment tool that comes with them, or with
+                  REV&apos;s zeroing method. YAGSL needs every wheel facing forward with its bevel gear to the
+                  robot&apos;s left, so line them up with the{" "}
+                  <Link
+                    href="/guide#align"
+                    target="_blank"
+                    rel="noopener"
+                    className="text-foreground underline underline-offset-4"
+                  >
+                    Quick Start Guide&apos;s Align step
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </Link>{" "}
+                  instead.
+                </p>
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
       </div>
 

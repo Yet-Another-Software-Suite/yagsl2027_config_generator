@@ -49,7 +49,7 @@ const DEFAULT_MODULE_CONFIGURATION = DEFAULT_MODULE_TYPE.configurations.find((c)
 export default function Home() {
   const { toast } = useToast()
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState("gyro")
+  const [activeTab, setActiveTab] = useState("properties")
 
   const [config, setConfig] = useState<ConfigData>({
     swervedrive: {
@@ -127,7 +127,8 @@ export default function Home() {
     setConfig({ ...config, modules: { ...config.modules, [name]: updated }, pidfproperties })
   }
 
-  const tabs = ["gyro", "frontleft", "frontright", "backleft", "backright", "properties"]
+  // Physical properties first, since picking a module type fills in the modules' inversions; PID/FF last.
+  const tabs = ["properties", "gyro", "frontleft", "frontright", "backleft", "backright", "pidf"]
   const currentTabIndex = tabs.indexOf(activeTab)
   const isFirstTab = currentTabIndex === 0
   const isLastTab = currentTabIndex === tabs.length - 1
@@ -240,6 +241,9 @@ export default function Home() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="mb-6 -mx-4 px-4 overflow-x-auto">
               <TabsList className="inline-flex w-auto min-w-full">
+                <TabsTrigger value="properties" className="whitespace-nowrap">
+                  Properties
+                </TabsTrigger>
                 <TabsTrigger value="gyro" className="whitespace-nowrap">
                   Gyro
                 </TabsTrigger>
@@ -255,11 +259,24 @@ export default function Home() {
                 <TabsTrigger value="backright" className="whitespace-nowrap">
                   Back Right
                 </TabsTrigger>
-                <TabsTrigger value="properties" className="whitespace-nowrap">
-                  Properties
+                <TabsTrigger value="pidf" className="whitespace-nowrap">
+                  PID/FF
                 </TabsTrigger>
               </TabsList>
             </div>
+
+            <TabsContent value="properties">
+              <PhysicalProperties
+                config={config.physicalproperties}
+                onChange={(updated, pickedModuleType) =>
+                  setConfig({
+                    ...config,
+                    physicalproperties: updated,
+                    modules: withInversion(config.modules, pickedModuleType?.inversion),
+                  })
+                }
+              />
+            </TabsContent>
 
             <TabsContent value="gyro">
               <GyroConfig
@@ -300,23 +317,11 @@ export default function Home() {
               />
             </TabsContent>
 
-            <TabsContent value="properties">
-              <div className="space-y-6">
-                <PhysicalProperties
-                  config={config.physicalproperties}
-                  onChange={(updated, pickedModuleType) =>
-                    setConfig({
-                      ...config,
-                      physicalproperties: updated,
-                      modules: withInversion(config.modules, pickedModuleType?.inversion),
-                    })
-                  }
-                />
-                <PIDFProperties
-                  config={config.pidfproperties}
-                  onChange={(updated) => setConfig({ ...config, pidfproperties: updated })}
-                />
-              </div>
+            <TabsContent value="pidf">
+              <PIDFProperties
+                config={config.pidfproperties}
+                onChange={(updated) => setConfig({ ...config, pidfproperties: updated })}
+              />
             </TabsContent>
 
             <div className="flex justify-between items-center gap-4 mt-6 pt-6 border-t border-border no-print">
