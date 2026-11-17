@@ -20,8 +20,8 @@ const DEFAULT = "default"
 
 // YAGSL's canbus values: empty for can_s0, "1" to "4" for can_s1 to can_s4, and "5" to "24" for the Motioncore buses
 // can_d0 to can_d19. Anything else names a CANivore, which only CTRE devices take.
-const SYSTEMCORE = [1, 2, 3, 4].map((n) => ({ value: String(n), label: `can_s${n}` }))
-const MOTIONCORE = Array.from({ length: 20 }, (_, n) => ({ value: String(n + 5), label: `can_d${n}` }))
+const SYSTEMCORE = [1, 2, 3, 4].map((n) => ({ value: String(n), label: `CAN_S${n}` }))
+const MOTIONCORE = Array.from({ length: 20 }, (_, n) => ({ value: String(n + 5), label: `CAN_D${n}` }))
 
 const isBusNumber = (canbus: string) => /^\d+$/.test(canbus.trim())
 
@@ -64,7 +64,7 @@ export function CanbusField({
         <SelectContent>
           <SelectGroup>
             <SelectLabel>Systemcore</SelectLabel>
-            <SelectItem value={DEFAULT}>can_s0 (default)</SelectItem>
+            <SelectItem value={DEFAULT}>CAN_S0 (default)</SelectItem>
             {SYSTEMCORE.map((bus) => (
               <SelectItem key={bus.value} value={bus.value}>
                 {bus.label}
