@@ -26,17 +26,19 @@ import { withMotorDefaults } from "@/lib/default-gains"
 import { type ModuleType, findModuleType } from "@/lib/module-presets"
 
 /** Every module with the picked module type's angle motor and absolute encoder inversions; unchanged when unknown. */
-function withInversion(modules: ConfigData["modules"], inversion: ModuleType["inversion"]): ConfigData["modules"] {
-  if (!inversion) return modules
+function withInversion(modules: ConfigData["modules"], picked: ModuleType | undefined): ConfigData["modules"] {
+  // Only picking a module type sets the inversions; other changes to the properties leave them alone.
+  if (!picked) return modules
+  // An inversion the module type doesn't give is turned off.
+  const inversion: Partial<NonNullable<ModuleType["inversion"]>> = picked.inversion ?? {}
   const set = (module: ModuleConfigData) => ({
     ...module,
-    // Each inversion is only set where the module type gives one; otherwise it's left as it is.
     inverted: {
       ...module.inverted,
-      angle: inversion.angleMotor ?? module.inverted.angle,
-      drive: inversion.driveMotor ?? module.inverted.drive,
+      angle: inversion.angleMotor ?? false,
+      drive: inversion.driveMotor ?? false,
     },
-    absoluteEncoderInverted: inversion.absoluteEncoder ?? module.absoluteEncoderInverted,
+    absoluteEncoderInverted: inversion.absoluteEncoder ?? false,
   })
   return {
     frontleft: set(modules.frontleft),
@@ -276,7 +278,7 @@ export default function Home() {
                   setConfig({
                     ...config,
                     physicalproperties: updated,
-                    modules: withInversion(config.modules, pickedModuleType?.inversion),
+                    modules: withInversion(config.modules, pickedModuleType),
                   })
                 }
               />

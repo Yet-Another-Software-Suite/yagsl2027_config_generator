@@ -35,7 +35,7 @@ export interface ModuleType {
    * The drive motor inversion is the same on every module, as YAGSL's guide lines them all up the same way: facing
    * forward, bevel gears to the robot's left. CTRE's swerve generator lines the modules up pointing inside instead, so
    * its kInvertRightSide is the right modules lined up as YAGSL does, and its kInvertLeftSide the opposite of that;
-   * the drive inversion here is CTRE's right side. Any inversion left out is left as it is when the type is picked.
+   * the drive inversion here is CTRE's right side. Any inversion left out is turned off when the type is picked.
    * - SDS MK4 and MK4i: SDS's swerve library (SdsModuleConfigurations), which inverts the MK4i's steer motor and not
    *   the MK4's, leaves the CANcoder counterclockwise positive, and inverts the drive motor on both (clockwise
    *   positive). Its template lines the wheels up with "the bevel gear on the sides of each wheel ... pointing to the
