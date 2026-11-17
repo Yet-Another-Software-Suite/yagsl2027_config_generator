@@ -30,9 +30,13 @@ function withInversion(modules: ConfigData["modules"], inversion: ModuleType["in
   if (!inversion) return modules
   const set = (module: ModuleConfigData) => ({
     ...module,
-    // The drive inversion is only set where the module type gives one; otherwise it's left as it is.
-    inverted: { ...module.inverted, angle: inversion.angleMotor, drive: inversion.driveMotor ?? module.inverted.drive },
-    absoluteEncoderInverted: inversion.absoluteEncoder,
+    // Each inversion is only set where the module type gives one; otherwise it's left as it is.
+    inverted: {
+      ...module.inverted,
+      angle: inversion.angleMotor ?? module.inverted.angle,
+      drive: inversion.driveMotor ?? module.inverted.drive,
+    },
+    absoluteEncoderInverted: inversion.absoluteEncoder ?? module.absoluteEncoderInverted,
   })
   return {
     frontleft: set(modules.frontleft),

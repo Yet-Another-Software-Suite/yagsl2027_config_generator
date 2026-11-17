@@ -29,6 +29,9 @@ import {
 
 const CUSTOM = "custom"
 
+/** An inversion as the notice shows it: "Not set" where the module type doesn't give one. */
+const onOff = (inverted: boolean | undefined) => (inverted === undefined ? "Not set" : inverted ? "On" : "Off")
+
 interface PhysicalPropertiesProps {
   config: PhysicalPropertiesConfig
   /** The module type is passed along when the change is the user picking one. */
@@ -150,26 +153,22 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
                 {moduleType.inversion !== undefined && (
                   <dl className="my-1 grid w-fit grid-cols-[auto_auto] gap-x-6 gap-y-0.5">
                     <dt>Invert Drive</dt>
-                    <dd className="font-medium text-foreground">
-                      {moduleType.inversion.driveMotor === undefined
-                        ? "Not set"
-                        : moduleType.inversion.driveMotor
-                          ? "On"
-                          : "Off"}
-                    </dd>
+                    <dd className="font-medium text-foreground">{onOff(moduleType.inversion.driveMotor)}</dd>
                     <dt>Invert Angle</dt>
-                    <dd className="font-medium text-foreground">{moduleType.inversion.angleMotor ? "On" : "Off"}</dd>
+                    <dd className="font-medium text-foreground">{onOff(moduleType.inversion.angleMotor)}</dd>
                     <dt>Invert Encoder</dt>
-                    <dd className="font-medium text-foreground">
-                      {moduleType.inversion.absoluteEncoder ? "On" : "Off"}
-                    </dd>
+                    <dd className="font-medium text-foreground">{onOff(moduleType.inversion.absoluteEncoder)}</dd>
                   </dl>
                 )}
                 <p>
                   {moduleType.inversion === undefined
                     ? "Set Invert Drive, Invert Angle and Invert Encoder on each module yourself, using the"
-                    : moduleType.inversion.driveMotor === undefined
-                      ? "Applied to every module. Invert Drive is left as it is, so set it yourself. Check them in the"
+                    : [
+                          moduleType.inversion.driveMotor,
+                          moduleType.inversion.angleMotor,
+                          moduleType.inversion.absoluteEncoder,
+                        ].includes(undefined)
+                      ? "Applied to every module. The ones not set are left as they are, so set those yourself. Check them in the"
                       : "Applied to every module. Check them in the"}{" "}
                   {/* A new tab, since the form isn't saved anywhere and leaving the page would lose it. */}
                   <Link
