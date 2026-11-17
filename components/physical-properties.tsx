@@ -149,12 +149,6 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
               <AlertDescription>
                 {moduleType.inversion !== undefined && (
                   <dl className="my-1 grid w-fit grid-cols-[auto_auto] gap-x-6 gap-y-0.5">
-                    <dt>Invert Angle</dt>
-                    <dd className="font-medium text-foreground">{moduleType.inversion.angleMotor ? "On" : "Off"}</dd>
-                    <dt>Invert Encoder</dt>
-                    <dd className="font-medium text-foreground">
-                      {moduleType.inversion.absoluteEncoder ? "On" : "Off"}
-                    </dd>
                     <dt>Invert Drive</dt>
                     <dd className="font-medium text-foreground">
                       {moduleType.inversion.driveMotor === undefined
@@ -163,11 +157,17 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
                           ? "On"
                           : "Off"}
                     </dd>
+                    <dt>Invert Angle</dt>
+                    <dd className="font-medium text-foreground">{moduleType.inversion.angleMotor ? "On" : "Off"}</dd>
+                    <dt>Invert Encoder</dt>
+                    <dd className="font-medium text-foreground">
+                      {moduleType.inversion.absoluteEncoder ? "On" : "Off"}
+                    </dd>
                   </dl>
                 )}
                 <p>
                   {moduleType.inversion === undefined
-                    ? "Set Invert Angle, Invert Encoder and Invert Drive on each module yourself, using the"
+                    ? "Set Invert Drive, Invert Angle and Invert Encoder on each module yourself, using the"
                     : moduleType.inversion.driveMotor === undefined
                       ? "Applied to every module. Invert Drive is left as it is, so set it yourself. Check them in the"
                       : "Applied to every module. Check them in the"}{" "}
