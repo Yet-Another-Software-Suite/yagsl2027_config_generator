@@ -16,8 +16,8 @@ export function PIDFProperties({ config, onChange }: PIDFPropertiesProps) {
       <div className="space-y-1">
         <h3 className="text-lg font-semibold">PID Properties</h3>
         <p className="text-sm text-muted-foreground">
-          Picking a drive or angle motor fills in PID gains based on ones that worked in simulation. Treat them as a
-          starting point. Gains you type yourself are kept. Feedforward is optional: we encourage tuning it, but PID alone
+          Once most modules (three of the four) use the same drive or angle motor, that motor's PID gains are filled in,
+          based on ones that worked in simulation. Treat them as a starting point. Gains you type yourself are kept. Feedforward is optional: we encourage tuning it, but PID alone
           is commonly more than enough for swerve modules. With drive V at 0, YAGSL works it out from the motor's free
           speed and your gearing.
         </p>

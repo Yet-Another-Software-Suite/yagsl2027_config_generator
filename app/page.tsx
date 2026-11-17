@@ -48,6 +48,15 @@ function withInversion(modules: ConfigData["modules"], picked: ModuleInversion |
   }
 }
 
+/** The drive or angle motor type most of the modules use (three of the four), if there is one. */
+function majorityMotorType(modules: ConfigData["modules"], side: "drive" | "angle"): string | undefined {
+  const counts = new Map<string, number>()
+  for (const module of Object.values(modules)) {
+    counts.set(module[side].type, (counts.get(module[side].type) ?? 0) + 1)
+  }
+  return [...counts].find(([, count]) => count > Object.keys(modules).length / 2)?.[0]
+}
+
 // The form starts with an SDS MK4i L2.
 const DEFAULT_MODULE_TYPE = findModuleType("sds-mk4i")!
 const DEFAULT_MODULE_CONFIGURATION = DEFAULT_MODULE_TYPE.configurations.find((c) => c.id === "l2")!
@@ -120,18 +129,19 @@ export default function Home() {
     },
   })
 
-  // Update one module. Picking a drive or angle motor fills in that motor's default PID gains, unless the user has
-  // already typed their own.
+  // Update one module. The PID gains are shared by every module, so they switch to a motor's defaults only once most
+  // modules (three of the four) use that motor, and not if the user has already typed their own.
   const updateModule = (name: keyof ConfigData["modules"], updated: ModuleConfigData) => {
-    const previous = config.modules[name]
+    const modules = { ...config.modules, [name]: updated }
     let pidfproperties = config.pidfproperties
-    if (updated.drive.type !== previous.drive.type) {
-      pidfproperties = withMotorDefaults(pidfproperties, "drive", updated.drive.type)
+    for (const side of ["drive", "angle"] as const) {
+      const before = majorityMotorType(config.modules, side)
+      const after = majorityMotorType(modules, side)
+      if (after && after !== before) {
+        pidfproperties = withMotorDefaults(pidfproperties, side, after)
+      }
     }
-    if (updated.angle.type !== previous.angle.type) {
-      pidfproperties = withMotorDefaults(pidfproperties, "angle", updated.angle.type)
-    }
-    setConfig({ ...config, modules: { ...config.modules, [name]: updated }, pidfproperties })
+    setConfig({ ...config, modules, pidfproperties })
   }
 
   // Physical properties first, since picking a module type fills in the modules' inversions; PID/FF last.
