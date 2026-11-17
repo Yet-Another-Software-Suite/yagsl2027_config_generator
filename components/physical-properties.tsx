@@ -29,8 +29,8 @@ import {
 
 const CUSTOM = "custom"
 
-/** An inversion as the notice shows it: "Not set" where the module type doesn't give one. */
-const onOff = (inverted: boolean | undefined) => (inverted === undefined ? "Not set" : inverted ? "On" : "Off")
+/** An inversion as the notice shows it: one the module type doesn't give is turned off, so it shows "Off". */
+const onOff = (inverted: boolean | undefined) => (inverted ? "On" : "Off")
 
 interface PhysicalPropertiesProps {
   config: PhysicalPropertiesConfig
