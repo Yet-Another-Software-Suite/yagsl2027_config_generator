@@ -1,6 +1,7 @@
 "use client"
 
 import { Label } from "@/components/ui/label"
+import { CanbusField } from "@/components/canbus-field"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -10,8 +11,6 @@ import type { SwervedriveConfig } from "@/lib/types"
 import {
   GYRO_AXES,
   GYRO_CONNECTIONS,
-  canbusError,
-  canbusPlaceholder,
   USB_PORTS,
   gyroConnection,
   gyroName,
@@ -37,7 +36,6 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
   // Internal gyros (e.g. the Systemcore's onboard IMU) aren't on CAN, so YAGSL ignores the ID and bus.
   const usesUsb = gyroConnection(config.gyro.type) === "usb"
   const usesCan = !isCustom && !usesUsb && !config.gyro.type.endsWith("_internal")
-  const gyroCanbusError = canbusError(config.gyro.type, config.gyro.canbus)
   // Recommend calibrating the gyro when its heading is read from another axis.
   const offYaw = !isCustom && config.gyroAxis !== "yaw"
 
@@ -121,22 +119,12 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="gyro-canbus">CAN Bus</Label>
-                <Input
-                  id="gyro-canbus"
-                  value={config.gyro.canbus}
-                  placeholder={canbusPlaceholder(config.gyro.type)}
-                  aria-invalid={gyroCanbusError ? true : undefined}
-                  onChange={(e) =>
-                    onChange({
-                      ...config,
-                      gyro: { ...config.gyro, canbus: e.target.value },
-                    })
-                  }
-                />
-                {gyroCanbusError && <p className="text-xs text-destructive">{gyroCanbusError}</p>}
-              </div>
+              <CanbusField
+                id="gyro-canbus"
+                deviceType={config.gyro.type}
+                canbus={config.gyro.canbus}
+                onChange={(canbus) => onChange({ ...config, gyro: { ...config.gyro, canbus } })}
+              />
             </>
           )}
 

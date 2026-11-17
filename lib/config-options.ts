@@ -196,10 +196,6 @@ export function isCTRE(deviceType: string) {
 
 // YAGSL reads every device's canbus the same way: empty for the Systemcore CAN bus can_s0, or the bus number, such as
 // "1" for can_s1 ("5" to "24" are the Motioncore CAN buses can_d0 to can_d19). Only CTRE devices take anything else.
-export function canbusPlaceholder(deviceType: string) {
-  return isCTRE(deviceType) ? "Default (can_s0), bus number, or CANivore name" : "Default (can_s0), or bus number"
-}
-
 export function canbusError(deviceType: string, canbus: string): string | null {
   const value = canbus.trim()
   if (value === "") return null

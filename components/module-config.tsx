@@ -1,6 +1,7 @@
 "use client"
 
 import { Label } from "@/components/ui/label"
+import { CanbusField } from "@/components/canbus-field"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -18,8 +19,6 @@ import {
   motorsFor,
   splitMotorType,
   attachedEncoderWarning,
-  canbusError,
-  canbusPlaceholder,
 } from "@/lib/config-options"
 import { selectAllOnFocus } from "@/lib/select-on-focus"
 
@@ -36,9 +35,6 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
   const setEncoderType = (type: string) =>
     onChange({ ...config, absoluteEncoder: { ...config.absoluteEncoder, type: type as any } })
   const encoderWarning = attachedEncoderWarning(config.absoluteEncoder.type, config.angle.type)
-  const driveCanbusError = canbusError(config.drive.type, config.drive.canbus)
-  const angleCanbusError = canbusError(config.angle.type, config.angle.canbus)
-  const encoderCanbusError = canbusError(config.absoluteEncoder.type, config.absoluteEncoder.canbus)
 
   return (
     <div className="space-y-6">
@@ -68,21 +64,11 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>CAN Bus</Label>
-            <Input
-              value={config.drive.canbus}
-              placeholder={canbusPlaceholder(config.drive.type)}
-              aria-invalid={driveCanbusError ? true : undefined}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  drive: { ...config.drive, canbus: e.target.value },
-                })
-              }
-            />
-            {driveCanbusError && <p className="text-xs text-destructive">{driveCanbusError}</p>}
-          </div>
+          <CanbusField
+            deviceType={config.drive.type}
+            canbus={config.drive.canbus}
+            onChange={(canbus) => onChange({ ...config, drive: { ...config.drive, canbus } })}
+          />
         </div>
       </div>
 
@@ -112,21 +98,11 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>CAN Bus</Label>
-            <Input
-              value={config.angle.canbus}
-              placeholder={canbusPlaceholder(config.angle.type)}
-              aria-invalid={angleCanbusError ? true : undefined}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  angle: { ...config.angle, canbus: e.target.value },
-                })
-              }
-            />
-            {angleCanbusError && <p className="text-xs text-destructive">{angleCanbusError}</p>}
-          </div>
+          <CanbusField
+            deviceType={config.angle.type}
+            canbus={config.angle.canbus}
+            onChange={(canbus) => onChange({ ...config, angle: { ...config.angle, canbus } })}
+          />
         </div>
       </div>
 
@@ -212,24 +188,11 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
           )}
 
           {showEncoderFields && !usesChannel && (
-            <div className="space-y-2">
-              <Label>CAN Bus</Label>
-              <Input
-                value={config.absoluteEncoder.canbus}
-                placeholder={canbusPlaceholder(config.absoluteEncoder.type)}
-                aria-invalid={encoderCanbusError ? true : undefined}
-                onChange={(e) =>
-                  onChange({
-                    ...config,
-                    absoluteEncoder: {
-                      ...config.absoluteEncoder,
-                      canbus: e.target.value,
-                    },
-                  })
-                }
-              />
-              {encoderCanbusError && <p className="text-xs text-destructive">{encoderCanbusError}</p>}
-            </div>
+            <CanbusField
+              deviceType={config.absoluteEncoder.type}
+              canbus={config.absoluteEncoder.canbus}
+              onChange={(canbus) => onChange({ ...config, absoluteEncoder: { ...config.absoluteEncoder, canbus } })}
+            />
           )}
         </div>
 
