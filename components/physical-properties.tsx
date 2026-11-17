@@ -163,13 +163,7 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
                 <p>
                   {moduleType.inversion === undefined
                     ? "None are known for this module type, so Invert Drive, Invert Angle and Invert Encoder are turned off. Set them yourself, using the"
-                    : [
-                          moduleType.inversion.driveMotor,
-                          moduleType.inversion.angleMotor,
-                          moduleType.inversion.absoluteEncoder,
-                        ].includes(undefined)
-                      ? "Applied to every module. The ones not set are turned off, so check those yourself. Check them all in the"
-                      : "Applied to every module. Check them in the"}{" "}
+                    : "Applied to every module. Check them in the"}{" "}
                   {/* A new tab, since the form isn't saved anywhere and leaving the page would lose it. */}
                   <Link
                     href="/guide#align"
