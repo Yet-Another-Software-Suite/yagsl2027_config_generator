@@ -43,7 +43,7 @@ export interface ModuleType {
    * - Drive inversions from CTRE's generated files, right side inverted: MK4c 4 of 5, MK4n 51 of 55, MK5i 3 of 3,
    *   MK5n 55 of 59, Swerve X 26 of 28, Swerve X Flipped 57 of 59, Swerve X2S/X2St 24 of 38, Swerve X2 family (X2,
    *   X2i/X2c and X2t share a steering ratio, and both the inverted and standard steer files agree) 55 of 58, Thrifty
-   *   Swerve 7 of 10. Swerve XS: the one file found doesn't invert it. REV's modules run on SPARKs, which CTRE's
+   *   Swerve 7 of 10. Swerve XS: the one file found doesn't invert it, and the YAGSL maintainer says its absolute encoder is inverted. REV's modules run on SPARKs, which CTRE's
    *   generator doesn't cover.
    * - REV MAXSwerve: REV's MAXSwerve template inverts the turning encoder, "since the output shaft rotates in the
    *   opposite direction of the steering motor", and not the motor.
@@ -227,7 +227,7 @@ export const MODULE_TYPES: ModuleType[] = [
   },
   {
     id: "wcp-swerve-xs",
-    inversion: { driveMotor: false, source: "CTRE's swerve generator" },
+    inversion: { driveMotor: false, absoluteEncoder: true, source: "CTRE's swerve generator" },
     vendor: "WCP",
     name: "Swerve XS",
     wheelDiameter: 3,
