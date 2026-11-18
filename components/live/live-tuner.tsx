@@ -17,7 +17,7 @@ const SETPOINTS: Record<TuneMode, { presets: number[]; unit: string; step: numbe
   drive: { presets: [0, 0.1, 0.5, 1, 2], unit: "m/s", step: 0.1, min: -5, max: 5, auto: [0, 1] },
 }
 
-/** A number box that shows the robot's value until you type, and sends yours on Enter or when you leave it. */
+/** A number box that shows the robot's value until you type, and sends yours when you leave it (or on Enter). */
 export function NumberField({
   value,
   onCommit,
@@ -371,8 +371,8 @@ export function LiveTunerControls({ mode }: { mode: TuneMode }) {
         <LiveGains mode={mode} />
         <ClosedLoopPeriod mode={mode} />
         <p className="text-xs text-muted-foreground">
-          Type a gain and press Enter: the robot uses it on its next loop. Nothing is saved until you download the
-          gains.
+          Type a gain, then click away: the robot uses it on its next loop. Don&apos;t press Enter, it disables the
+          robot from the Driver Station. Nothing is saved until you download the gains.
         </p>
       </div>
     </div>
