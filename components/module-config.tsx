@@ -3,6 +3,7 @@
 import { Label } from "@/components/ui/label"
 import { CanbusField } from "@/components/canbus-field"
 import { Input } from "@/components/ui/input"
+import { NumberInput } from "@/components/ui/number-input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
@@ -199,15 +200,9 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
         <div className="grid gap-4 md:grid-cols-2 mt-4">
           <div className="space-y-2">
             <Label>Offset (degrees)</Label>
-            <Input
-              type="number"
+            <NumberInput
               value={config.absoluteEncoderOffset}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  absoluteEncoderOffset: Number(e.target.value),
-                })
-              }
+              onValueChange={(absoluteEncoderOffset) => onChange({ ...config, absoluteEncoderOffset })}
             />
           </div>
 
@@ -350,29 +345,17 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <Label>Front</Label>
-            <Input
-              type="number"
+            <NumberInput
               value={config.location.front}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  location: { ...config.location, front: Number(e.target.value) },
-                })
-              }
+              onValueChange={(front) => onChange({ ...config, location: { ...config.location, front } })}
             />
           </div>
 
           <div className="space-y-2">
             <Label>Left</Label>
-            <Input
-              type="number"
+            <NumberInput
               value={config.location.left}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  location: { ...config.location, left: Number(e.target.value) },
-                })
-              }
+              onValueChange={(left) => onChange({ ...config, location: { ...config.location, left } })}
             />
           </div>
         </div>
