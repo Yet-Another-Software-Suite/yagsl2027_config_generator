@@ -15,7 +15,7 @@ import { ModuleConfig } from "@/components/module-config"
 import { PhysicalProperties } from "@/components/physical-properties"
 import { PIDFProperties } from "@/components/pidf-properties"
 import { generateZip, uploadZip } from "@/lib/zip-utils"
-import { attachedEncoderError } from "@/lib/config-options"
+import { moduleEncoderError } from "@/lib/config-options"
 import { useToast } from "@/hooks/use-toast"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { PrintButton } from "@/components/print-button"
@@ -166,15 +166,16 @@ export default function Home() {
   }
 
   const handleDownload = async () => {
-    // YAGSL fails at startup with an absolute encoder the angle motor controller can't read, so don't download one.
+    // Don't download an absolute encoder setup YAGSL can't use: an encoder the angle motor controller can't read, or a
+    // gear ratio that turns the encoder more than once per module turn.
     const badModules = (["frontleft", "frontright", "backleft", "backright"] as const).filter(
-      (name) => attachedEncoderError(config.modules[name].absoluteEncoder.type, config.modules[name].angle.type) !== null,
+      (name) => moduleEncoderError(config.modules[name]) !== null,
     )
     if (badModules.length > 0) {
       setActiveTab(badModules[0])
       toast({
         title: "Fix the absolute encoder first",
-        description: `${badModules.map((name) => MODULE_NAMES[name]).join(", ")}: the angle motor controller can't read this absolute encoder. Pick another encoder or connection.`,
+        description: `${badModules.map((name) => MODULE_NAMES[name]).join(", ")}: ${moduleEncoderError(config.modules[badModules[0]])}`,
         variant: "destructive",
       })
       return

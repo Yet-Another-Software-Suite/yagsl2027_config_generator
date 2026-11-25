@@ -1,5 +1,7 @@
 "use client"
 
+import { useState } from "react"
+
 import { Label } from "@/components/ui/label"
 import { CanbusField } from "@/components/canbus-field"
 import { Input } from "@/components/ui/input"
@@ -20,6 +22,7 @@ import {
   motorsFor,
   splitMotorType,
   attachedEncoderError,
+  absoluteEncoderGearRatioError,
   hasDataPort,
 } from "@/lib/config-options"
 import { selectAllOnFocus } from "@/lib/select-on-focus"
@@ -314,6 +317,8 @@ function AdvancedSection({
   const idPrefix = moduleName.toLowerCase().replace(/\s+/g, "-")
   const overridden = config.gearing !== undefined
   const encoderGeared = config.absoluteEncoderGearRatio !== undefined && config.absoluteEncoderGearRatio !== 1
+  const gearRatioError = absoluteEncoderGearRatioError(config.absoluteEncoderGearRatio)
+  const [open, setOpen] = useState(false)
   // What's set in here, so it shows while the section is collapsed.
   const advancedNote = [overridden && "gearing overridden", encoderGeared && "encoder gear ratio set"]
     .filter(Boolean)
@@ -322,7 +327,8 @@ function AdvancedSection({
   // inversions it would give are left alone.
   const preset = useModulePreset(config.gearing ?? sharedGearing, (gearing) => onChange({ ...config, gearing }))
   return (
-    <Collapsible>
+    // Stays open while the gear ratio is invalid, so the error shows when the download is refused because of it.
+    <Collapsible open={open || gearRatioError !== null} onOpenChange={setOpen}>
       <CollapsibleTrigger className="group flex w-full items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">
         <ChevronRight className="h-4 w-4 transition-transform group-data-[state=open]:rotate-90" aria-hidden="true" />
         Advanced
@@ -375,8 +381,11 @@ function AdvancedSection({
               <Input
                 id={`${idPrefix}-absolute-encoder-gear-ratio`}
                 aria-describedby={`${idPrefix}-absolute-encoder-gear-ratio-description`}
+                aria-invalid={gearRatioError !== null}
                 type="number"
                 step="0.01"
+                min="0"
+                max="1"
                 placeholder="1 (default)"
                 value={config.absoluteEncoderGearRatio ?? ""}
                 onChange={(e) =>
@@ -387,9 +396,11 @@ function AdvancedSection({
                 }
               />
               <p id={`${idPrefix}-absolute-encoder-gear-ratio-description`} className="text-sm text-muted-foreground">
-                Only for an absolute encoder geared to the module rather than turning with it. Leave it empty when the
-                encoder turns once for each turn of the module.
+                How many times the absolute encoder turns for each turn of the module, from more than 0 up to 1. An
+                absolute encoder only reads one rotation, so it can&apos;t turn faster than the module. Leave it empty
+                when the encoder turns with the module.
               </p>
+              {gearRatioError && <p className="text-xs text-destructive">{gearRatioError}</p>}
             </div>
           </div>
         </div>

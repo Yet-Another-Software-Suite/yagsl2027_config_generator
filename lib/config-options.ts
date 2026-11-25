@@ -245,12 +245,38 @@ export function attachedEncoderError(encoderType: string, angleMotorType: string
   return null
 }
 
-/** The modules whose absolute encoder their angle motor controller can't read, each with why. */
+// Why YAGSL can't use this absolute encoder gear ratio, or null if it can. The encoder turns X times for each turn of
+// the module, and an absolute encoder only reads one rotation, so above 1 it can't tell the module's turns apart.
+export function absoluteEncoderGearRatioError(gearRatio: number | undefined): string | null {
+  if (gearRatio === undefined) return null
+  if (!Number.isFinite(gearRatio) || gearRatio <= 0) return "The gear ratio has to be more than 0."
+  if (gearRatio > 1) {
+    return "The absolute encoder would turn more than once for each turn of the module, and it only reads one rotation. Use a ratio of 1 or less."
+  }
+  return null
+}
+
+/** Why YAGSL can't use this module's absolute encoder setup, or null if it can. */
+export function moduleEncoderError(module: {
+  angle: { type: string }
+  absoluteEncoder: { type: string }
+  absoluteEncoderGearRatio?: number
+}): string | null {
+  return (
+    attachedEncoderError(module.absoluteEncoder.type, module.angle.type) ??
+    absoluteEncoderGearRatioError(module.absoluteEncoderGearRatio)
+  )
+}
+
+/** The modules whose absolute encoder setup YAGSL can't use, each with why. */
 export function moduleEncoderErrors(
-  modules: Record<string, { angle: { type: string }; absoluteEncoder: { type: string } }>,
+  modules: Record<
+    string,
+    { angle: { type: string }; absoluteEncoder: { type: string }; absoluteEncoderGearRatio?: number }
+  >,
 ): string[] {
   return Object.entries(modules).flatMap(([name, module]) => {
-    const error = attachedEncoderError(module.absoluteEncoder.type, module.angle.type)
+    const error = moduleEncoderError(module)
     return error ? [`${name}: ${error}`] : []
   })
 }
