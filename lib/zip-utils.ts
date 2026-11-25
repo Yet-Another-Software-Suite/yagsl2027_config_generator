@@ -1,6 +1,7 @@
 import JSZip from "jszip"
 import FileSaver from "file-saver"
 import type { ConfigData, ModuleConfigData } from "./types"
+import { moduleEncoderErrors } from "./config-options"
 
 export const SCHEMA_BASE_URL = "https://config.yagsl.com/schemas"
 
@@ -35,6 +36,10 @@ function cleanModuleForExport(module: ModuleConfigData): any {
 }
 
 export async function generateZip(config: ConfigData) {
+  const encoderErrors = moduleEncoderErrors(config.modules)
+  if (encoderErrors.length > 0) {
+    throw new Error(encoderErrors.join(" "))
+  }
   const zip = new JSZip()
 
   const swervedriveWithSchema = {

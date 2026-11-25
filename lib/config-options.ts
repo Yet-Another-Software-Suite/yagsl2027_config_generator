@@ -224,14 +224,33 @@ export function canbusError(deviceType: string, canbus: string): string | null {
   return `Use the CAN bus number or its CANPort name, such as "1" or "CAN_S1" for CAN_S1, or leave it empty for CAN_S0.`
 }
 
-// Warns about attached absolute encoders the angle motor controller can't read: the Thrifty 10 pin encoder only
-// plugs into a Nova, and the Nova has no 5V analog input.
-export function attachedEncoderWarning(encoderType: string, angleMotorType: string): string | null {
+/** Whether the motor controller has a data port YAGSL reads an absolute encoder through: a SPARK MAX, SPARK Flex or Nova. */
+export function hasDataPort(motorType: string) {
+  return /^(sparkmax|sparkflex|nova)_/.test(motorType)
+}
+
+// Why YAGSL can't use an absolute encoder plugged into this angle motor controller, or null if it can. YAGSL fails at
+// startup with these, so the form disables them and the download is refused while a module has one.
+export function attachedEncoderError(encoderType: string, angleMotorType: string): string | null {
+  if (!encoderType.endsWith("_attached")) return null
+  if (!hasDataPort(angleMotorType)) {
+    return "Only a SPARK MAX, SPARK Flex or Thrifty Nova angle motor controller reads an absolute encoder plugged into it. Use a CAN or SmartIO absolute encoder instead."
+  }
   if (encoderType === "thrifty_attached" && !isNova(angleMotorType)) {
-    return "The Thrifty Absolute Encoder only plugs into a Thrifty Nova angle motor controller."
+    return "The Thrifty Absolute Encoder only plugs into a Thrifty Nova angle motor controller. Wire it to SmartIO instead."
   }
   if (encoderType === "analog5v_attached" && isNova(angleMotorType)) {
     return "A Thrifty Nova can't read a 5 V analog encoder. Use Generic analog, 3.3 V instead."
   }
   return null
+}
+
+/** The modules whose absolute encoder their angle motor controller can't read, each with why. */
+export function moduleEncoderErrors(
+  modules: Record<string, { angle: { type: string }; absoluteEncoder: { type: string } }>,
+): string[] {
+  return Object.entries(modules).flatMap(([name, module]) => {
+    const error = attachedEncoderError(module.absoluteEncoder.type, module.angle.type)
+    return error ? [`${name}: ${error}`] : []
+  })
 }

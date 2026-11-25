@@ -19,7 +19,8 @@ import {
   motorName,
   motorsFor,
   splitMotorType,
-  attachedEncoderWarning,
+  attachedEncoderError,
+  hasDataPort,
 } from "@/lib/config-options"
 import { selectAllOnFocus } from "@/lib/select-on-focus"
 
@@ -35,7 +36,7 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
   const showEncoderFields = !isAttached
   const setEncoderType = (type: string) =>
     onChange({ ...config, absoluteEncoder: { ...config.absoluteEncoder, type: type as any } })
-  const encoderWarning = attachedEncoderWarning(config.absoluteEncoder.type, config.angle.type)
+  const encoderError = attachedEncoderError(config.absoluteEncoder.type, config.angle.type)
 
   return (
     <div className="space-y-6">
@@ -124,7 +125,11 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
               </SelectTrigger>
               <SelectContent>
                 {ENCODER_CONNECTIONS.map((connection) => (
-                  <SelectItem key={connection.id} value={connection.id}>
+                  <SelectItem
+                    key={connection.id}
+                    value={connection.id}
+                    disabled={connection.id === "attached" && !hasDataPort(config.angle.type)}
+                  >
                     {connection.name}
                   </SelectItem>
                 ))}
@@ -140,13 +145,13 @@ export function ModuleConfig({ moduleName, config, onChange }: ModuleConfigProps
               </SelectTrigger>
               <SelectContent>
                 {encodersFor(encoderConnection(config.absoluteEncoder.type)).map((type) => (
-                  <SelectItem key={type} value={type}>
+                  <SelectItem key={type} value={type} disabled={attachedEncoderError(type, config.angle.type) !== null}>
                     {encoderName(type)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {encoderWarning && <p className="text-xs text-destructive">{encoderWarning}</p>}
+            {encoderError && <p className="text-xs text-destructive">{encoderError}</p>}
           </div>
 
           {showEncoderFields && !usesChannel && (
