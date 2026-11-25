@@ -1,37 +1,14 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import { Info, TriangleAlert } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import type { PhysicalPropertiesConfig } from "@/lib/types"
-import {
-  type ModuleConfiguration,
-  type ModuleInversion,
-  type ModuleType,
-  MODULE_TYPES,
-  MODULE_VENDORS,
-  findModuleType,
-  fitsModuleConfiguration,
-  fitsModuleType,
-  matchModuleConfiguration,
-  matchModuleType,
-  moduleInversion,
-} from "@/lib/module-presets"
-
-const CUSTOM = "custom"
+import { type ModuleInversion, moduleInversion } from "@/lib/module-presets"
+import { GearingInputs, ModulePresetSelects, useModulePreset } from "@/components/gearing-fields"
 
 /** An inversion as the notice shows it: one the module type doesn't give is turned off, so it shows "Off". */
 const onOff = (inverted: boolean | undefined) => (inverted ? "On" : "Off")
@@ -43,66 +20,11 @@ interface PhysicalPropertiesProps {
 }
 
 export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps) {
-  const { drive, angle } = config.gearing
-  // The module type picked last, while the values still fit it: MK4 and MK4c, for example, share their wheel and
-  // angle gear ratio, so the values alone can't always tell them apart.
-  const [pickedTypeId, setPickedTypeId] = useState<string>()
-  const picked = findModuleType(pickedTypeId)
-  const moduleType =
-    picked && fitsModuleType(picked, drive.diameter, angle.gearRatio)
-      ? picked
-      : matchModuleType(drive.gearRatio, drive.diameter, angle.gearRatio)
-  // Likewise the configuration picked last: the EasySwerve's motor mountings share a drive gear ratio.
-  const [pickedConfigurationId, setPickedConfigurationId] = useState<string>()
-  // The configuration of this module type picked last, if it still fits the drive gear ratio, else the one that does.
-  const configurationFor = (type: ModuleType): ModuleConfiguration | undefined => {
-    const picked = type.configurations.find((c) => c.id === pickedConfigurationId)
-    return picked && fitsModuleConfiguration(picked, drive.gearRatio)
-      ? picked
-      : matchModuleConfiguration(type, drive.gearRatio)
-  }
-  const moduleConfiguration = moduleType && configurationFor(moduleType)
+  const preset = useModulePreset(config.gearing, (gearing, pickedInversion) =>
+    onChange({ ...config, gearing }, pickedInversion),
+  )
+  const { moduleType, moduleConfiguration } = preset
   const inversion = moduleType && moduleInversion(moduleType, moduleConfiguration)
-
-  const setGearing = (
-    driveGearRatio: number,
-    wheelDiameter: number,
-    angleGearRatio: number,
-    pickedInversion?: ModuleInversion,
-  ) =>
-    onChange(
-      {
-        ...config,
-        gearing: {
-          ...config.gearing,
-          drive: { ...drive, gearRatio: driveGearRatio, diameter: wheelDiameter },
-          angle: { ...angle, gearRatio: angleGearRatio },
-        },
-      },
-      pickedInversion,
-    )
-
-  const pickModuleType = (id: string) => {
-    const type = findModuleType(id)
-    if (!type) return
-    setPickedTypeId(id)
-    // Keep the configuration if this module type has it, else start from its first one.
-    const configuration = configurationFor(type) ?? type.configurations[0]
-    setPickedConfigurationId(configuration.id)
-    setGearing(configuration.driveGearRatio, type.wheelDiameter, type.angleGearRatio, moduleInversion(type, configuration))
-  }
-
-  const pickModuleConfiguration = (id: string) => {
-    const configuration = moduleType?.configurations.find((c) => c.id === id)
-    if (!moduleType || !configuration) return
-    setPickedConfigurationId(id)
-    setGearing(
-      configuration.driveGearRatio,
-      moduleType.wheelDiameter,
-      moduleType.angleGearRatio,
-      moduleInversion(moduleType, configuration),
-    )
-  }
 
   return (
     <div className="space-y-6">
@@ -110,54 +32,7 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
 
       {/* Module preset */}
       <div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="module-type">Module Type</Label>
-            <Select value={moduleType?.id ?? CUSTOM} onValueChange={pickModuleType}>
-              <SelectTrigger id="module-type" className="w-full" aria-describedby="module-type-description">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={CUSTOM} disabled>
-                  Custom
-                </SelectItem>
-                {MODULE_VENDORS.map((vendor) => (
-                  <SelectGroup key={vendor}>
-                    <SelectLabel>{vendor}</SelectLabel>
-                    {MODULE_TYPES.filter((type) => type.vendor === vendor).map((type) => (
-                      <SelectItem key={type.id} value={type.id}>
-                        {type.vendor} {type.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="module-configuration">Module Configuration</Label>
-            <Select
-              value={moduleConfiguration?.id ?? CUSTOM}
-              onValueChange={pickModuleConfiguration}
-              disabled={!moduleType}
-            >
-              <SelectTrigger id="module-configuration" className="w-full" aria-describedby="module-type-description">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={CUSTOM} disabled>
-                  Custom
-                </SelectItem>
-                {moduleType?.configurations.map((configuration) => (
-                  <SelectItem key={configuration.id} value={configuration.id}>
-                    {configuration.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        <ModulePresetSelects preset={preset} idPrefix="properties" describedBy="module-type-description" />
         <div id="module-type-description" className="mt-2 max-w-prose space-y-3">
           <p className="text-sm text-muted-foreground">
             The module type fills in the wheel diameter and angle gear ratio below, and its configuration the drive gear
@@ -230,87 +105,7 @@ export function PhysicalProperties({ config, onChange }: PhysicalPropertiesProps
 
       <Separator />
 
-      {/* Drive Gearing */}
-      <div>
-        <h4 className="text-sm font-medium mb-3 text-muted-foreground">Drive Gearing</h4>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label>Gear Ratio (X:1)</Label>
-            <Input
-              type="number"
-              step="0.01"
-              value={config.gearing.drive.gearRatio}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  gearing: {
-                    ...config.gearing,
-                    drive: {
-                      ...config.gearing.drive,
-                      gearRatio: Number(e.target.value),
-                    },
-                  },
-                })
-              }
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="wheel-diameter">Wheel Diameter (inches)</Label>
-            <Input
-              id="wheel-diameter"
-              aria-describedby="wheel-diameter-description"
-              type="number"
-              step="0.01"
-              value={config.gearing.drive.diameter}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  gearing: {
-                    ...config.gearing,
-                    drive: {
-                      ...config.gearing.drive,
-                      diameter: Number(e.target.value),
-                    },
-                  },
-                })
-              }
-            />
-            <p id="wheel-diameter-description" className="text-sm text-muted-foreground">
-              Measure your wheels: worn tread is smaller than the nominal diameter.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* Angle Gearing */}
-      <div>
-        <h4 className="text-sm font-medium mb-3 text-muted-foreground">Angle Gearing</h4>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label>Gear Ratio (X:1)</Label>
-            <Input
-              type="number"
-              step="0.01"
-              value={config.gearing.angle.gearRatio}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  gearing: {
-                    ...config.gearing,
-                    angle: {
-                      ...config.gearing.angle,
-                      gearRatio: Number(e.target.value),
-                    },
-                  },
-                })
-              }
-            />
-          </div>
-        </div>
-      </div>
+      <GearingInputs gearing={config.gearing} onChange={(gearing) => onChange({ ...config, gearing })} idPrefix="properties" />
 
       <Separator />
 

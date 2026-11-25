@@ -322,6 +322,7 @@ export default function Home() {
             <TabsContent value="frontleft">
               <ModuleConfig
                 moduleName="Front Left"
+                sharedGearing={config.physicalproperties.gearing}
                 config={config.modules.frontleft}
                 onChange={(updated) => updateModule("frontleft", updated)}
               />
@@ -330,6 +331,7 @@ export default function Home() {
             <TabsContent value="frontright">
               <ModuleConfig
                 moduleName="Front Right"
+                sharedGearing={config.physicalproperties.gearing}
                 config={config.modules.frontright}
                 onChange={(updated) => updateModule("frontright", updated)}
               />
@@ -338,6 +340,7 @@ export default function Home() {
             <TabsContent value="backleft">
               <ModuleConfig
                 moduleName="Back Left"
+                sharedGearing={config.physicalproperties.gearing}
                 config={config.modules.backleft}
                 onChange={(updated) => updateModule("backleft", updated)}
               />
@@ -346,6 +349,7 @@ export default function Home() {
             <TabsContent value="backright">
               <ModuleConfig
                 moduleName="Back Right"
+                sharedGearing={config.physicalproperties.gearing}
                 config={config.modules.backright}
                 onChange={(updated) => updateModule("backright", updated)}
               />
