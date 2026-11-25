@@ -319,7 +319,8 @@ export default function Home() {
               />
             </TabsContent>
 
-            <TabsContent value="frontleft">
+            {/* Kept mounted like Physical Properties, so a gearing override remembers its module type and configuration. */}
+            <TabsContent value="frontleft" forceMount className="data-[state=inactive]:hidden">
               <ModuleConfig
                 moduleName="Front Left"
                 sharedGearing={config.physicalproperties.gearing}
@@ -328,7 +329,7 @@ export default function Home() {
               />
             </TabsContent>
 
-            <TabsContent value="frontright">
+            <TabsContent value="frontright" forceMount className="data-[state=inactive]:hidden">
               <ModuleConfig
                 moduleName="Front Right"
                 sharedGearing={config.physicalproperties.gearing}
@@ -337,7 +338,7 @@ export default function Home() {
               />
             </TabsContent>
 
-            <TabsContent value="backleft">
+            <TabsContent value="backleft" forceMount className="data-[state=inactive]:hidden">
               <ModuleConfig
                 moduleName="Back Left"
                 sharedGearing={config.physicalproperties.gearing}
@@ -346,7 +347,7 @@ export default function Home() {
               />
             </TabsContent>
 
-            <TabsContent value="backright">
+            <TabsContent value="backright" forceMount className="data-[state=inactive]:hidden">
               <ModuleConfig
                 moduleName="Back Right"
                 sharedGearing={config.physicalproperties.gearing}
