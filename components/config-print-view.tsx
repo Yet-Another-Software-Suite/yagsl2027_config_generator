@@ -154,6 +154,9 @@ function ModuleSection({ name, file, config }: { name: string; file: string; con
           if (!isAttached && !usesChannel) fields.push({ label: "Encoder CAN ID", value: config.absoluteEncoder.id })
           if (usesChannel) fields.push({ label: "Encoder channel", value: config.absoluteEncoder.channel })
           fields.push({ label: "Offset (deg)", value: config.absoluteEncoderOffset })
+          if (config.absoluteEncoderGearRatio !== undefined && config.absoluteEncoderGearRatio !== 1) {
+            fields.push({ label: "Encoder gear ratio (X:1)", value: config.absoluteEncoderGearRatio })
+          }
           return fields
         })()}
       />

@@ -36,6 +36,8 @@ export interface ModuleConfigData {
   absoluteEncoder: AbsoluteEncoderConfig
   absoluteEncoderOffset: number
   absoluteEncoderInverted: boolean
+  /** Reduction from the module to the absolute encoder, X in X:1. Left out of the file when it isn't set, which is 1. */
+  absoluteEncoderGearRatio?: number
   location: {
     front: number
     left: number

@@ -298,7 +298,7 @@ export function ModuleConfig({ moduleName, config, sharedGearing, onChange }: Mo
 
 /**
  * Settings most robots leave alone, collapsed until opened: the gearing override for a module that isn't the same as
- * the others.
+ * the others, and the absolute encoder's gear ratio.
  */
 function AdvancedSection({
   moduleName,
@@ -313,6 +313,11 @@ function AdvancedSection({
 }) {
   const idPrefix = moduleName.toLowerCase().replace(/\s+/g, "-")
   const overridden = config.gearing !== undefined
+  const encoderGeared = config.absoluteEncoderGearRatio !== undefined && config.absoluteEncoderGearRatio !== 1
+  // What's set in here, so it shows while the section is collapsed.
+  const advancedNote = [overridden && "gearing overridden", encoderGeared && "encoder gear ratio set"]
+    .filter(Boolean)
+    .join(", ")
   // Shows the override's module type and configuration; picking one here only changes this module's gearing, so the
   // inversions it would give are left alone.
   const preset = useModulePreset(config.gearing ?? sharedGearing, (gearing) => onChange({ ...config, gearing }))
@@ -321,7 +326,7 @@ function AdvancedSection({
       <CollapsibleTrigger className="group flex w-full items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">
         <ChevronRight className="h-4 w-4 transition-transform group-data-[state=open]:rotate-90" aria-hidden="true" />
         Advanced
-        {overridden && <span className="font-normal">(gearing overridden)</span>}
+        {advancedNote && <span className="font-normal">({advancedNote})</span>}
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-4 space-y-6">
         <div>
@@ -359,6 +364,35 @@ function AdvancedSection({
             />
           </>
         )}
+
+        <Separator />
+
+        <div>
+          <h4 className="text-sm font-medium mb-3 text-muted-foreground">Absolute Encoder Gearing</h4>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor={`${idPrefix}-absolute-encoder-gear-ratio`}>Gear Ratio (X:1)</Label>
+              <Input
+                id={`${idPrefix}-absolute-encoder-gear-ratio`}
+                aria-describedby={`${idPrefix}-absolute-encoder-gear-ratio-description`}
+                type="number"
+                step="0.01"
+                placeholder="1 (default)"
+                value={config.absoluteEncoderGearRatio ?? ""}
+                onChange={(e) =>
+                  onChange({
+                    ...config,
+                    absoluteEncoderGearRatio: e.target.value === "" ? undefined : Number(e.target.value),
+                  })
+                }
+              />
+              <p id={`${idPrefix}-absolute-encoder-gear-ratio-description`} className="text-sm text-muted-foreground">
+                Only for an absolute encoder geared to the module rather than turning with it. Leave it empty when the
+                encoder turns once for each turn of the module.
+              </p>
+            </div>
+          </div>
+        </div>
       </CollapsibleContent>
     </Collapsible>
   )
