@@ -130,6 +130,22 @@ function Section({ title, file, children }: { title: string; file?: string; chil
   )
 }
 
+// a module's Advanced section, as on screen: set apart and marked optional, since most robots leave it blank
+function AdvancedBox({ children }: { children: ReactNode }) {
+  return (
+    <div className="space-y-3 rounded border border-dashed border-border p-3">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Advanced (optional)</p>
+        <p className="text-xs text-muted-foreground">
+          Leave blank unless this module is different from the others. Without a gearing override, this module uses the
+          Physical Properties gearing (physicalproperties.json).
+        </p>
+      </div>
+      {children}
+    </div>
+  )
+}
+
 function ModuleSection({ name, file, config }: { name: string; file: string; config: ModuleConfigData }) {
   const isAttached = config.absoluteEncoder.type.endsWith("_attached")
   const usesChannel = config.absoluteEncoder.type.endsWith("_dio") || config.absoluteEncoder.type.endsWith("_analog")
@@ -154,9 +170,6 @@ function ModuleSection({ name, file, config }: { name: string; file: string; con
           if (!isAttached && !usesChannel) fields.push({ label: "Encoder CAN ID", value: config.absoluteEncoder.id })
           if (usesChannel) fields.push({ label: "Encoder channel", value: config.absoluteEncoder.channel })
           fields.push({ label: "Offset (deg)", value: config.absoluteEncoderOffset })
-          if (config.absoluteEncoderGearRatio !== undefined && config.absoluteEncoderGearRatio !== 1) {
-            fields.push({ label: "Encoder gear ratio (X:1)", value: config.absoluteEncoderGearRatio })
-          }
           return fields
         })()}
       />
@@ -168,24 +181,43 @@ function ModuleSection({ name, file, config }: { name: string; file: string; con
         <BoolChoiceRow label="Invert angle" value={config.inverted.angle} />
       </div>
 
-      {config.gearing ? (
-        <InlineFields
-          fields={[
-            { label: "Drive gear ratio (X:1)", value: config.gearing.drive.gearRatio },
-            { label: "Drive wheel diameter (in)", value: config.gearing.drive.diameter },
-            { label: "Angle gear ratio (X:1)", value: config.gearing.angle.gearRatio },
-          ]}
-        />
-      ) : (
-        <LongField label="Gearing override" value="not set - uses physicalproperties.json" muted />
-      )}
-
       <InlineFields
         fields={[
           { label: "Location front (in)", value: config.location.front },
           { label: "Location left (in)", value: config.location.left },
         ]}
       />
+
+      <AdvancedBox>
+        {config.gearing ? (
+          <InlineFields
+            fields={[
+              { label: "Override drive gear ratio (X:1)", value: config.gearing.drive.gearRatio },
+              { label: "Override wheel diameter (in)", value: config.gearing.drive.diameter },
+              { label: "Override angle gear ratio (X:1)", value: config.gearing.angle.gearRatio },
+            ]}
+          />
+        ) : (
+          <InlineFields
+            fields={[
+              { label: "Override drive gear ratio (X:1)", value: "not set", muted: true },
+              { label: "Override wheel diameter (in)", value: "not set", muted: true },
+              { label: "Override angle gear ratio (X:1)", value: "not set", muted: true },
+            ]}
+          />
+        )}
+        <InlineFields
+          fields={[
+            {
+              label: "Encoder gear ratio (X:1)",
+              ...orDefault(
+                config.absoluteEncoderGearRatio === 1 ? undefined : config.absoluteEncoderGearRatio,
+                "1 (default)",
+              ),
+            },
+          ]}
+        />
+      </AdvancedBox>
     </Section>
   )
 }
