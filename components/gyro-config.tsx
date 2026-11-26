@@ -199,7 +199,7 @@ export function GyroConfig({ config, onChange }: GyroConfigProps) {
                   "    // The gyro's attitude: its yaw is the robot's heading, its roll and pitch feed anti-tipping.",
                   "    .withGyro(myCustomGyro::getRotation3d)",
                   "    .withGyroInverted(true)",
-                  "    // .withGyroOffset(...), .withGyroVelocity(...) are also available",
+                  "    // .withGyroVelocity(...) is also available",
                   "    .withTranslationController(new PIDController(4, 0, 0))",
                   "    .withRotationController(new PIDController(1, 0, 0))",
                   '    .withTelemetry("swerve", new SwerveDriveTelemetryConfig(TelemetryVerbosity.HIGH));',
